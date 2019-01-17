@@ -91,6 +91,7 @@ row before the </tbody></table> line.
   - [Naming Printf-style Functions](#naming-printf-style-functions)
 - [Patterns](#patterns)
   - [Test Tables](#test-tables)
+  - [Functional Options](#functional-options)
   - [Error Wrapping](#error-wrapping)
 
 ## Introduction
@@ -1957,6 +1958,106 @@ duplicate logic, and make it trivial to add new test cases.
 We follow the convention that the slice of structs is referred to as `tests`
 and each test case `tt`. Further, we encourage explicating the input and output
 values for each test case with `give` and `want` prefixes.
+
+### Functional Options
+
+Functional options is a pattern in which you declare an opaque `Option` type
+that records information in some internal struct. You accept a variadic number
+of these options and act upon the full information recorded by the options on
+the internal struct.
+
+Use this pattern for optional arguments in constructors and other public APIs
+that you foresee needing to expand, especially if you already have three or
+more arguments on those functions.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// package db
+
+func Connect(
+  addr string,
+  timeout time.Duration,
+  caching bool,
+) (*Connection, error) {
+  // ...
+}
+
+// Timeout and caching must always be provided,
+// even if the user wants to use the default.
+
+db.Connect(addr, db.DefaultTimeout, db.DefaultCaching)
+db.Connect(addr, newTimeout, db.DefaultCaching)
+db.Connect(addr, db.DefaultTimeout, false /* caching */)
+db.Connect(addr, newTimeout, false /* caching */)
+```
+
+</td><td>
+
+```go
+type connectCfg structs {
+  timeout time.Duration
+  caching bool
+}
+
+type Option func(*connectCfg)
+
+func WithTimeout(t time.Duration) Option {
+  return func(c *connectCfg) {
+    c.timeout = t
+  }
+}
+
+func WithCaching(cache bool) Option {
+  return func(c *connectCfg) {
+    c.caching = cache
+  }
+}
+
+func Connect(
+  addr string,
+  opts ...Option,
+) (*Connection, error) {
+  cfg := connectCfg{
+    timeout: defaultTimeout,
+    caching: defaultCaching,
+  }
+
+  for _, o := range opts {
+    o(&cfg)
+  }
+
+  // ...
+}
+
+// Options must be provided only if needed.
+
+db.Connect(addr)
+db.Connect(addr, db.WithTimeout(newTimeout))
+db.Connect(addr, db.WithCaching(false))
+db.Connect(
+  addr,
+  db.WithCaching(false),
+  db.WithTimeout(newTimeout),
+)
+```
+
+</td></tr>
+</tbody></table>
+
+See also,
+
+- [Self-referential functions and the design of options] by Rob Pike
+- [Functional options for friendly APIs] by Dave Cheney
+
+  [Self-referential functions and the design of options]: https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html
+  [Functional options for friendly APIs]: https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis
+
+<!-- TODO: replace this with parameter structs and functional options, when to
+use one vs other -->
 
 ### Error Wrapping
 
