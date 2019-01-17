@@ -63,6 +63,7 @@ row before the </tbody></table> line.
   - [Error Types](#error-types)
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
   - [Use go.uber.org/atomic](#use-gouberorgatomic)
+  - [Don't Panic](#dont-panic)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
@@ -736,6 +737,101 @@ func (f *foo) start() {
 
 func (f *foo) isRunning() bool {
   return f.running.Load()
+}
+```
+
+</td></tr>
+</tbody></table>
+
+### Don't Panic
+
+Code running in production must avoid panics. Panics are a major source of
+[cascading failures]. If an error occurs, the function must return an error and
+allow the caller to decide how to handle it.
+
+  [cascading failures]: https://en.wikipedia.org/wiki/Cascading_failure
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+func foo(bar string) {
+  if len(bar) == 0 {
+    panic("bar must not be empty")
+  }
+  // ...
+}
+
+func main() {
+  if len(os.Args) != 2 {
+    fmt.Println("USAGE: foo <bar>")
+    os.Exit(1)
+  }
+  foo(os.Args[1])
+}
+```
+
+</td><td>
+
+```go
+func foo(bar string) error {
+  if len(bar) == 0
+    return errors.New("bar must not be empty")
+  }
+  // ...
+  return nil
+}
+
+func main() {
+  if len(os.Args) != 2 {
+    fmt.Println("USAGE: foo <bar>")
+    os.Exit(1)
+  }
+  if err := foo(os.Args[1]); err != nil {
+    panic(err)
+  }
+}
+```
+
+</td></tr>
+</tbody></table>
+
+Panic/recover is not an error handling strategy. A program must panic only when
+something irrecoverable happens like a nil dereference. An exception to this is
+program initialization: bad things at program startup that should abort the
+program may cause panic.
+
+```go
+var _statusTemplate = template.Must(template.New("name").Parse("_statusHTML"))
+```
+
+Even in tests, prefer `t.Fatal` or `t.FailNow` over panics to ensure that the
+test is marked as failed.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// func TestFoo(t *testing.T)
+
+f, err := ioutil.TempFile("", "test")
+if err != nil {
+  panic("failed to set up test")
+}
+```
+
+</td><td>
+
+```go
+// func TestFoo(t *testing.T)
+
+f, err := ioutil.TempFile("", "test")
+if err != nil {
+  t.Fatal("failed to set up test")
 }
 ```
 
