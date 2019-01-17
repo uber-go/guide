@@ -62,6 +62,7 @@ row before the </tbody></table> line.
   - [Start Enums at One](#start-enums-at-one)
   - [Error Types](#error-types)
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
+  - [Use go.uber.org/atomic](#use-gouberorgatomic)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
@@ -682,6 +683,64 @@ if !ok {
 
 <!-- TODO: There are a few situations where the single assignment form is
 fine. -->
+
+### Use go.uber.org/atomic
+
+Atomic operations with the [sync/atomic] package operate on the raw types
+(`int32`, `int64`, etc.) so it is easy to forget to use the atomic operation to
+read or modify the variables.
+
+[go.uber.org/atomic] adds type safety to these operations by hiding the
+underlying type. Additionally, it includes a convenient `atomic.Bool` type.
+
+  [go.uber.org/atomic]: https://godoc.org/go.uber.org/atomic
+  [sync/atomic]: https://golang.org/pkg/sync/atomic/
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+type foo struct {
+  running int32  // atomic
+}
+
+func (f* foo) start() {
+  if atomic.SwapInt32(&f.running, 1) == 1 {
+     // already running…
+     return
+  }
+  // start the Foo
+}
+
+func (f *foo) isRunning() bool {
+  return f.running == 1  // race!
+}
+```
+
+</td><td>
+
+```go
+type foo struct {
+  running atomic.Bool
+}
+
+func (f *foo) start() {
+  if f.running.Swap(true) {
+     // already running…
+     return
+  }
+  // start the Foo
+}
+
+func (f *foo) isRunning() bool {
+  return f.running.Load()
+}
+```
+
+</td></tr>
+</tbody></table>
 
 <!-- TODO: Explain how to use _test packages. -->
 
