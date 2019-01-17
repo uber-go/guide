@@ -84,6 +84,7 @@ row before the </tbody></table> line.
   - [Local Variable Declarations](#local-variable-declarations)
   - [nil is a valid slice](#nil-is-a-valid-slice)
   - [Reduce Scope of Variables](#reduce-scope-of-variables)
+  - [Avoid Naked Parameters](#avoid-naked-parameters)
   - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
   - [Format Strings outside Printf](#format-strings-outside-printf)
   - [Naming Printf-style Functions](#naming-printf-style-functions)
@@ -1712,6 +1713,56 @@ return f.Close()
 
 </td></tr>
 </tbody></table>
+
+### Avoid Naked Parameters
+
+Naked parameters in function calls can hurt readability. Add C-style comments
+(`/* ... */`) for parameter names when their meaning is not obvious.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// func printInfo(name string, isLocal, done bool)
+
+printInfo("foo", true, true)
+```
+
+</td><td>
+
+```go
+// func printInfo(name string, isLocal, done bool)
+
+printInfo("foo", true /* isLocal */, true /* done */)
+```
+
+</td></tr>
+</tbody></table>
+
+Better yet, replace naked `bool`s with custom types for more readable and
+type-safe code. This allows for the future possibility of needing more than
+just two states (true/false) for that parameter.
+
+```go
+type Region int
+
+const (
+  UnknownRegion Region = iota
+  Local
+)
+
+type Status int
+
+const (
+  StatusReady = iota + 1
+  StatusDone
+  // Maybe we will have a StatusInProgress in the future.
+)
+
+func printInfo(name string, region Region, status Status)
+```
 
 ### Use Raw String Literals to Avoid Escaping
 
