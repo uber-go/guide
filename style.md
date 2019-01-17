@@ -60,6 +60,7 @@ row before the </tbody></table> line.
   - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
   - [Channel Size is One or None](#channel-size-is-one-or-none)
   - [Start Enums at One](#start-enums-at-one)
+  - [Error Types](#error-types)
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
@@ -482,6 +483,174 @@ const (
 ```
 
 <!-- TODO: section on String methods for enums -->
+
+### Error Types
+
+There are various options for declaring errors:
+
+- [`errors.New`] for errors with simple static strings
+- [`fmt.Errorf`] for formatted error strings
+- Custom types that implement an `Error()` method
+- Wrapped errors using [`"pkg/errors".Wrap`]
+
+When returning errors, consider the following.
+
+- Is this a simple error that needs no extra information? If so, [`errors.New`]
+  should suffice.
+- Do the clients need to detect and handle this error? If so, you should use a
+  custom type, and implement the `Error()` method.
+- Otherwise, [`fmt.Errorf`] is okay.
+
+  [`errors.New`]: https://golang.org/pkg/errors/#New
+  [`fmt.Errorf`]: https://golang.org/pkg/fmt/#Errorf
+  [`"pkg/errors".Wrap`]: https://godoc.org/github.com/pkg/errors#Wrap
+
+If you're propagating an error returned by a downstream function, check the
+[section on error wrapping](#error-wrapping).
+
+If the client needs to detect the error, and you have created a simple error
+using [`errors.New`], use a var for the error.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// package foo
+
+func Open() error {
+  return errors.New("could not open")
+}
+
+// package bar
+
+func use() {
+  if err := foo.Open(); err != nil {
+    if err.Error() == "could not open" {
+      // handle
+    } else {
+      panic("unknown error")
+    }
+  }
+}
+```
+
+</td><td>
+
+```go
+// package foo
+
+var ErrCouldNotOpen = errors.New("could not open")
+
+func Open() error {
+  return ErrCouldNotOpen
+}
+
+// package bar
+
+if err := foo.Open(); err != nil {
+  if err == foo.ErrCouldNotOpen {
+    // handle
+  } else {
+    panic("unknown error")
+  }
+}
+```
+
+</td></tr>
+</tbody></table>
+
+If you have an error that clients may need to detect, and you would like to add
+more information to it (e.g., it is not a static string), then you should use a
+custom type.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+func open(file string) error {
+  return fmt.Errorf("file %q not found", file)
+}
+
+func use() {
+  if err := open(); err != nil {
+    if strings.Contains(err.Error(), "not found") {
+      // handle
+    } else {
+      panic("unknown error")
+    }
+  }
+}
+```
+
+</td><td>
+
+```go
+type errNotFound struct {
+  file string
+}
+
+func (e errNotFound) Error() string {
+  return fmt.Sprintf("file %q not found", e.file)
+}
+
+func open(file string) error {
+  return errNotFound{file: file}
+}
+
+func use() {
+  if err := open(); err != nil {
+    if _, ok := err.(errNotFound); ok {
+      // handle
+    } else {
+      panic("unknown error")
+    }
+  }
+}
+```
+
+</td></tr>
+</tbody></table>
+
+Be careful with exporting custom error types directly since they become part of
+the public API of the package. It is preferable to expose matcher functions to
+check the error instead.
+
+```go
+// package foo
+
+type errNotFound struct {
+  file string
+}
+
+func (e errNotFound) Error() string {
+  return fmt.Sprintf("file %q not found", e.file)
+}
+
+func IsNotFoundError(err error) bool {
+  _, ok := err.(errNotFound)
+  return ok
+}
+
+func Open(file string) error {
+  return errNotFound{file: file}
+}
+
+// package bar
+
+if err := foo.Open("foo"); err != nil {
+  if foo.IsNotFoundError(err) {
+    // handle
+  } else {
+    panic("unknown error")
+  }
+}
+```
+
+<!-- TODO: Exposing the information to callers with accessor functions. -->
 
 ### Handle Type Assertion Failures
 
