@@ -58,6 +58,7 @@ row before the </tbody></table> line.
   - [Receivers and Interfaces](#receivers-and-interfaces)
   - [Pointers to Mutexes and Embedding Mutexes](#pointers-to-mutexes-and-embedding-mutexes)
   - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
+  - [Channel Size is One or None](#channel-size-is-one-or-none)
   - [Start Enums at One](#start-enums-at-one)
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
 - [Performance](#performance)
@@ -393,6 +394,33 @@ func (s *Stats) Snapshot() map[string]int {
 
 // Snapshot is now a copy.
 snapshot := stats.Snapshot()
+```
+
+</td></tr>
+</tbody></table>
+
+### Channel Size is One or None
+
+Channels should usually have a size of one or be unbuffered. Any other size
+must be subject to a high level of scrutiny. How was the size determined? What
+prevents the channel from filling up under load and blocking writers? What
+happens when this occurs?
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// Ought to be enough for anybody!
+c := make(chan int, 64)
+```
+
+</td><td>
+
+```go
+c := make(chan int, 1) // or
+c := make(chan int)
 ```
 
 </td></tr>
