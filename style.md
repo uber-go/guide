@@ -86,6 +86,7 @@ row before the </tbody></table> line.
   - [Reduce Scope of Variables](#reduce-scope-of-variables)
   - [Avoid Naked Parameters](#avoid-naked-parameters)
   - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
+  - [Initializing Struct References](#initializing-struct-references)
   - [Format Strings outside Printf](#format-strings-outside-printf)
   - [Naming Printf-style Functions](#naming-printf-style-functions)
 - [Patterns](#patterns)
@@ -1783,6 +1784,35 @@ wantError := "unknown name:\"test\""
 
 ```go
 wantError := `unknown error:"test"`
+```
+
+</td></tr>
+</tbody></table>
+
+### Initializing Struct References
+
+Use `&T{}` instead of `new(T)` when initializing struct references so that it
+looks similar to struct initialization.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+sval := T{Name: "foo"}
+
+// inconsistent
+sptr := new(T)
+sptr.Name = "bar"
+```
+
+</td><td>
+
+```go
+sval := T{Name: "foo"}
+
+sptr := &T{Name: "bar"}
 ```
 
 </td></tr>
