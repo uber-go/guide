@@ -56,7 +56,7 @@ row before the </tbody></table> line.
 - [Guidelines](#guidelines)
   - [Pointers to Interfaces](#pointers-to-interfaces)
   - [Receivers and Interfaces](#receivers-and-interfaces)
-  - [Pointers to Mutexes and Embedding Mutexes](#pointers-to-mutexes-and-embedding-mutexes)
+  - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
   - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
   - [Channel Size is One or None](#channel-size-is-one-or-none)
   - [Start Enums at One](#start-enums-at-one)
@@ -215,11 +215,10 @@ Effective Go has a good write up on [Pointers vs. Values] as well.
 
   [Pointers vs. Values]: https://golang.org/doc/effective_go.html#pointers_vs_values
 
-### Pointers to Mutexes and Embedding Mutexes
+### Zero-value Mutexes are Valid
 
-You almost never need a pointer to a mutex. If you use a struct by pointer,
-then the mutex can be a non-pointer field or, preferably, embedded directly
-into the struct.
+The zero-value of `sync.Mutex` and `sync.RWMutex` is valid, so you almost
+never need a pointer to a mutex.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -227,27 +226,33 @@ into the struct.
 <tr><td>
 
 ```go
-type SMap struct {
-  mu *sync.Mutex
-  data map[string]string
-}
-
-func NewSMap() *SMap {
-  return &SMap{
-    mu: &sync.Mutex{}, 
-    data: make(map[string]string),
-  }
-}
-
-func (m *SMap) Get(k string) string {
-  m.mu.Lock()
-  defer m.mu.Unlock()
-
-  return m.data[k]
-}
+mu := new(sync.Mutex)
+mu.Lock()
 ```
 
 </td><td>
+
+```go
+var mu sync.Mutex
+mu.Lock()
+```
+
+</td></tr>
+</tbody></table>
+
+```go
+var mu sync.Mutex
+
+mu.Lock()
+defer mu.Unlock()
+```
+
+If you use a struct by pointer, then the mutex can be a non-pointer field or,
+preferably, embedded directly into the struct.
+
+<table>
+<tbody>
+<tr><td>
 
 ```go
 type smap struct {
@@ -270,17 +275,7 @@ func (m *smap) Get(k string) string {
 }
 ```
 
-</td></tr>
-
-</tr>
-<tr>
-<td>Unnecessary pointer.</td>
-<td>Embed for private types or types that need to implement the Mutex interface.</td>
-</tr>
-
-</tbody></table>
-
-For exported types, better than either solution above is to use a private lock.
+</td><td>
 
 ```go
 type SMap struct {
@@ -302,6 +297,16 @@ func (m *SMap) Get(k string) string {
   return m.data[k]
 }
 ```
+
+</td></tr>
+
+</tr>
+<tr>
+<td>Embed for private types or types that need to implement the Mutex interface.</td>
+<td>For exported types, use a private lock.</td>
+</tr>
+
+</tbody></table>
 
 ### Copy Slices and Maps at Boundaries
 
