@@ -1237,6 +1237,8 @@ func (s *something) Cost() {
   return calcCost(s.weights)
 }
 
+type something struct{ ... }
+
 func calcCost(n int[]) int {...}
 
 func (s *something) Stop() {...}
@@ -1249,6 +1251,8 @@ func newSomething() *something {
 </td><td>
 
 ```go
+type something struct{ ... }
+
 func newSomething() *something {
     return &something{}
 }
