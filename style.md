@@ -182,7 +182,7 @@ sPtrs[1].Write("test")
 ```
 
 Similarly, an interface can be satisfied by a pointer, even if the method has a
-value receiver. Example from the Go at Uber presentation:
+value receiver.
 
 ```go
 type F interface {
@@ -1168,8 +1168,20 @@ for the purpose of grouping related test cases, e.g.,
 
 ### Import Aliasing
 
-Import aliases should be avoided unless there is a direct conflict between
-imports.
+Import aliasing must be used if the package name does not match the last
+element of the import path.
+
+```go
+import (
+  "net/http"
+
+  client "example.com/client-go"
+  trace "example.com/trace/v2"
+)
+```
+
+In all other scenarios, import aliases should be avoided unless there is a
+direct conflict between imports.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1200,9 +1212,6 @@ import (
 
 </td></tr>
 </tbody></table>
-
-<!-- TODO: named imports should always be used if basename does not match
-package name. -->
 
 ### Function Grouping and Ordering
 
