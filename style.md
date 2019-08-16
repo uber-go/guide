@@ -933,14 +933,8 @@ s := strconv.Itoa(i)
 
 ### Avoid string-to-byte conversion
 
-If you have a constant string, converting it to a byte slice (`[]byte`) is
-[**not** done at compile time].
-
-  [**not** done at compile time]: https://github.com/golang/go/issues/10170
-
-Do not create a byte slice from a constant string repeatedly. Instead, create a
-global variable with the value of the byte slice so that it is converted only
-once.
+Do not create byte slices from a fixed string repeatedly. Instead, perform the
+conversion once and capture the result.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -948,7 +942,7 @@ once.
 <tr><td>
 
 ```go
-for i := 0; i < 10000; i++ {
+for i := 0; i < b.N; i++ {
   w.Write([]byte("Hello world"))
 }
 ```
@@ -957,9 +951,22 @@ for i := 0; i < 10000; i++ {
 
 ```go
 data := []byte("Hello world")
-for i := 0; i < 10000; i++ {
+for i := 0; i < b.N; i++ {
   w.Write(data)
 }
+```
+
+</tr>
+<tr><td>
+
+```
+BenchmarkBad-4   50000000   22.2 ns/op
+```
+
+</td><td>
+
+```
+BenchmarkGood-4  500000000   3.25 ns/op
 ```
 
 </td></tr>
