@@ -3,7 +3,7 @@
 Editing this document:
 
 - Discuss all changes in GitHub issues first.
-- Update the table fo contents as new sections are added or removed.
+- Update the table of contents as new sections are added or removed.
 - Use tables for side-by-side code samples. See below.
 
 Code Samples:
@@ -58,13 +58,14 @@ row before the </tbody></table> line.
   - [Receivers and Interfaces](#receivers-and-interfaces)
   - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
   - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
+  - [Defer to Clean Up](#defer-to-clean-up)
   - [Channel Size is One or None](#channel-size-is-one-or-none)
   - [Start Enums at One](#start-enums-at-one)
   - [Error Types](#error-types)
+  - [Error Wrapping](#error-wrapping)
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
-  - [Use go.uber.org/atomic](#use-gouberorgatomic)
   - [Don't Panic](#dont-panic)
-  - [Defer to Clean Up](#defer-to-clean-up)
+  - [Use go.uber.org/atomic](#use-gouberorgatomic)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
@@ -92,7 +93,6 @@ row before the </tbody></table> line.
 - [Patterns](#patterns)
   - [Test Tables](#test-tables)
   - [Functional Options](#functional-options)
-  - [Error Wrapping](#error-wrapping)
 
 ## Introduction
 
@@ -135,11 +135,11 @@ You can find information in editor support for Go tools here:
 You almost never need a pointer to an interface. You should be passing
 interfaces as values—the underlying data can still be a pointer.
 
-An interface is really just two fields:
+An interface is two fields:
 
-- A pointer to some type-specific information. You can think of this as just
+1. A pointer to some type-specific information. You can think of this as
   "type."
-- Data. If the data you are storing fits in a machine word (e.g., pointer,
+2. Data. If the data you are storing fits in a machine word (e.g., pointer,
   int), then Data is the direct value. If the data does not fit in a machine
   word (e.g., string, struct value, slice), then the value is copied to the
   heap, and a pointer to the value is stored in Data.
@@ -211,7 +211,7 @@ i = s2Ptr
 //   i = s2Val
 ```
 
-Effective Go has a good write up on [Pointers vs. Values] as well.
+Effective Go has a good write up on [Pointers vs. Values].
 
   [Pointers vs. Values]: https://golang.org/doc/effective_go.html#pointers_vs_values
 
@@ -414,12 +414,61 @@ snapshot := stats.Snapshot()
 </td></tr>
 </tbody></table>
 
+### Defer to Clean Up
+
+Use defer to clean up resources such as files and locks.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+p.Lock()
+if p.count < 10 {
+  p.Unlock()
+  return p.count
+}
+
+p.count++
+newCount := p.count
+p.Unlock()
+
+return newCount
+
+// easy to miss unlocks due to multiple returns
+```
+
+</td><td>
+
+```go
+p.Lock()
+defer p.Unlock()
+
+if p.count < 10 {
+  return p.count
+}
+
+p.count++
+return p.count
+
+// more readable
+```
+
+</td></tr>
+</tbody></table>
+
+Defer has an extremely small overhead and should be avoided only if you can
+prove that your function execution time is in the order of nanoseconds. The
+readability win of using defers is worth the miniscule cost of using them. This
+is especially true for larger methods that have more than simple memory
+accesses, where the other computations are more significant than the `defer`.
+
 ### Channel Size is One or None
 
-Channels should usually have a size of one or be unbuffered. Any other size
-must be subject to a high level of scrutiny. How was the size determined? What
-prevents the channel from filling up under load and blocking writers? What
-happens when this occurs?
+Channels should usually have a size of one or be unbuffered. By default, 
+channels are unbuffered and have a size of zero. Any other size
+must be subject to a high level of scrutiny. Consider how the size is determined, what prevents the channel from filling up under load and blocking writers, and what happens when this occurs.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -434,7 +483,9 @@ c := make(chan int, 64)
 </td><td>
 
 ```go
+//Size of one
 c := make(chan int, 1) // or
+//Unbuffered channel, size of zero
 c := make(chan int)
 ```
 
@@ -507,20 +558,18 @@ There are various options for declaring errors:
 - Custom types that implement an `Error()` method
 - Wrapped errors using [`"pkg/errors".Wrap`]
 
-When returning errors, consider the following.
+When returning errors, consider the following to determine the best choice:
 
 - Is this a simple error that needs no extra information? If so, [`errors.New`]
   should suffice.
 - Do the clients need to detect and handle this error? If so, you should use a
   custom type, and implement the `Error()` method.
+- Are you propagating an error returned by a downstream function? If so, check the [section on error wrapping](#error-wrapping).
 - Otherwise, [`fmt.Errorf`] is okay.
 
   [`errors.New`]: https://golang.org/pkg/errors/#New
   [`fmt.Errorf`]: https://golang.org/pkg/fmt/#Errorf
   [`"pkg/errors".Wrap`]: https://godoc.org/github.com/pkg/errors#Wrap
-
-If you're propagating an error returned by a downstream function, check the
-[section on error wrapping](#error-wrapping).
 
 If the client needs to detect the error, and you have created a simple error
 using [`errors.New`], use a var for the error.
@@ -666,10 +715,31 @@ if err := foo.Open("foo"); err != nil {
 
 <!-- TODO: Exposing the information to callers with accessor functions. -->
 
+### Error Wrapping
+
+There are three main options for propagating errors if a call fails:
+
+- Return the original error if there is no additional context to add and you
+  want to maintain the original error type.
+- Add context using [`"pkg/errors".Wrap`] so that the error message provides
+  more context and [`"pkg/errors".Cause`] can be used to extract the original
+  error.
+- Use [`fmt.Errorf`] if the callers do not need to detect or handle that
+  specific error case.
+
+It is recommended to add context where possible so that instead of a vague
+error such as "connection refused", you get more useful errors such as "failed to
+call service foo: connection refused".
+
+See also [Don't just check errors, handle them gracefully].
+
+  [`"pkg/errors".Cause`]: https://godoc.org/github.com/pkg/errors#Cause
+  [Don't just check errors, handle them gracefully]: https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully
+
 ### Handle Type Assertion Failures
 
 The single return value form of a [type assertion] will panic on an incorrect
-type. For this reason you should always use the "comma ok" idiom.
+type. Therefore, always use the "comma ok" idiom.
 
   [type assertion]: https://golang.org/ref/spec#Type_assertions
 
@@ -696,6 +766,103 @@ if !ok {
 
 <!-- TODO: There are a few situations where the single assignment form is
 fine. -->
+
+### Don't Panic
+
+Code running in production must avoid panics. Panics are a major source of
+[cascading failures]. If an error occurs, the function must return an error and
+allow the caller to decide how to handle it.
+
+  [cascading failures]: https://en.wikipedia.org/wiki/Cascading_failure
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+func foo(bar string) {
+  if len(bar) == 0 {
+    panic("bar must not be empty")
+  }
+  // ...
+}
+
+func main() {
+  if len(os.Args) != 2 {
+    fmt.Println("USAGE: foo <bar>")
+    os.Exit(1)
+  }
+  foo(os.Args[1])
+}
+```
+
+</td><td>
+
+```go
+func foo(bar string) error {
+  if len(bar) == 0
+    return errors.New("bar must not be empty")
+  }
+  // ...
+  return nil
+}
+
+func main() {
+  if len(os.Args) != 2 {
+    fmt.Println("USAGE: foo <bar>")
+    os.Exit(1)
+  }
+  if err := foo(os.Args[1]); err != nil {
+    panic(err)
+  }
+}
+```
+
+</td></tr>
+</tbody></table>
+
+Panic/recover is not an error handling strategy. A program must panic only when
+something irrecoverable happens such as a nil dereference. An exception to this is
+program initialization: bad things at program startup that should abort the
+program may cause panic.
+
+```go
+var _statusTemplate = template.Must(template.New("name").Parse("_statusHTML"))
+```
+
+Even in tests, prefer `t.Fatal` or `t.FailNow` over panics to ensure that the
+test is marked as failed.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// func TestFoo(t *testing.T)
+
+f, err := ioutil.TempFile("", "test")
+if err != nil {
+  panic("failed to set up test")
+}
+```
+
+</td><td>
+
+```go
+// func TestFoo(t *testing.T)
+
+f, err := ioutil.TempFile("", "test")
+if err != nil {
+  t.Fatal("failed to set up test")
+}
+```
+
+</td></tr>
+</tbody></table>
+
+<!-- TODO: Explain how to use _test packages. -->
 
 ### Use go.uber.org/atomic
 
@@ -754,153 +921,6 @@ func (f *foo) isRunning() bool {
 
 </td></tr>
 </tbody></table>
-
-### Don't Panic
-
-Code running in production must avoid panics. Panics are a major source of
-[cascading failures]. If an error occurs, the function must return an error and
-allow the caller to decide how to handle it.
-
-  [cascading failures]: https://en.wikipedia.org/wiki/Cascading_failure
-
-<table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
-<tbody>
-<tr><td>
-
-```go
-func foo(bar string) {
-  if len(bar) == 0 {
-    panic("bar must not be empty")
-  }
-  // ...
-}
-
-func main() {
-  if len(os.Args) != 2 {
-    fmt.Println("USAGE: foo <bar>")
-    os.Exit(1)
-  }
-  foo(os.Args[1])
-}
-```
-
-</td><td>
-
-```go
-func foo(bar string) error {
-  if len(bar) == 0
-    return errors.New("bar must not be empty")
-  }
-  // ...
-  return nil
-}
-
-func main() {
-  if len(os.Args) != 2 {
-    fmt.Println("USAGE: foo <bar>")
-    os.Exit(1)
-  }
-  if err := foo(os.Args[1]); err != nil {
-    panic(err)
-  }
-}
-```
-
-</td></tr>
-</tbody></table>
-
-Panic/recover is not an error handling strategy. A program must panic only when
-something irrecoverable happens like a nil dereference. An exception to this is
-program initialization: bad things at program startup that should abort the
-program may cause panic.
-
-```go
-var _statusTemplate = template.Must(template.New("name").Parse("_statusHTML"))
-```
-
-Even in tests, prefer `t.Fatal` or `t.FailNow` over panics to ensure that the
-test is marked as failed.
-
-<table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
-<tbody>
-<tr><td>
-
-```go
-// func TestFoo(t *testing.T)
-
-f, err := ioutil.TempFile("", "test")
-if err != nil {
-  panic("failed to set up test")
-}
-```
-
-</td><td>
-
-```go
-// func TestFoo(t *testing.T)
-
-f, err := ioutil.TempFile("", "test")
-if err != nil {
-  t.Fatal("failed to set up test")
-}
-```
-
-</td></tr>
-</tbody></table>
-
-<!-- TODO: Explain how to use _test packages. -->
-
-### Defer to Clean Up
-
-Use defer to clean up resources like files and locks.
-
-<table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
-<tbody>
-<tr><td>
-
-```go
-p.Lock()
-if p.count < 10 {
-  p.Unlock()
-  return p.count
-}
-
-p.count++
-newCount := p.count
-p.Unlock()
-
-return newCount
-
-// easy to miss unlocks due to multiple returns
-```
-
-</td><td>
-
-```go
-p.Lock()
-defer p.Unlock()
-
-if p.count < 10 {
-  return p.count
-}
-
-p.count++
-return p.count
-
-// more readable
-```
-
-</td></tr>
-</tbody></table>
-
-Defer has an extremely small overhead and should be avoided only if you can
-prove that your function execution time is in the order of nanoseconds. The
-readability win of using defers is worth the miniscule cost of using them. This
-is especially true for larger methods that have more than simple memory
-accesses, where the other computations are more significant than the `defer`.
 
 ## Performance
 
@@ -1080,7 +1100,7 @@ const ENV_VAR = "MY_ENV"
 </td></tr>
 </tbody></table>
 
-Groups are not limited in where they can be used. They are also fine to use
+Groups are not limited in where they can be used. For example, you can use them
 inside of functions.
 
 <table>
@@ -1161,7 +1181,7 @@ When naming packages, choose a name that is,
 - Does not need to be renamed using named imports at most call sites.
 - Short and succint. Remember that the name is identified in full at every call
   site.
-- Not plural. `net/url`, not `net/urls`.
+- Not plural. For example, `net/url`, not `net/urls`.
 - Not "common", "util", "shared", or "lib". These are bad, uninformative names.
 
 See also [Package Names] and [Style guideline for Go packages].
@@ -1230,7 +1250,7 @@ import (
 - Functions should be sorted in rough call order.
 - Functions in a file should be grouped by receiver.
 
-These rules mean that exported functions should appear first in a file, after
+Therefore, exported functions should appear first in a file, after
 `struct`, `const`, `var` definitions.
 
 A `newXYZ()`/`NewXYZ()` may appear after the type is defined, but before the
@@ -1485,7 +1505,9 @@ type Client struct {
 ### Use Field Names to initialize Structs
 
 You should almost always specify field names when initializing structs. This is
-now enforced by `go vet`.
+now enforced by [`go vet`].
+
+  [`go vet`]: https://golang.org/cmd/vet/
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1768,9 +1790,8 @@ printInfo("foo", true /* isLocal */, true /* done */)
 </td></tr>
 </tbody></table>
 
-Better yet, replace naked `bool`s with custom types for more readable and
-type-safe code. This allows for the future possibility of needing more than
-just two states (true/false) for that parameter.
+Better yet, replace naked `bool` types with custom types for more readable and
+type-safe code. This allows more than just two states (true/false) for that parameter in the future.
 
 ```go
 type Region int
@@ -1817,8 +1838,7 @@ wantError := `unknown error:"test"`
 
 ### Initializing Struct References
 
-Use `&T{}` instead of `new(T)` when initializing struct references so that it
-looks similar to struct initialization.
+Use `&T{}` instead of `new(T)` when initializing struct references so that it is consistent with the struct initialization.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1847,7 +1867,9 @@ sptr := &T{Name: "bar"}
 ### Format Strings outside Printf
 
 If you declare format strings for `Printf`-style functions outside a string
-literal, make them `const`s.
+literal, make them `const` types.
+
+This helps `go vet` perform static analysis of the format string.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1869,14 +1891,12 @@ fmt.Printf(msg, 1, 2)
 </td></tr>
 </tbody></table>
 
-This helps `go vet` perform static analysis of the format string.
-
 ### Naming Printf-style Functions
 
 When you declare a `Printf`-style function, make sure that `go vet` can detect
 it and check the format string.
 
-This means that you should prefer to use pre-defined `Printf`-style function
+This means that you should use pre-defined `Printf`-style function
 names if possible. `go vet` will check these by default. See [Printf family]
 for more information.
 
@@ -1977,6 +1997,8 @@ for _, tt := range tests {
 </td></tr>
 </tbody></table>
 
+Test tables make it easier to add context to error messages, reduce duplicate logic, and add new test cases.
+
 Test tables enable adding context to error messages more easily, reduce
 duplicate logic, and make it trivial to add new test cases.
 
@@ -2075,32 +2097,11 @@ db.Connect(
 
 See also,
 
-- [Self-referential functions and the design of options] by Rob Pike
-- [Functional options for friendly APIs] by Dave Cheney
+- [Self-referential functions and the design of options]
+- [Functional options for friendly APIs]
 
   [Self-referential functions and the design of options]: https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html
   [Functional options for friendly APIs]: https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis
 
 <!-- TODO: replace this with parameter structs and functional options, when to
 use one vs other -->
-
-### Error Wrapping
-
-There are three main options for propagating errors if a call fails:
-
-- Return the original error if there is no additional context to add and you
-  want to maintain the original error type.
-- Add context using [`"pkg/errors".Wrap`] so that the error message provides
-  more context and [`"pkg/errors".Cause`] can be used to extract the original
-  error.
-- Use [`fmt.Errorf`] if the callers do not need to detect or handle that
-  specific error case.
-
-It is recommended to add context where possible so that instead of a vague
-error like "connection refused", you get more useful errors like "failed to
-call service foo: connection refused".
-
-See also [Don't just check errors, handle them gracefully] by Dave Cheney.
-
-  [`"pkg/errors".Cause`]: https://godoc.org/github.com/pkg/errors#Cause
-  [Don't just check errors, handle them gracefully]: https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully
