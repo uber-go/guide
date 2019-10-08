@@ -1999,8 +1999,6 @@ for _, tt := range tests {
 
 Test tables make it easier to add context to error messages, reduce duplicate logic, and add new test cases.
 
-Test tables enable adding context to error messages more easily, reduce
-duplicate logic, and make it trivial to add new test cases.
 
 We follow the convention that the slice of structs is referred to as `tests`
 and each test case `tt`. Further, we encourage explicating the input and output
