@@ -2003,10 +2003,23 @@ for _, tt := range tests {
 Test tables make it easier to add context to error messages, reduce duplicate
 logic, and add new test cases.
 
-
 We follow the convention that the slice of structs is referred to as `tests`
 and each test case `tt`. Further, we encourage explicating the input and output
 values for each test case with `give` and `want` prefixes.
+
+```go
+tests := []struct{
+  give     string
+  wantHost string
+  wantPort string
+}{
+  // ...
+}
+
+for _, tt := range tests {
+  // ...
+}
+```
 
 ### Functional Options
 
