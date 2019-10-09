@@ -485,9 +485,9 @@ c := make(chan int, 64)
 </td><td>
 
 ```go
-//Size of one
+// Size of one
 c := make(chan int, 1) // or
-//Unbuffered channel, size of zero
+// Unbuffered channel, size of zero
 c := make(chan int)
 ```
 
