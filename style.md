@@ -929,7 +929,7 @@ Performance-specific guidelines apply only to the hot path.
 
 ### Prefer strconv over fmt
 
-When converting primitives to/from strings, `strconv` is usually faster than
+When converting primitives to/from strings, `strconv` is faster than
 `fmt`.
 
 <table>
