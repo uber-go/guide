@@ -139,10 +139,8 @@ An interface is two fields:
 
 1. A pointer to some type-specific information. You can think of this as
   "type."
-2. Data. If the data you are storing fits in a machine word (e.g., pointer,
-  int), then Data is the direct value. If the data does not fit in a machine
-  word (e.g., string, struct value, slice), then the value is copied to the
-  heap, and a pointer to the value is stored in Data.
+2. Data pointer. If the data stored is a pointer, it’s stored directly. If
+  the data stored is a value, then a pointer to the value is stored.
 
 If you want interface methods to modify the underlying data, you must use a
 pointer.
