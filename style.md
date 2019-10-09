@@ -468,7 +468,9 @@ accesses, where the other computations are more significant than the `defer`.
 
 Channels should usually have a size of one or be unbuffered. By default, 
 channels are unbuffered and have a size of zero. Any other size
-must be subject to a high level of scrutiny. Consider how the size is determined, what prevents the channel from filling up under load and blocking writers, and what happens when this occurs.
+must be subject to a high level of scrutiny. Consider how the size is
+determined, what prevents the channel from filling up under load and blocking
+writers, and what happens when this occurs.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -564,7 +566,8 @@ When returning errors, consider the following to determine the best choice:
   should suffice.
 - Do the clients need to detect and handle this error? If so, you should use a
   custom type, and implement the `Error()` method.
-- Are you propagating an error returned by a downstream function? If so, check the [section on error wrapping](#error-wrapping).
+- Are you propagating an error returned by a downstream function? If so, check
+  the [section on error wrapping](#error-wrapping).
 - Otherwise, [`fmt.Errorf`] is okay.
 
   [`errors.New`]: https://golang.org/pkg/errors/#New
@@ -1791,7 +1794,8 @@ printInfo("foo", true /* isLocal */, true /* done */)
 </tbody></table>
 
 Better yet, replace naked `bool` types with custom types for more readable and
-type-safe code. This allows more than just two states (true/false) for that parameter in the future.
+type-safe code. This allows more than just two states (true/false) for that
+parameter in the future.
 
 ```go
 type Region int
@@ -1838,7 +1842,8 @@ wantError := `unknown error:"test"`
 
 ### Initializing Struct References
 
-Use `&T{}` instead of `new(T)` when initializing struct references so that it is consistent with the struct initialization.
+Use `&T{}` instead of `new(T)` when initializing struct references so that it
+is consistent with the struct initialization.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1997,7 +2002,8 @@ for _, tt := range tests {
 </td></tr>
 </tbody></table>
 
-Test tables make it easier to add context to error messages, reduce duplicate logic, and add new test cases.
+Test tables make it easier to add context to error messages, reduce duplicate
+logic, and add new test cases.
 
 
 We follow the convention that the slice of structs is referred to as `tests`
