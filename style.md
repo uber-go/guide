@@ -1872,7 +1872,7 @@ sptr := &T{Name: "bar"}
 ### Format Strings outside Printf
 
 If you declare format strings for `Printf`-style functions outside a string
-literal, make them `const` types.
+literal, make them `const` values.
 
 This helps `go vet` perform static analysis of the format string.
 
