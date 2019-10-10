@@ -2060,36 +2060,46 @@ db.Connect(addr, newTimeout, false /* caching */)
 </td><td>
 
 ```go
-type connectCfg structs {
+type options struct {
   timeout time.Duration
   caching bool
 }
 
-type Option func(*connectCfg)
+// Option overrides behavior of Connect.
+type Option interface {
+  apply(*options)
+}
+
+type optionFunc func(*options)
+
+func (f optionFunc) apply(o *options) {
+  f(o)
+}
 
 func WithTimeout(t time.Duration) Option {
-  return func(c *connectCfg) {
-    c.timeout = t
-  }
+  return optionFunc(func(o *options) {
+    o.timeout = t
+  })
 }
 
 func WithCaching(cache bool) Option {
-  return func(c *connectCfg) {
-    c.caching = cache
-  }
+  return optionFunc(func(o *options) {
+    o.caching = cache
+  })
 }
 
+// Connect creates a connection.
 func Connect(
   addr string,
   opts ...Option,
 ) (*Connection, error) {
-  cfg := connectCfg{
+  options := options{
     timeout: defaultTimeout,
     caching: defaultCaching,
   }
 
   for _, o := range opts {
-    o(&cfg)
+    o(&options)
   }
 
   // ...
