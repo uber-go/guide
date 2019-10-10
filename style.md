@@ -729,8 +729,53 @@ There are three main options for propagating errors if a call fails:
   specific error case.
 
 It is recommended to add context where possible so that instead of a vague
-error such as "connection refused", you get more useful errors such as "failed to
-call service foo: connection refused".
+error such as "connection refused", you get more useful errors such as
+"call service foo: connection refused".
+
+When adding context to returned errors, keep the context succinct by avoiding
+phrases like "failed to", which state the obvious and pile up as the error
+percolates up through the stack:
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+s, err := store.New()
+if err != nil {
+    return fmt.Errorf(
+        "failed to create new store: %s", err)
+}
+```
+
+</td><td>
+
+```go
+s, err := store.New()
+if err != nil {
+    return fmt.Errorf(
+        "new store: %s", err)
+}
+```
+
+<tr><td>
+
+```
+failed to x: failed to y: failed to create new store: the error
+```
+
+</td><td>
+
+```
+x: y: new store: the error
+```
+
+</td></tr>
+</tbody></table>
+
+However once the error is sent to another system, it should be clear the
+message is an error (e.g. an `err` tag or "Failed" prefix in logs).
 
 See also [Don't just check errors, handle them gracefully].
 
