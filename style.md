@@ -1793,6 +1793,8 @@ if data, err := ioutil.ReadFile(name); err == nil {
   if err != nil {
     return err
   }
+
+  fmt.Println(cfg)
   return nil
 } else {
   return err
@@ -1811,6 +1813,7 @@ if err := cfg.Decode(data); err != nil {
   return err
 }
 
+fmt.Println(cfg)
 return nil
 ```
 
