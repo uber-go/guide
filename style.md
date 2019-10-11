@@ -932,7 +932,7 @@ When converting primitives to/from strings, `strconv` is faster than
 
 ```go
 for i := 0; i < b.N; i++ {
-  s := fmt.Sprint(r.Int())
+  s := fmt.Sprint(rand.Int())
 }
 ```
 
@@ -940,7 +940,7 @@ for i := 0; i < b.N; i++ {
 
 ```go
 for i := 0; i < b.N; i++ {
-  s := strconv.Itoa(r.Int())
+  s := strconv.Itoa(rand.Int())
 }
 ```
 
@@ -948,13 +948,13 @@ for i := 0; i < b.N; i++ {
 <tr><td>
 
 ```
-BenchmarkFmtSprint-4    124 ns/op    2 allocs/op
+BenchmarkFmtSprint-4    143 ns/op    2 allocs/op
 ```
 
 </td><td>
 
 ```
-BenchmarkStrconv-4    56.5 ns/op    1 allocs/op
+BenchmarkStrconv-4    64.2 ns/op    1 allocs/op
 ```
 
 </td></tr>
