@@ -238,13 +238,6 @@ mu.Lock()
 </td></tr>
 </tbody></table>
 
-```go
-var mu sync.Mutex
-
-mu.Lock()
-defer mu.Unlock()
-```
-
 If you use a struct by pointer, then the mutex can be a non-pointer field or,
 preferably, embedded directly into the struct.
 
