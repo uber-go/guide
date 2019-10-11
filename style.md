@@ -457,7 +457,7 @@ accesses, where the other computations are more significant than the `defer`.
 
 ### Channel Size is One or None
 
-Channels should usually have a size of one or be unbuffered. By default, 
+Channels should usually have a size of one or be unbuffered. By default,
 channels are unbuffered and have a size of zero. Any other size
 must be subject to a high level of scrutiny. Consider how the size is
 determined, what prevents the channel from filling up under load and blocking
@@ -931,15 +931,30 @@ When converting primitives to/from strings, `strconv` is faster than
 <tr><td>
 
 ```go
-var i int = ...
-s := fmt.Sprint(i)
+for i := 0; i < b.N; i++ {
+  s := fmt.Sprint(r.Int())
+}
 ```
 
 </td><td>
 
 ```go
-var i int = ...
-s := strconv.Itoa(i)
+for i := 0; i < b.N; i++ {
+  s := strconv.Itoa(r.Int())
+}
+```
+
+</td></tr>
+<tr><td>
+
+```
+BenchmarkFmtSprint-4    124 ns/op    2 allocs/op
+```
+
+</td><td>
+
+```
+BenchmarkStrconv-4    56.5 ns/op    1 allocs/op
 ```
 
 </td></tr>
@@ -1329,7 +1344,7 @@ for _, v := range data {
     log.Printf("Invalid v: %v", v)
     continue
   }
-  
+
   v = process(v)
   if err := v.Call(); err != nil {
     return err
