@@ -1762,7 +1762,7 @@ conflicts with [Reduce Nesting](#reduce-nesting).
 <tr><td>
 
 ```go
-err := f.Close()
+err := ioutil.WriteFile(name, data, 0644)
 if err != nil {
  return err
 }
@@ -1771,7 +1771,7 @@ if err != nil {
 </td><td>
 
 ```go
-if err := f.Close(); err != nil {
+if err := ioutil.WriteFile(name, data, 0644); err != nil {
  return err
 }
 ```
@@ -1788,12 +1788,12 @@ try to reduce the scope.
 <tr><td>
 
 ```go
-if f, err := os.Open("f"); err == nil {
-  _, err = io.WriteString(f, "data")
+if data, err := ioutil.ReadFile(name); err == nil {
+  err = cfg.Decode(data)
   if err != nil {
     return err
   }
-  return f.Close()
+  return nil
 } else {
   return err
 }
@@ -1802,16 +1802,16 @@ if f, err := os.Open("f"); err == nil {
 </td><td>
 
 ```go
-f, err := os.Open("f")
+data, err := ioutil.ReadFile(name)
 if err != nil {
    return err
 }
 
-if _, err := io.WriteString(f, "data"); err != nil {
+if err := cfg.Decode(data); err != nil {
   return err
 }
 
-return f.Close()
+return nil
 ```
 
 </td></tr>
