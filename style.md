@@ -170,7 +170,7 @@ sVals := map[int]S{1: {"A"}}
 sVals[1].Read()
 
 // This will not compile:
-//  sVals[0].Write("test")
+//  sVals[1].Write("test")
 
 sPtrs := map[int]*S{1: {"A"}}
 
