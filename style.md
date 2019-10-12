@@ -1325,7 +1325,7 @@ func (s *something) Cost() {
 
 type something struct{ ... }
 
-func calcCost(n int[]) int {...}
+func calcCost(n []int) int {...}
 
 func (s *something) Stop() {...}
 
@@ -1349,7 +1349,7 @@ func (s *something) Cost() {
 
 func (s *something) Stop() {...}
 
-func calcCost(n int[]) int {...}
+func calcCost(n []int) int {...}
 ```
 
 </td></tr>
