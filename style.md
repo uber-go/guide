@@ -296,7 +296,7 @@ func (m *SMap) Get(k string) string {
 </tr>
 <tr>
 <td>Embed for private types or types that need to implement the Mutex interface.</td>
-<td>For exported types, use a private lock.</td>
+<td>For exported types, use a private field.</td>
 </tr>
 
 </tbody></table>
