@@ -361,15 +361,15 @@ state.
 
 ```go
 type Stats struct {
-  sync.Mutex
+  mu sync.Mutex
 
   counters map[string]int
 }
 
 // Snapshot returns the current stats.
 func (s *Stats) Snapshot() map[string]int {
-  s.Lock()
-  defer s.Unlock()
+  s.mu.Lock()
+  defer s.mu.Unlock()
 
   return s.counters
 }
@@ -382,14 +382,14 @@ snapshot := stats.Snapshot()
 
 ```go
 type Stats struct {
-  sync.Mutex
+  mu sync.Mutex
 
   counters map[string]int
 }
 
 func (s *Stats) Snapshot() map[string]int {
-  s.Lock()
-  defer s.Unlock()
+  s.mu.Lock()
+  defer s.mu.Unlock()
 
   result := make(map[string]int, len(s.counters))
   for k, v := range s.counters {
