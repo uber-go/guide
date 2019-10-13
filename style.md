@@ -240,7 +240,7 @@ mu.Lock()
 
 If you use a struct by pointer, then the mutex can be a non-pointer field.
 
-Unexported structs that use a mutex to protect fields of the struct should embed
+Unexported structs that use a mutex to protect fields of the struct may embed
 the mutex.
 
 <table>
