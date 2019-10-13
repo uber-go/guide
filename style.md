@@ -238,8 +238,10 @@ mu.Lock()
 </td></tr>
 </tbody></table>
 
-If you use a struct by pointer, then the mutex can be a non-pointer field or,
-preferably, embedded directly into the struct.
+If you use a struct by pointer, then the mutex can be a non-pointer field.
+
+Unexported structs that use a mutex to protect fields of the struct may embed
+the mutex.
 
 <table>
 <tbody>
@@ -247,7 +249,7 @@ preferably, embedded directly into the struct.
 
 ```go
 type smap struct {
-  sync.Mutex
+  sync.Mutex // only for unexported types
 
   data map[string]string
 }
@@ -294,7 +296,7 @@ func (m *SMap) Get(k string) string {
 </tr>
 <tr>
 <td>Embed for private types or types that need to implement the Mutex interface.</td>
-<td>For exported types, use a private lock.</td>
+<td>For exported types, use a private field.</td>
 </tr>
 
 </tbody></table>
