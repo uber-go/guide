@@ -1590,7 +1590,6 @@ fewer fields.
 
 ```go
 tests := []struct{
-}{
   op Operation
   want string
 }{
