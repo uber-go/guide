@@ -77,6 +77,7 @@ row before the </tbody></table> line.
   - [Import Aliasing](#import-aliasing)
   - [Function Grouping and Ordering](#function-grouping-and-ordering)
   - [Reduce Nesting](#reduce-nesting)
+  - [Unnecessary block scopes](#unnecessary-block-scopes)
   - [Unnecessary Else](#unnecessary-else)
   - [Top-level Variable Declarations](#top-level-variable-declarations)
   - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
@@ -1973,6 +1974,55 @@ $ go vet -printfuncs=wrapf,statusf
 See also [go vet: Printf family check].
 
   [go vet: Printf family check]: https://kuzminva.wordpress.com/2017/11/07/go-vet-printf-family-check/
+
+### Unnecessary block scopes
+
+[Blocks](https://golang.org/ref/spec#Blocks) in brace brackets `{}` nest and influence [scoping](https://golang.org/ref/spec#Declarations_and_scope). This increase the cognitive load to understand the correct state of a variable. While it can have useful usecases it is often a signal that your function might be too large.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+input := strings.NewReader("Foo")
+hash := sha256.New()
+if _, err := io.Copy(hash, input); err != nil {
+  log.Fatal(err)
+}
+
+{
+  input := strings.NewReader("Foo")
+  hash := sha256.New()
+  if _, err := io.Copy(hash, input); err != nil {
+    log.Fatal(err)
+  }
+
+  return hash
+}
+```
+
+</td><td>
+
+```go
+input := strings.NewReader("Foo")
+hash := sha256.New()
+if _, err := io.Copy(hash, input); err != nil {
+    log.Fatal(err)
+}
+
+// reuse variables
+input = strings.NewReader("Bar")
+hash = sha256.New()
+if _, err := io.Copy(hash, input); err != nil {
+    log.Fatal(err)
+}
+
+return hash
+```
+
+</td></tr>
+</tbody></table>
 
 ## Patterns
 
