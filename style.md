@@ -90,6 +90,7 @@ row before the </tbody></table> line.
   - [Initializing Struct References](#initializing-struct-references)
   - [Format Strings outside Printf](#format-strings-outside-printf)
   - [Naming Printf-style Functions](#naming-printf-style-functions)
+  - [Avoid init package functions](#avoid-package-init-functions)
 - [Patterns](#patterns)
   - [Test Tables](#test-tables)
   - [Functional Options](#functional-options)
@@ -1973,6 +1974,50 @@ $ go vet -printfuncs=wrapf,statusf
 See also [go vet: Printf family check].
 
   [go vet: Printf family check]: https://kuzminva.wordpress.com/2017/11/07/go-vet-printf-family-check/
+
+### Avoid package init functions
+
+Package `init()` functions are a handy tool, sometimes necessary, but should not be overused. They are often used to initialize some global variables, but even global variables should be avoided as much as possible.
+
+Init functions cause an import to have a side effects, and side effects are hard to test, reduce readability and increase the complexity of code.
+
+`init()` have indisputable drawbacks:
+
+- It's called even when no package function was used.
+- Cannot rely upon the order of execution of `init()` functions.
+- All the variables that the `init()` function is used can not be dead code elimination.
+- Complicates debugging because you don't know that the package [`compress/bzip2`](https://github.com/golang/go/blob/883bc6/src/compress/bzip2/bzip2.go#L480) have a init function run before your main package.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+var gVar []byte
+func init(){
+   gVar = make([]byte,1000*1000);
+}
+```
+
+</td><td>
+
+```go
+var gVar []byte
+func InitPackage(){
+   gVar = make([]byte,1000*1000);
+}
+```
+
+- In test of the [`fmt`](https://github.com/golang/go/blob/a1025ba4aab08a40efe9805829e1c626e73ef102/src/cmd/compile/fmt_test.go#L561-L575) package it is used to validate the test data.
+- In packages like [`compress/bzip2`](https://github.com/golang/go/blob/883bc6/src/compress/bzip2/bzip2.go#L480) it is used to generate the fixed CRC lookup table.
+
+</td></tr>
+</tbody></table>
+
+See also,
+
+- [Package initialization](https://golang.org/ref/spec#Package_initialization)
 
 ## Patterns
 
