@@ -842,7 +842,7 @@ func main() {
 
 ```go
 func foo(bar string) error {
-  if len(bar) == 0
+  if len(bar) == 0 {
     return errors.New("bar must not be empty")
   }
   // ...
