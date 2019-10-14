@@ -1992,7 +1992,7 @@ if _, err := io.Copy(hash, input); err != nil {
 }
 
 {
-  input := strings.NewReader("Foo")
+  input := strings.NewReader("Bar")
   hash := sha256.New()
   if _, err := io.Copy(hash, input); err != nil {
     log.Fatal(err)
