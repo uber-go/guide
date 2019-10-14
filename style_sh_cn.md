@@ -2085,6 +2085,7 @@ db.Connect(
   [Functional options for friendly APIs]: https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis
 
 more:
+
 - [uber_go_guide_cn](https://github.com/xxjwxc/uber_go_guide_cn)
 <!-- TODO: replace this with parameter structs and functional options, when to
 use one vs other -->
