@@ -52,47 +52,51 @@ row before the </tbody></table> line.
 
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [Guidelines](#guidelines)
-  - [Pointers to Interfaces](#pointers-to-interfaces)
-  - [Receivers and Interfaces](#receivers-and-interfaces)
-  - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
-  - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
-  - [Defer to Clean Up](#defer-to-clean-up)
-  - [Channel Size is One or None](#channel-size-is-one-or-none)
-  - [Start Enums at One](#start-enums-at-one)
-  - [Error Types](#error-types)
-  - [Error Wrapping](#error-wrapping)
-  - [Handle Type Assertion Failures](#handle-type-assertion-failures)
-  - [Don't Panic](#dont-panic)
-  - [Use go.uber.org/atomic](#use-gouberorgatomic)
-- [Performance](#performance)
-  - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
-  - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
-- [Style](#style)
-  - [Group Similar Declarations](#group-similar-declarations)
-  - [Import Group Ordering](#import-group-ordering)
-  - [Package Names](#package-names)
-  - [Function Names](#function-names)
-  - [Import Aliasing](#import-aliasing)
-  - [Function Grouping and Ordering](#function-grouping-and-ordering)
-  - [Reduce Nesting](#reduce-nesting)
-  - [Unnecessary Else](#unnecessary-else)
-  - [Top-level Variable Declarations](#top-level-variable-declarations)
-  - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
-  - [Embedding in Structs](#embedding-in-structs)
-  - [Use Field Names to initialize Structs](#use-field-names-to-initialize-structs)
-  - [Local Variable Declarations](#local-variable-declarations)
-  - [nil is a valid slice](#nil-is-a-valid-slice)
-  - [Reduce Scope of Variables](#reduce-scope-of-variables)
-  - [Avoid Naked Parameters](#avoid-naked-parameters)
-  - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
-  - [Initializing Struct References](#initializing-struct-references)
-  - [Format Strings outside Printf](#format-strings-outside-printf)
-  - [Naming Printf-style Functions](#naming-printf-style-functions)
-- [Patterns](#patterns)
-  - [Test Tables](#test-tables)
-  - [Functional Options](#functional-options)
+- [Uber Go Style Guide](#uber-go-style-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Guidelines](#guidelines)
+    - [Pointers to Interfaces](#pointers-to-interfaces)
+    - [Receivers and Interfaces](#receivers-and-interfaces)
+    - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
+    - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
+      - [Receiving Slices and Maps](#receiving-slices-and-maps)
+      - [Returning Slices and Maps](#returning-slices-and-maps)
+    - [Defer to Clean Up](#defer-to-clean-up)
+    - [Channel Size is One or None](#channel-size-is-one-or-none)
+    - [Start Enums at One](#start-enums-at-one)
+    - [Error Types](#error-types)
+    - [Error Wrapping](#error-wrapping)
+    - [Handle Type Assertion Failures](#handle-type-assertion-failures)
+    - [Don't Panic](#dont-panic)
+    - [Use go.uber.org/atomic](#use-gouberorgatomic)
+  - [Performance](#performance)
+    - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
+    - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
+  - [Style](#style)
+    - [Group Similar Declarations](#group-similar-declarations)
+    - [Import Group Ordering](#import-group-ordering)
+    - [Package Names](#package-names)
+    - [Function Names](#function-names)
+    - [Import Aliasing](#import-aliasing)
+    - [Function Grouping and Ordering](#function-grouping-and-ordering)
+    - [Reduce Nesting](#reduce-nesting)
+    - [Unnecessary Else](#unnecessary-else)
+    - [Top-level Variable Declarations](#top-level-variable-declarations)
+    - [Prefix Unexported Globals with _](#prefix-unexported-globals-with)
+    - [Embedding in Structs](#embedding-in-structs)
+    - [Use Field Names to initialize Structs](#use-field-names-to-initialize-structs)
+    - [Local Variable Declarations](#local-variable-declarations)
+    - [nil is a valid slice](#nil-is-a-valid-slice)
+    - [Reduce Scope of Variables](#reduce-scope-of-variables)
+    - [Avoid Naked Parameters](#avoid-naked-parameters)
+    - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
+    - [Initializing Struct References](#initializing-struct-references)
+    - [Format Strings outside Printf](#format-strings-outside-printf)
+    - [Naming Printf-style Functions](#naming-printf-style-functions)
+  - [Patterns](#patterns)
+    - [Test Tables](#test-tables)
+    - [Functional Options](#functional-options)
 
 ## Introduction
 
@@ -635,7 +639,7 @@ func open(file string) error {
 }
 
 func use() {
-  if err := open(); err != nil {
+  if err := open("notExist"); err != nil {
     if strings.Contains(err.Error(), "not found") {
       // handle
     } else {
@@ -661,7 +665,7 @@ func open(file string) error {
 }
 
 func use() {
-  if err := open(); err != nil {
+  if err := open("notExist"); err != nil {
     if _, ok := err.(errNotFound); ok {
       // handle
     } else {
