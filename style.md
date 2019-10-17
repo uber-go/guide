@@ -147,7 +147,7 @@ pointer.
 
 ### Receivers and Interfaces
 
-Methods with value receivers can be called on pointers as well as values.
+Methods with pointer receivers can be called on pointers as well as values.
 
 For example,
 
