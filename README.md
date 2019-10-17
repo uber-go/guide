@@ -9,6 +9,6 @@ See [Uber Go Style Guide](style.md) for the style guide.
 
 We are aware of the following translations of this guide by the Go community.
 
-- **中文**: [xxjwxc/uber_go_guide_cn](https://github.com/xxjwxc/uber_go_guide_cn)
+- **中文翻译**: [xxjwxc/uber_go_guide_cn](https://github.com/xxjwxc/uber_go_guide_cn)
 
 If you have a translation, feel free to submit a PR adding it to the list.
