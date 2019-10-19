@@ -11,5 +11,6 @@ We are aware of the following translations of this guide by the Go community.
 
 - **Chinese**: [xxjwxc/uber_go_guide_cn](https://github.com/xxjwxc/uber_go_guide_cn)
 - **Korean**: [TangoEnSkai/uber-go-style-guide-kr](https://github.com/TangoEnSkai/uber-go-style-guide-kr)
+- **Japanese**: [knsh14/uber-style-guide-ja]( https://github.com/knsh14/uber-style-guide-ja )
 
 If you have a translation, feel free to submit a PR adding it to the list.
