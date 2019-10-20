@@ -69,6 +69,7 @@ row before the </tbody></table> line.
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
+  - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
 - [Style](#style)
   - [Group Similar Declarations](#group-similar-declarations)
   - [Import Group Ordering](#import-group-ordering)
@@ -1048,6 +1049,58 @@ BenchmarkGood-4  500000000   3.25 ns/op
 </td></tr>
 </tbody></table>
 
+### Prefer Specifying Map Capacity Hints
+
+Where possible, provide capacity hints when initializing
+maps with `make()`.
+
+```go
+make(map[T1]T2, hint)
+```
+
+While Go's runtime map implementation only acts upon capacity
+hints in certain situations (see
+[`runtime.makemap()`](https://golang.org/src/runtime/map.go)
+for more information), providing a hint to `make()` can
+cause allocations to occur at map initialization time rather
+than periodically as elements are added to the map.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+m := make(map[T1]T2)
+// later...
+for i := 0; i < 10000; i++ {
+  // add element to m
+)
+```
+
+</td><td>
+
+```go
+m := make(map[T1]T2, 10000)
+// later...
+for i := 0; i < 10000; i++ {
+  // add element to m
+}
+```
+
+</td></tr>
+<tr><td>
+
+Bucket allocations are deferred until elements are added.
+
+</td><td>
+
+Bucket occur at initialization time (for sufficiently large
+capacity hints).
+
+</td></tr>
+</tbody></table>
+
 ## Style
 
 ### Group Similar Declarations
@@ -1969,58 +2022,9 @@ Declaration and initialization are visually distinct.
 </tbody></table>
 
 Where possible, provide capacity hints when initializing
-maps with `make()`.
-
-```go
-make(map[T1]T2, hint)
-```
-
-While Go's runtime map implementation only acts upon capacity
-hints in certain situations (see
-[`runtime.makemap()`](https://golang.org/src/runtime/map.go)
-for more information), this can also be a helpful cue when
-reading source code.
-
-<table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
-<tbody>
-<tr><td>
-
-```go
-m := make(map[T1]T2)
-
-// later...
-
-for i := 0; i < 10000; i++ {
-  // add element to m
-)
-```
-
-</td><td>
-
-```go
-m := make(map[T1]T2, 10000)
-
-// later...
-
-for i := 0; i < 10000; i++ {
-  // add element to m
-}
-```
-
-</td></tr>
-<tr><td>
-
-The footprint of `m` is not well-understood at initialization time,
-and allocations are deferred until elements are added.
-
-</td><td>
-
-The footprint of `m` is better understood at initialization time,
-and allocations occur up front.
-
-</td></tr>
-</tbody></table>
+maps with `make()`. See
+[Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+for more information.
 
 On the other hand, if the map holds a fixed list of elements,
 use map literals to initialize the map.
