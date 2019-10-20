@@ -1926,8 +1926,10 @@ sptr := &T{Name: "bar"}
 
 ### Initializing Maps
 
-Where reasonable, prefer to initialize maps with `make()` versus type
-literals, as the intent is generally easier to understand.
+Prefer `make(..)` for empty maps, and maps populated
+programmatically. This makes map initialization visually
+distinct from declaration, and it makes it easy to add size
+hints later if available.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1953,53 +1955,46 @@ var (
 </td></tr>
 <tr><td>
 
-In the above example, both declaration and initialization are visually similar
-(have a lesser Levenshtein distance).
+Declaration and initialization are visually similar.
 
 </td><td>
 
-In the above example, declaration and initialization are more visually distinct
-(have a greater Levenshtein distance).
+Declaration and initialization are more visually distinct.
 
 </td></tr>
 </tbody></table>
 
-Additionally, given that the signature for `make()` with a map is
-`make(map[T1]T2[, hint])`, refactors that add/remove capacity hints are simpler:
+On the other hand, if the map holds a fixed list of elements,
+use map literals to initialize the map.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
 <tbody>
 <tr><td>
 
-```diff
-diff --git a/tmp.go b/tmp.go
-index e014e4f64..e07a845d9 100644
---- a/tmp.go
-+++ b/tmp.go
-@@ -1 +1 @@
--m := map[T1]T2{}
-+m := make(map[T1]T2, hint)
+```go
+m := make(map[T1]T2, 3)
+m[k1] = v1
+m[k2] = v2
+m[k3] = v3
 ```
 
 </td><td>
 
-```diff
-diff --git a/tmp.go b/tmp.go
-index 8aa33cc41..e07a845d9 100644
---- a/tmp.go
-+++ b/tmp.go
-@@ -1 +1 @@
--m := make(map[T1]T2)
-+m := make(map[T1]T2, hint)
+```go
+m := map[T1]T2{
+  k1: v1,
+  k2: v2,
+  k3: v3,
+}
 ```
 
 </td></tr>
 </tbody></table>
 
+
 While it's impractical to prescribe a universal strategy for map initialization,
-there are some basic rules of thumb for when to use `make()` versus type
-literals:
+there are some basic rules of thumb you can use here.
 
 - Use `make()` when...
   - an empty map is being initialized
@@ -2007,8 +2002,7 @@ literals:
   - when a size hint is available
   - when the rest of the codebase predominantly uses `make()`
 - Use type literals when...
-  - a static/fixed set of elements are being added at initialization time
-  - when the type can reasonably be used like an rvalue (in C++ parlance)
+  - a fixed set of elements is being added at initialization time
   - when the rest of the codebase predominantly uses literals
 
 There are more nuances than outlined in this guide; when in doubt,
