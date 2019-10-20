@@ -1072,7 +1072,9 @@ than periodically as elements are added to the map.
 
 ```go
 m := make(map[T1]T2)
+
 // later...
+
 for i := 0; i < 10000; i++ {
   // add element to m
 )
@@ -1082,7 +1084,9 @@ for i := 0; i < 10000; i++ {
 
 ```go
 m := make(map[T1]T2, 10000)
+
 // later...
+
 for i := 0; i < 10000; i++ {
   // add element to m
 }
@@ -1095,8 +1099,8 @@ Bucket allocations are deferred until elements are added.
 
 </td><td>
 
-Bucket occur at initialization time (for sufficiently large
-capacity hints).
+Bucket allocations occur at initialization time
+(for sufficiently large capacity hints).
 
 </td></tr>
 </tbody></table>
