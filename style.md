@@ -1959,7 +1959,7 @@ Declaration and initialization are visually similar.
 
 </td><td>
 
-Declaration and initialization are more visually distinct.
+Declaration and initialization are visually distinct.
 
 </td></tr>
 </tbody></table>
