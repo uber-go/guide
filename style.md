@@ -375,8 +375,8 @@ func (s *Stats) Snapshot() map[string]int {
   return s.counters
 }
 
-// snapshot is no longer protected by the mutex, so any
-// access to the snapshot is racy.
+// snapshot is no longer protected by the mutex,
+// so any access to the snapshot is subject to race condition.
 snapshot := stats.Snapshot()
 ```
 
