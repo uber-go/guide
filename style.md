@@ -2012,12 +2012,12 @@ for i := 0; i < 10000; i++ {
 <tr><td>
 
 The footprint of `m` is not well-understood at initialization time,
-and multiple allocations may take place as part of adding elements.
+and allocations are deferred until elements are added.
 
 </td><td>
 
 The footprint of `m` is better understood at initialization time,
-and fewer allocations are incurred when adding within its capacity.
+and allocations occur up front.
 
 </td></tr>
 </tbody></table>
@@ -2051,17 +2051,9 @@ m := map[T1]T2{
 </tbody></table>
 
 
-While it's impractical to prescribe a universal strategy for map initialization,
-there are some basic rules of thumb you can use here.
-
-- Use `make()` when...
-  - an empty map is being initialized
-  - elements must be added programatically, versus as part of a literal
-  - when a size hint is available
-  - when the rest of the codebase predominantly uses `make()`
-- Use type literals when...
-  - a fixed set of elements is being added at initialization time
-  - when the rest of the codebase predominantly uses literals
+The basic rule of thumb is to use map literals when adding a fixed set of
+elements at initialization time, otherwise use `make` (and specify a size hint
+if available).
 
 There are more nuances than outlined in this guide; when in doubt,
 [be consistent](#be-consistent).
