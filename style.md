@@ -88,7 +88,7 @@ row before the </tbody></table> line.
   - [Avoid Naked Parameters](#avoid-naked-parameters)
   - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
   - [Initializing Struct References](#initializing-struct-references)
-  - [Initializing Maps and Slices](#initializing-maps-and-slices)
+  - [Initializing Maps](#initializing-maps)
   - [Format Strings outside Printf](#format-strings-outside-printf)
   - [Naming Printf-style Functions](#naming-printf-style-functions)
 - [Patterns](#patterns)
@@ -1924,9 +1924,9 @@ sptr := &T{Name: "bar"}
 </td></tr>
 </tbody></table>
 
-### Initializing Maps and Slices
+### Initializing Maps
 
-Where reasonable, prefer to initialize maps and slices with `make()` versus type
+Where reasonable, prefer to initialize maps with `make()` versus type
 literals, as the intent is generally easier to understand.
 
 <table>
@@ -1941,13 +1941,6 @@ var (
 )
 ```
 
-```go
-var (
-  s1 = []T{}
-  s2 []T
-)
-```
-
 </td><td>
 
 ```go
@@ -1957,22 +1950,15 @@ var (
 )
 ```
 
-```go
-var (
-  s1 = make([]T, 0)
-  s2 []T
-)
-```
-
 </td></tr>
 <tr><td>
 
-In the above examples, both declaration and initialization are visually similar
+In the above example, both declaration and initialization are visually similar
 (have a lesser Levenshtein distance).
 
 </td><td>
 
-In the above examples, declaration and initialization are more visually distinct
+In the above example, declaration and initialization are more visually distinct
 (have a greater Levenshtein distance).
 
 </td></tr>
@@ -2011,18 +1997,16 @@ index 8aa33cc41..e07a845d9 100644
 </td></tr>
 </tbody></table>
 
-While it's impractical to prescribe a universal strategy for map and slice
-initialization, there are some basic rules of thumb for when to use `make()`
-versus type literals:
+While it's impractical to prescribe a universal strategy for map initialization,
+there are some basic rules of thumb for when to use `make()` versus type
+literals:
 
-- Use `make(map[T1]T2)` or `make([]T, cap)` when...
-  - an empty map or slice is being initialized
+- Use `make()` when...
+  - an empty map is being initialized
   - elements must be added programatically, versus as part of a literal
-  - [maps only] when it is optimal to pre-allocate storage (based on an
-    understanding of Go's internal hashmap implementation, see
-    [`makemap()` in runtime/map.go](https://github.com/golang/go/blob/master/src/runtime/map.go))
+  - when a size hint is available
   - when the rest of the codebase predominantly uses `make()`
-- Use `map[T1]T2{}` or `[]T{}` when...
+- Use type literals when...
   - a static/fixed set of elements are being added at initialization time
   - when the type can reasonably be used like an rvalue (in C++ parlance)
   - when the rest of the codebase predominantly uses literals
