@@ -2063,9 +2063,6 @@ The basic rule of thumb is to use map literals when adding a fixed set of
 elements at initialization time, otherwise use `make` (and specify a size hint
 if available).
 
-There are more nuances than outlined in this guide; when in doubt,
-[be consistent](#be-consistent).
-
 ### Format Strings outside Printf
 
 If you declare format strings for `Printf`-style functions outside a string
