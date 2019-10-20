@@ -1968,6 +1968,60 @@ Declaration and initialization are visually distinct.
 </td></tr>
 </tbody></table>
 
+Where possible, provide capacity hints when initializing
+maps with `make()`.
+
+```go
+make(map[T1]T2, hint)
+```
+
+While Go's runtime map implementation only acts upon capacity
+hints in certain situations (see
+[`runtime.makemap()`](https://golang.org/src/runtime/map.go)
+for more information), this can also be a helpful cue when
+reading source code.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+m := make(map[T1]T2)
+
+// later...
+
+for i := 0; i < 10000; i++ {
+  // add element to m
+)
+```
+
+</td><td>
+
+```go
+m := make(map[T1]T2, 10000)
+
+// later...
+
+for i := 0; i < 10000; i++ {
+  // add element to m
+}
+```
+
+</td></tr>
+<tr><td>
+
+The footprint of `m` is not well-understood at initialization time,
+and multiple allocations may take place as part of adding elements.
+
+</td><td>
+
+The footprint of `m` is better understood at initialization time,
+and fewer allocations are incurred when adding within its capacity.
+
+</td></tr>
+</tbody></table>
+
 On the other hand, if the map holds a fixed list of elements,
 use map literals to initialize the map.
 
