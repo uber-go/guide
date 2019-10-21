@@ -1093,13 +1093,13 @@ for _, f := range files {
 </td></tr>
 <tr><td>
 
-`m` is created without a size hint; files added to the map
-may cause additional allocations.
+`m` is created without a size hint; there may be more
+allocations at assignment time.
 
 </td><td>
 
-`m` is created with a size hint; files added to the map
-may cause fewer/no allocations.
+`m` is created with a size hint; there may be fewer
+allocations at assignment time.
 
 </td></tr>
 </tbody></table>
