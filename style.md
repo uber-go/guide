@@ -82,7 +82,7 @@ row before the </tbody></table> line.
   - [Top-level Variable Declarations](#top-level-variable-declarations)
   - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
   - [Embedding in Structs](#embedding-in-structs)
-  - [Use Field Names to initialize Structs](#use-field-names-to-initialize-structs)
+  - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
   - [Local Variable Declarations](#local-variable-declarations)
   - [nil is a valid slice](#nil-is-a-valid-slice)
   - [Reduce Scope of Variables](#reduce-scope-of-variables)
