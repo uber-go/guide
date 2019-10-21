@@ -70,6 +70,7 @@ row before the </tbody></table> line.
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
 - [Style](#style)
+  - [Be Consistent](#be-consistent)
   - [Group Similar Declarations](#group-similar-declarations)
   - [Import Group Ordering](#import-group-ordering)
   - [Package Names](#package-names)
@@ -81,7 +82,7 @@ row before the </tbody></table> line.
   - [Top-level Variable Declarations](#top-level-variable-declarations)
   - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
   - [Embedding in Structs](#embedding-in-structs)
-  - [Use Field Names to initialize Structs](#use-field-names-to-initialize-structs)
+  - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
   - [Local Variable Declarations](#local-variable-declarations)
   - [nil is a valid slice](#nil-is-a-valid-slice)
   - [Reduce Scope of Variables](#reduce-scope-of-variables)
@@ -1049,6 +1050,26 @@ BenchmarkGood-4  500000000   3.25 ns/op
 
 ## Style
 
+### Be Consistent
+
+Some of the guidelines outlined in this document can be evaluated objectively;
+others are situational, contextual, or subjective.
+
+Above all else, **be consistent**.
+
+Consistent code is easier to maintain, is easier to rationalize, requires less
+cognitive overhead, and is easier to migrate or update as new conventions emerge
+or classes of bugs are fixed.
+
+Conversely, having multiple disparate or conflicting styles within a single
+codebase causes maintenance overhead, uncertainty, and cognitive dissonance,
+all of which can directly contribute to lower velocity, painful code reviews,
+and bugs.
+
+When applying these guidelines to a codebase, it is recommended that changes
+are made at a package (or larger) level: application at at a sub-package level
+violates the above concern by introducing multiple styles into the same code.
+
 ### Group Similar Declarations
 
 Go supports grouping similar declarations.
@@ -1557,7 +1578,7 @@ type Client struct {
 </td></tr>
 </tbody></table>
 
-### Use Field Names to initialize Structs
+### Use Field Names to Initialize Structs
 
 You should almost always specify field names when initializing structs. This is
 now enforced by [`go vet`].
