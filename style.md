@@ -376,7 +376,7 @@ func (s *Stats) Snapshot() map[string]int {
 }
 
 // snapshot is no longer protected by the mutex, so any
-// access to the snapshot is racy.
+// access to the snapshot is subject to data races.
 snapshot := stats.Snapshot()
 ```
 
