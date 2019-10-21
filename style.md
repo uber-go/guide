@@ -1058,12 +1058,11 @@ maps with `make()`.
 make(map[T1]T2, hint)
 ```
 
-While Go's runtime map implementation only acts upon capacity
-hints in certain situations (see
-[`runtime.makemap()`](https://golang.org/src/runtime/map.go)
-for more information), providing a hint to `make()` can
-cause allocations to occur at map initialization time rather
-than periodically as elements are added to the map.
+Providing a capacity hint to `make()` tries to right-size the
+map at initialization time, which reduces the need for growing
+the map and allocations as elements are added to the map. Note
+that the capacity hint is not guaranteed for maps, so adding
+elements may still allocate even if a capacity hint is provided.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1071,36 +1070,36 @@ than periodically as elements are added to the map.
 <tr><td>
 
 ```go
-m := make(map[T1]T2)
+m := make(map[string]os.FileInfo)
 
-// later...
-
-for i := 0; i < 10000; i++ {
-  // add element to m
-)
+files, _ := ioutil.ReadDir("./files")
+for _, f := range files {
+    m[f.Name()] = f
+}
 ```
 
 </td><td>
 
 ```go
-m := make(map[T1]T2, 10000)
 
-// later...
+files, _ := ioutil.ReadDir("./files")
 
-for i := 0; i < 10000; i++ {
-  // add element to m
+m := make(map[string]os.FileInfo, len(files))
+for _, f := range files {
+    m[f.Name()] = f
 }
 ```
 
 </td></tr>
 <tr><td>
 
-Bucket allocations are deferred until elements are added.
+`m` is created without a size hint; files added to the map
+may cause additional allocations.
 
 </td><td>
 
-Bucket allocations occur at initialization time
-(for sufficiently large capacity hints).
+`m` is created with a size hint; files added to the map
+may cause fewer/no allocations.
 
 </td></tr>
 </tbody></table>
