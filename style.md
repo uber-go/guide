@@ -69,6 +69,7 @@ row before the </tbody></table> line.
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
+  - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
 - [Style](#style)
   - [Be Consistent](#be-consistent)
   - [Group Similar Declarations](#group-similar-declarations)
@@ -89,6 +90,7 @@ row before the </tbody></table> line.
   - [Avoid Naked Parameters](#avoid-naked-parameters)
   - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
   - [Initializing Struct References](#initializing-struct-references)
+  - [Initializing Maps](#initializing-maps)
   - [Format Strings outside Printf](#format-strings-outside-printf)
   - [Naming Printf-style Functions](#naming-printf-style-functions)
 - [Patterns](#patterns)
@@ -1048,6 +1050,61 @@ BenchmarkGood-4  500000000   3.25 ns/op
 </td></tr>
 </tbody></table>
 
+### Prefer Specifying Map Capacity Hints
+
+Where possible, provide capacity hints when initializing
+maps with `make()`.
+
+```go
+make(map[T1]T2, hint)
+```
+
+Providing a capacity hint to `make()` tries to right-size the
+map at initialization time, which reduces the need for growing
+the map and allocations as elements are added to the map. Note
+that the capacity hint is not guaranteed for maps, so adding
+elements may still allocate even if a capacity hint is provided.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+m := make(map[string]os.FileInfo)
+
+files, _ := ioutil.ReadDir("./files")
+for _, f := range files {
+    m[f.Name()] = f
+}
+```
+
+</td><td>
+
+```go
+
+files, _ := ioutil.ReadDir("./files")
+
+m := make(map[string]os.FileInfo, len(files))
+for _, f := range files {
+    m[f.Name()] = f
+}
+```
+
+</td></tr>
+<tr><td>
+
+`m` is created without a size hint; there may be more
+allocations at assignment time.
+
+</td><td>
+
+`m` is created with a size hint; there may be fewer
+allocations at assignment time.
+
+</td></tr>
+</tbody></table>
+
 ## Style
 
 ### Be Consistent
@@ -1943,6 +2000,88 @@ sptr := &T{Name: "bar"}
 
 </td></tr>
 </tbody></table>
+
+### Initializing Maps
+
+Prefer `make(..)` for empty maps, and maps populated
+programmatically. This makes map initialization visually
+distinct from declaration, and it makes it easy to add size
+hints later if available.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+var (
+  // m1 is safe to read and write;
+  // m2 will panic on writes.
+  m1 = map[T1]T2{}
+  m2 map[T1]T2
+)
+```
+
+</td><td>
+
+```go
+var (
+  // m1 is safe to read and write;
+  // m2 will panic on writes.
+  m1 = make(map[T1]T2)
+  m2 map[T1]T2
+)
+```
+
+</td></tr>
+<tr><td>
+
+Declaration and initialization are visually similar.
+
+</td><td>
+
+Declaration and initialization are visually distinct.
+
+</td></tr>
+</tbody></table>
+
+Where possible, provide capacity hints when initializing
+maps with `make()`. See
+[Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+for more information.
+
+On the other hand, if the map holds a fixed list of elements,
+use map literals to initialize the map.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+m := make(map[T1]T2, 3)
+m[k1] = v1
+m[k2] = v2
+m[k3] = v3
+```
+
+</td><td>
+
+```go
+m := map[T1]T2{
+  k1: v1,
+  k2: v2,
+  k3: v3,
+}
+```
+
+</td></tr>
+</tbody></table>
+
+
+The basic rule of thumb is to use map literals when adding a fixed set of
+elements at initialization time, otherwise use `make` (and specify a size hint
+if available).
 
 ### Format Strings outside Printf
 
