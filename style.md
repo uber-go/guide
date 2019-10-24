@@ -1701,7 +1701,7 @@ s := "foo"
 </tbody></table>
 
 However, there are cases where the default value is clearer when the `var`
-keyword is use. [Declaring Empty Slices], for example.
+keyword is used. [Declaring Empty Slices], for example.
 
   [Declaring Empty Slices]: https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices
 
@@ -2115,13 +2115,13 @@ fmt.Printf(msg, 1, 2)
 When you declare a `Printf`-style function, make sure that `go vet` can detect
 it and check the format string.
 
-This means that you should use pre-defined `Printf`-style function
+This means that you should use predefined `Printf`-style function
 names if possible. `go vet` will check these by default. See [Printf family]
 for more information.
 
   [Printf family]: https://golang.org/cmd/vet/#hdr-Printf_family
 
-If using the pre-defined names is not an option, end the name you choose with
+If using the predefined names is not an option, end the name you choose with
 f: `Wrapf`, not `Wrap`. `go vet` can be asked to check specific `Printf`-style
 names but they must end with f.
 
