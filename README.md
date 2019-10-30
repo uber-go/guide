@@ -14,4 +14,6 @@ We are aware of the following translations of this guide by the Go community.
 - **日本語訳** (Japanese): [knsh14/uber-style-guide-ja](https://github.com/knsh14/uber-style-guide-ja)
 - **Traducción al Español** (Spanish): [friendsofgo/uber-go-guide-es](https://github.com/friendsofgo/uber-go-guide-es)
 
+- แปลภาษาไทย (Thai): [pallat/uber-go-style-guide-th](https://github.com/pallat/uber-go-style-guide-th)
+
 If you have a translation, feel free to submit a PR adding it to the list.
