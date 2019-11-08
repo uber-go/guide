@@ -52,9 +52,9 @@ row before the </tbody></table> line.
 
 ## Table of Contents
 
-- [Introduction](#Introdução)
-- [Guidelines](#guidelines)
-  - [Pointers to Interfaces](#pointers-to-interfaces)
+- [Introdução](#Introdução)
+- [Diretrizes](#guidelines)
+  - [Receptores e Interfaces](#pointers-to-interfaces)
   - [Receivers and Interfaces](#receivers-and-interfaces)
   - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
   - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
@@ -124,24 +124,19 @@ Você pode encontrar informações no suporte do editor para as ferramentas Go a
 
 ### Ponteiros para interfaces
 
-You almost never need a pointer to an interface. You should be passing
-interfaces as values—the underlying data can still be a pointer.
+Você quase nunca precisa de um ponteiro para uma interface. Você deve passar interfaces como valores pois quando a mesma for implementada, ainda pode ser um ponteiro.
 
-An interface is two fields:
+1. Uma interface é divida em dois campos:
 
-1. A pointer to some type-specific information. You can think of this as
-  "type."
-2. Data pointer. If the data stored is a pointer, it’s stored directly. If
-  the data stored is a value, then a pointer to the value is stored.
+2. Um ponteiro para algum tipo específico.
 
-If you want interface methods to modify the underlying data, you must use a
-pointer.
+Se você deseja que os métodos da interface modifiquem os dados que a mesma possuirá, use um ponteiro.
 
-### Receivers and Interfaces
+### Receptores e Interfaces
 
-Methods with value receivers can be called on pointers as well as values.
+Métodos com valores receptores podem ser chamados tanto como ponteiros ou como valores.
 
-For example,
+Por exemplo:
 
 ```go
 type S struct {
@@ -158,21 +153,20 @@ func (s *S) Write(str string) {
 
 sVals := map[int]S{1: {"A"}}
 
-// You can only call Read using a value
+// Você pode chamar o metódo Read apenas utilizando o valor
 sVals[1].Read()
 
-// This will not compile:
+// Isso não irá compilar
 //  sVals[1].Write("test")
 
 sPtrs := map[int]*S{1: {"A"}}
 
-// You can call both Read and Write using a pointer
+// Você pode chamar os metódos Read e Write utilizando o ponteiro
 sPtrs[1].Read()
 sPtrs[1].Write("test")
 ```
 
-Similarly, an interface can be satisfied by a pointer, even if the method has a
-value receiver.
+Da mesma forma que uma interface aceita um ponteiro ou valor como receptor em seus métodos.
 
 ```go
 type F interface {
@@ -197,13 +191,12 @@ i = s1Val
 i = s1Ptr
 i = s2Ptr
 
-// The following doesn't compile, since s2Val is a value, and there is no value receiver for f.
+// Isso não compila, pois s2Val é um valor da struct S2 e portanto não pode utilizar-se do metódo f(), que tem como receptor um ponteiro
 //   i = s2Val
 ```
+Effective Go tem uma boa abordagem sobre isso em Pointers and Values [Pointers vs. Values].
 
-Effective Go has a good write up on [Pointers vs. Values].
-
-  [Pointers vs. Values]: https://golang.org/doc/effective_go.html#pointers_vs_values
+[Pointers vs. Values]: https://golang.org/doc/effective_go.html#pointers_vs_values
 
 ### Zero-value Mutexes are Valid
 
