@@ -53,11 +53,11 @@ row before the </tbody></table> line.
 ## Table of Contents
 
 - [Introdução](#Introdução)
-- [Diretrizes](#guidelines)
-  - [Receptores e Interfaces](#pointers-to-interfaces)
-  - [Receivers and Interfaces](#receivers-and-interfaces)
-  - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
-  - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
+- [Diretrizes](#Diretrizes)
+  - [Ponteiros para interfaces](#ponteiros-para-interfaces)
+  - [Receptores e Interfaces](#receptores-e-interfaces)
+  - [Mutexes com valor zero são validos](#mutexes-com-valor-zero-são-validos)
+  - [Copiar slices e mapas com limites](#copiar-slices-e-mapas-com-limites)
   - [Defer to Clean Up](#defer-to-clean-up)
   - [Channel Size is One or None](#channel-size-is-one-or-none)
   - [Start Enums at One](#start-enums-at-one)
@@ -198,13 +198,12 @@ Effective Go tem uma boa abordagem sobre isso em Pointers and Values [Pointers 
 
 [Pointers vs. Values]: https://golang.org/doc/effective_go.html#pointers_vs_values
 
-### Zero-value Mutexes are Valid
+### Mutexes com valor zero são validos
 
-The zero-value of `sync.Mutex` and `sync.RWMutex` is valid, so you almost
-never need a pointer to a mutex.
+Quando utiliza-se sync.Mutex e sync.RWMutex com valores zero, ou seja, sem inicialização, eles são válidos, então você nunca precisa de um ponteiro para um mutex.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -223,10 +222,9 @@ mu.Lock()
 </td></tr>
 </tbody></table>
 
-If you use a struct by pointer, then the mutex can be a non-pointer field.
+Se você usa uma estrutura a partir de um ponteiro, o mutex pode ser um "acesso sem ponteiro" 
 
-Unexported structs that use a mutex to protect fields of the struct may embed
-the mutex.
+Structs privadas que utilizam um mutex para proteger algum campo, devem utilizar o mutex de forma "embutida".
 
 <table>
 <tbody>
@@ -280,16 +278,15 @@ func (m *SMap) Get(k string) string {
 
 </tr>
 <tr>
-<td>Embed for private types or types that need to implement the Mutex interface.</td>
-<td>For exported types, use a private field.</td>
+<td>Uso embutido para structs que precisam de um mutex embutido.</td>
+<td>Para tipos exportados, utilize um campo privado.</td>
 </tr>
 
 </tbody></table>
 
-### Copy Slices and Maps at Boundaries
+### Copiar slices e mapas com limites
 
-Slices and maps contain pointers to the underlying data so be wary of scenarios
-when they need to be copied.
+Slices e mapas contêm ponteiros para os dados que armazenam, portanto, tenha cuidado quando eles precisarem ser copiados.
 
 #### Receiving Slices and Maps
 
