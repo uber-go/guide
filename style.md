@@ -52,7 +52,7 @@ row before the </tbody></table> line.
 
 ## Table of Contents
 
-- [Introduction](#introduction)
+- [Introduction](#Introdução)
 - [Guidelines](#guidelines)
   - [Pointers to Interfaces](#pointers-to-interfaces)
   - [Receivers and Interfaces](#receivers-and-interfaces)
@@ -97,43 +97,32 @@ row before the </tbody></table> line.
   - [Test Tables](#test-tables)
   - [Functional Options](#functional-options)
 
-## Introduction
+## Introdução
 
-Styles are the conventions that govern our code. The term style is a bit of a
-misnomer, since these conventions cover far more than just source file
-formatting—gofmt handles that for us.
+Estilos são as convenções que governam nosso código. O termo estilo é um pouco inadequado, uma vez que essas convenções abrangem muito mais do que apenas a formatação de arquivos de origem - o pacote gofmt lida com isso para nós. 
 
-The goal of this guide is to manage this complexity by describing in detail the
-Dos and Don'ts of writing Go code at Uber. These rules exist to keep the code
-base manageable while still allowing engineers to use Go language features
-productively.
+O objetivo deste guia é gerenciar essa complexidade, descrevendo em detalhes os prós e contras de escrever o código Go no Uber. Essas regras existem para manter o código base gerenciável e, ao mesmo tempo, permitir que os engenheiros usem os recursos da linguagem Go de forma produtiva.
 
-This guide was originally created by [Prashant Varanasi] and [Simon Newton] as
-a way to bring some colleagues up to speed with using Go. Over the years it has
-been amended based on feedback from others.
+Este guia foi criado originalmente por [Prashant Varanasi] e [Simon Newton] como uma maneira de atualizar alguns colegas sobre o uso do Go. Ao longo dos anos, foi adicionado com base no feedback de outras pessoas.
 
-  [Prashant Varanasi]: https://github.com/prashantv
-  [Simon Newton]: https://github.com/nomis52
+[Prashant Varanasi]: https://github.com/prashantv
+[Simon Newton]: https://github.com/nomis52
 
-This documents idiomatic conventions in Go code that we follow at Uber. A lot
-of these are general guidelines for Go, while others extend upon external
-resources:
+Este guia documenta as convenções idiomáticas no código Go que seguimos no Uber. Muitas delas são diretrizes gerais para o Go, enquanto outras se estendem a recursos externos:
 
 1. [Effective Go](https://golang.org/doc/effective_go.html)
 2. [The Go common mistakes guide](https://github.com/golang/go/wiki/CodeReviewComments)
 
-All code should be error-free when run through `golint` and `go vet`. We
-recommend setting up your editor to:
+Todo o código deve estar livre de erros ao executar o golint e go vet. Recomendamos configurar seu editor para:
 
-- Run `goimports` on save
-- Run `golint` and `go vet` to check for errors
+- Executar `goimports` ao salvar
+- Executar `golint` and `go vet` para verificar se há erros
 
-You can find information in editor support for Go tools here:
-<https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins>
+Você pode encontrar informações no suporte do editor para as ferramentas Go aqui: https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins
 
-## Guidelines
+## Diretrizes
 
-### Pointers to Interfaces
+### Ponteiros para interfaces
 
 You almost never need a pointer to an interface. You should be passing
 interfaces as values—the underlying data can still be a pointer.
