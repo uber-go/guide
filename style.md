@@ -62,9 +62,9 @@ row before the </tbody></table> line.
   - [Tamanho no canal é um ou nenhum](#tamanho-no-canal-é-um-ou-nenhum)
   - [Iniciar enums em um](#iniciar-enums-em-um)
   - [Tipo Erros](#tipo-erros)
-  - [Error Wrapping](#error-wrapping)
-  - [Handle Type Assertion Failures](#handle-type-assertion-failures)
-  - [Don't Panic](#dont-panic)
+  - [Utilizando Error Wrapping](#utilizando-error-wrapping)
+  - [Manipular falhas de asserção de tipos](#manipular-falhas-de-asserção-de-tipos)
+  - [Não utilize panic](#não-utilize-panic)
   - [Use go.uber.org/atomic](#use-gouberorgatomic)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
@@ -678,28 +678,26 @@ if err := foo.Open("foo"); err != nil {
 
 <!-- TODO: Expondo as informações aos chamadores com funções de acessador. -->
 
-### Error Wrapping
+### Utilizando Error Wrapping
 
-There are three main options for propagating errors if a call fails:
+Existem três opções principais para propagar erros se uma chamada falhar:
 
-- Return the original error if there is no additional context to add and you
-  want to maintain the original error type.
-- Add context using [`"pkg/errors".Wrap`] so that the error message provides
-  more context and [`"pkg/errors".Cause`] can be used to extract the original
-  error.
-- Use [`fmt.Errorf`] if the callers do not need to detect or handle that
-  specific error case.
+- Retorne o erro original se não houver contexto adicional a ser adicionado e você
+  deseja manter o tipo de erro original.
+- Adicione o contexto usando [`" pkg / errors ".Wrap`] para que a mensagem de erro forneça
+  mais contexto e [`" pkg / errors ".Cause`] podem ser usados para extrair o erro original.
+- Use [`fmt.Errorf`] se quem for chamar a função não precisa detectar ou manipular um
+  caso de erro específico.
 
-It is recommended to add context where possible so that instead of a vague
-error such as "connection refused", you get more useful errors such as
-"call service foo: connection refused".
+Recomenda-se adicionar o contexto sempre que possível, para que, em vez de um
+erro como "conexão recusada", você obtém erros mais úteis, como
+"chamar serviço foo: conexão recusada.
 
-When adding context to returned errors, keep the context succinct by avoiding
-phrases like "failed to", which state the obvious and pile up as the error
-percolates up through the stack:
+Ao adicionar contexto aos erros retornados, mantenha o contexto sucinto, evitando
+frases como "falhou", que afirmam o óbvio e se acumulam na pilha de erro.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -707,7 +705,7 @@ percolates up through the stack:
 s, err := store.New()
 if err != nil {
     return fmt.Errorf(
-        "failed to create new store: %s", err)
+        "falha ao criar uma nova store: %s", err)
 }
 ```
 
@@ -717,42 +715,42 @@ if err != nil {
 s, err := store.New()
 if err != nil {
     return fmt.Errorf(
-        "new store: %s", err)
+        "nova store: %s", err)
 }
 ```
 
 <tr><td>
 
 ```
-failed to x: failed to y: failed to create new store: the error
+falhou ao chamar x: falhou ao chamar y: falha ao criar uma nova store: o erro
 ```
 
 </td><td>
 
 ```
-x: y: new store: the error
+x: y: nova store: o erro
 ```
 
 </td></tr>
 </tbody></table>
 
-However once the error is sent to another system, it should be clear the
-message is an error (e.g. an `err` tag or "Failed" prefix in logs).
+No entanto, uma vez que o erro é enviado para outro sistema, deve ficar claro o
+mensagem é um erro (por exemplo, uma tag `err` ou prefixo" Failed "nos logs).
 
-See also [Don't just check errors, handle them gracefully].
+Veja também [Don't just check errors, handle them gracefully].
 
-  [`"pkg/errors".Cause`]: https://godoc.org/github.com/pkg/errors#Cause
-  [Don't just check errors, handle them gracefully]: https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully
+[`"pkg/errors".Cause`]: https://godoc.org/github.com/pkg/errors#Cause
+[Don't just check errors, handle them gracefully]: https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully
 
-### Handle Type Assertion Failures
+### Manipular falhas de asserção de tipo
 
-The single return value form of a [type assertion] will panic on an incorrect
-type. Therefore, always use the "comma ok" idiom.
+O retorno de um valor único de [type assertion] entrará em pânico devido a uma falha.
+Portanto, sempre use o idioma "vírgula ok".
 
-  [type assertion]: https://golang.org/ref/spec#Type_assertions
+[type assertion]: https://golang.org/ref/spec#Type_assertions
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -765,26 +763,25 @@ t := i.(string)
 ```go
 t, ok := i.(string)
 if !ok {
-  // handle the error gracefully
+  // lide com o erro normalmente
 }
 ```
 
 </td></tr>
 </tbody></table>
 
-<!-- TODO: There are a few situations where the single assignment form is
-fine. -->
+<!-- TODO: Existem algumas situações o retorno de um valor único é ok. -->
 
-### Don't Panic
+### Não utilize panic
 
-Code running in production must avoid panics. Panics are a major source of
-[cascading failures]. If an error occurs, the function must return an error and
-allow the caller to decide how to handle it.
+O código em execução na produção deve evitar panic. O panic é uma importante fonte de
+[cascading failures]. Se ocorrer um erro, a função deve retornar-lo de uma forma que
+permita o chamador decida como lidar com isso.
 
-  [cascading failures]: https://en.wikipedia.org/wiki/Cascading_failure
+[cascading failures]: https://en.wikipedia.org/wiki/Cascading_failure
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -830,20 +827,19 @@ func main() {
 </td></tr>
 </tbody></table>
 
-Panic/recover is not an error handling strategy. A program must panic only when
-something irrecoverable happens such as a nil dereference. An exception to this is
-program initialization: bad things at program startup that should abort the
-program may cause panic.
+O panic não é uma estratégia de tratamento de erros. Um programa deve entrar em panic apenas quando
+algo irrecuperável acontece como uma dereferência nula. Uma exceção a isso é
+inicialização do programa: coisas ruins na inicialização do programa que devem abortar o
+programa pode causar panic.
 
 ```go
 var _statusTemplate = template.Must(template.New("name").Parse("_statusHTML"))
 ```
-
-Even in tests, prefer `t.Fatal` or `t.FailNow` over panics to ensure that the
-test is marked as failed.
+Mesmo em testes, prefira `t.Fatal` ou` t.FailNow` sobre chamar panic para garantir que o
+teste está marcado como falhou.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -870,7 +866,7 @@ if err != nil {
 </td></tr>
 </tbody></table>
 
-<!-- TODO: Explain how to use _test packages. -->
+<!-- TODO: Como utilizar _test packages. -->
 
 ### Use go.uber.org/atomic
 
