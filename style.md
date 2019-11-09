@@ -71,11 +71,11 @@ row before the </tbody></table> line.
   - [Evite a conversão de string para byte](#evite-a-conversao-de-string-para-byte)
   - [Utilize tamanho ao criar mapas](#utilize-tamanho-ao-criar-mapas)
 - [Estilo](#estilo)
-  - [Be Consistent](#be-consistent)
-  - [Group Similar Declarations](#group-similar-declarations)
-  - [Import Group Ordering](#import-group-ordering)
-  - [Package Names](#package-names)
-  - [Function Names](#function-names)
+  - [Seja consistente](#seja-consistente)
+  - [Agrupar declarações similares](#agrupar-declarações-similares)
+  - [Ordenação e agrupamento de imports](#ordenação-e-agrupamento-de-imports)
+  - [Nome de pacotes](#nome-de-pacotes)
+  - [Nome de funções](#nome-de-funções)
   - [Import Aliasing](#import-aliasing)
   - [Function Grouping and Ordering](#function-grouping-and-ordering)
   - [Reduce Nesting](#reduce-nesting)
@@ -527,7 +527,7 @@ Ao retornar erros, considere o seguinte para determinar a melhor opção:
 
 - Este é um erro simples que não precisa de informações extras? Nesse caso, [`errors.New`] deve ser suficiente.
 - Os clientes precisam detectar e manipular esse erro? Nesse caso, você deve usar um tipo personalizado, utilize o método `Error ()`.
-- Você está propagando um erro retornado por uma função downstream? Se sim, verifique a TODO - colocar link[] ().
+- Você está propagando um erro retornado por uma função downstream? Se sim, verifique o tópico [Utilizando Error Wrapping](utilizando-error-wrapping).
 - Para outros casos, [`fmt.Errorf`] esta ok.
 
   [`errors.New`]: https://golang.org/pkg/errors/#New
@@ -1023,7 +1023,7 @@ Fornecer o parâmetro de capacidade para `make ()` faz com que o sistema tente
 dimensionar memória corretamente no momento da inicialização, o que reduz a necessidade
 de crescimento do mapa e alocações como elementos são adicionados ao mapa. Nota-se
 que o parâmetro de capacidade não é garantida para mapas, portanto, é possível que
-novos elementos ainda tenham que ser alocados,mesmo que uma dica de capacidade seja fornecida.
+novos elementos ainda tenham que ser alocados, mesmo que o parâmetro de capacidade e seja fornecido.
 
 <table>
 <thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
@@ -1067,32 +1067,32 @@ alocações no momento da atribuição.
 
 ## Estilo
 
-### Be Consistent
+### Seja consistente
 
-Some of the guidelines outlined in this document can be evaluated objectively;
-others are situational, contextual, or subjective.
+Algumas das diretrizes descritas neste documento podem ser avaliadas objetivamente;
+outros são situacionais, contextuais ou subjetivos.
 
-Above all else, **be consistent**.
+Acima de tudo, **seja consistente**.
 
-Consistent code is easier to maintain, is easier to rationalize, requires less
-cognitive overhead, and is easier to migrate or update as new conventions emerge
-or classes of bugs are fixed.
+Código consistente é mais fácil de manter, mais fácil de racionalizar, requer menos
+sobrecarga cognitiva e é mais fácil migrar ou atualizar conforme novas convenções surgem
+ou classes de bugs são corrigidas.
 
-Conversely, having multiple disparate or conflicting styles within a single
-codebase causes maintenance overhead, uncertainty, and cognitive dissonance,
-all of which can directly contribute to lower velocity, painful code reviews,
-and bugs.
+Por outro lado, ter vários estilos diferentes ou conflitantes em um único
+base de código causa sobrecarga de manutenção, incerteza e dissonância cognitiva,
+tudo isso pode contribuir diretamente para velocidades mais baixas, revisões de código dolorosas,
+e bugs.
 
-When applying these guidelines to a codebase, it is recommended that changes
-are made at a package (or larger) level: application at at a sub-package level
-violates the above concern by introducing multiple styles into the same code.
+Ao aplicar essas diretrizes a uma base de código, é recomendável que as alterações
+sejam feitas em um nível de pacote (ou maior): aplicação em um nível de subpacote
+viola a preocupação acima, introduzindo vários estilos no mesmo código.
 
-### Group Similar Declarations
+### Agrupar declarações similares
 
-Go supports grouping similar declarations.
+Go suporta o agrupamento de declarações semelhantes.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1113,10 +1113,10 @@ import (
 </td></tr>
 </tbody></table>
 
-This also applies to constants, variables, and type declarations.
+Isso também se aplica a constantes, variáveis e declarações de tipo.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1158,10 +1158,10 @@ type (
 </td></tr>
 </tbody></table>
 
-Only group related declarations. Do not group declarations that are unrelated.
+Apenas declarações relacionadas ao grupo. Não agrupe declarações não relacionadas.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1193,11 +1193,11 @@ const ENV_VAR = "MY_ENV"
 </td></tr>
 </tbody></table>
 
-Groups are not limited in where they can be used. For example, you can use them
-inside of functions.
+Os grupos não são limitados no local em que podem ser usados. Por exemplo, você pode usá-los
+dentro das funções.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1228,17 +1228,17 @@ func f() string {
 </td></tr>
 </tbody></table>
 
-### Import Group Ordering
+### Ordenação e agrupamento de imports
 
-There should be two import groups:
+Deve haver dois grupos para imports:
 
-- Standard library
-- Everything else
+- Biblioteca do go
+- Todo o resto
 
-This is the grouping applied by goimports by default.
+Esse é o agrupamento aplicado pelo goimports por padrão.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1266,27 +1266,27 @@ import (
 </td></tr>
 </tbody></table>
 
-### Package Names
+### Nome de pacotes
 
-When naming packages, choose a name that is:
+Ao nomear pacotes, escolha um nome que seja:
 
-- All lower-case. No capitals or underscores.
-- Does not need to be renamed using named imports at most call sites.
-- Short and succinct. Remember that the name is identified in full at every call
-  site.
-- Not plural. For example, `net/url`, not `net/urls`.
-- Not "common", "util", "shared", or "lib". These are bad, uninformative names.
+- Todas as letras minúsculas. Sem maiúsculas ou sublinhados.
+- Não precisa ter o import renomeado na sua utilização.
+- Curto e sucinto. Lembre-se que o pacote deve ser identificado por inteiro a
+cada chamada.
+- Não utilize plural. Por exemplo, `net / url`, e não ` net / urls`.
+- Não utilize "common", "util", "shared", or "lib". Estes são nomes ruins e pouco informativos.
 
-See also [Package Names] and [Style guideline for Go packages].
+Veja também [Package Names] e [Style guideline for Go packages].
 
   [Package Names]: https://blog.golang.org/package-names
   [Style guideline for Go packages]: https://rakyll.org/style-packages/
 
-### Function Names
+### Nome de Funções
 
-We follow the Go community's convention of using [MixedCaps for function
-names]. An exception is made for test functions, which may contain underscores
-for the purpose of grouping related test cases, e.g.,
+Seguimos a convenção da comunidade Go de usar [MixedCaps for function
+nomes]. É feita uma exceção para as funções de teste, que podem conter sublinhados
+para fins de agrupar casos de teste relacionados, por exemplo,
 `TestMyFunction_WhatIsBeingTested`.
 
   [MixedCaps for function names]: https://golang.org/doc/effective_go.html#mixed-caps
