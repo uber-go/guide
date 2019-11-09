@@ -48,7 +48,7 @@ row before the </tbody></table> line.
 
 -->
 
-# Guia de estilo Uber Go (traduzido de https://github.com/uber-go/guide)
+# Guia de estilo Uber Go (traduzido de [uber-go/guide](https://github.com/uber-go/guide))
 
 ## Sumário
 
