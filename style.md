@@ -48,9 +48,9 @@ row before the </tbody></table> line.
 
 -->
 
-# Uber Go Style Guide
+# Guia de estilo Uber Go (traduzido de https://github.com/uber-go/guide)
 
-## Table of Contents
+## Sumário
 
 - [Introdução](#Introdução)
 - [Diretrizes](#Diretrizes)
@@ -58,8 +58,8 @@ row before the </tbody></table> line.
   - [Receptores e Interfaces](#receptores-e-interfaces)
   - [Mutexes com valor zero são validos](#mutexes-com-valor-zero-são-validos)
   - [Copiar slices e mapas com limites](#copiar-slices-e-mapas-com-limites)
-  - [Defer to Clean Up](#defer-to-clean-up)
-  - [Channel Size is One or None](#channel-size-is-one-or-none)
+  - [Defer para "limpar"](#defer-para-limpar)
+  - [Tamanho no canal é um ou nenhum](#tamanho-no-canal-é-um-ou-nenhum)
   - [Start Enums at One](#start-enums-at-one)
   - [Error Types](#error-types)
   - [Error Wrapping](#error-wrapping)
@@ -288,13 +288,12 @@ func (m *SMap) Get(k string) string {
 
 Slices e mapas contêm ponteiros para os dados que armazenam, portanto, tenha cuidado quando eles precisarem ser copiados.
 
-#### Receiving Slices and Maps
+#### Recebendo slices e mapas
 
-Keep in mind that users can modify a map or slice you received as an argument
-if you store a reference to it.
+Lembre-se de que os usuários podem modificar um mapa ou slice que você recebeu como argumento de uma função, se você armazenar uma referência a ele.
 
 <table>
-<thead><tr><th>Bad</th> <th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th> <th>Bom</th></tr></thead>
 <tbody>
 <tr>
 <td>
@@ -307,7 +306,7 @@ func (d *Driver) SetTrips(trips []Trip) {
 trips := ...
 d1.SetTrips(trips)
 
-// Did you mean to modify d1.trips?
+// Você pode modificiar o valor depois de ter armazenado no Driver
 trips[0] = ...
 ```
 
@@ -323,7 +322,7 @@ func (d *Driver) SetTrips(trips []Trip) {
 trips := ...
 d1.SetTrips(trips)
 
-// We can now modify trips[0] without affecting d1.trips.
+// Agora podemos moficiar trips sem alterar a informação no Driver
 trips[0] = ...
 ```
 
@@ -333,13 +332,12 @@ trips[0] = ...
 </tbody>
 </table>
 
-#### Returning Slices and Maps
+#### Retornando slices e mapas
 
-Similarly, be wary of user modifications to maps or slices exposing internal
-state.
+Da mesma forma do item anterior, tenha cuidado com as modificações do usuário nos mapas ou slices retornados por alguma função.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -349,7 +347,7 @@ type Stats struct {
   counters map[string]int
 }
 
-// Snapshot returns the current stats.
+// Retorna o snapshot protegido por um mutex
 func (s *Stats) Snapshot() map[string]int {
   s.mu.Lock()
   defer s.mu.Unlock()
@@ -357,8 +355,7 @@ func (s *Stats) Snapshot() map[string]int {
   return s.counters
 }
 
-// snapshot is no longer protected by the mutex, so any
-// access to the snapshot is subject to data races.
+// porém agora o snapshot não esta mais protegido por mutex e pode ser modificado
 snapshot := stats.Snapshot()
 ```
 
@@ -381,19 +378,19 @@ func (s *Stats) Snapshot() map[string]int {
   return result
 }
 
-// Snapshot is now a copy.
+// Agora snapshot é uma cópia
 snapshot := stats.Snapshot()
 ```
 
 </td></tr>
 </tbody></table>
 
-### Defer to Clean Up
+### Defer para "limpar"
 
-Use defer to clean up resources such as files and locks.
+Use "defer" para limpar recursos como arquivos e locks.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -410,7 +407,7 @@ p.Unlock()
 
 return newCount
 
-// easy to miss unlocks due to multiple returns
+// Muito fácil de errar e esquecer um "Unlock" e deixar o mutex travado
 ```
 
 </td><td>
@@ -426,42 +423,34 @@ if p.count < 10 {
 p.count++
 return p.count
 
-// more readable
+// mais legível
 ```
 
 </td></tr>
 </tbody></table>
 
-Defer has an extremely small overhead and should be avoided only if you can
-prove that your function execution time is in the order of nanoseconds. The
-readability win of using defers is worth the miniscule cost of using them. This
-is especially true for larger methods that have more than simple memory
-accesses, where the other computations are more significant than the `defer`.
+O "Defer" tem um custo computacional extremamente pequeno e deve ser evitado apenas se você puder provar que o tempo de execução da sua função é da ordem de nanossegundos. O ganho de legibilidade do uso de "Defer" vale o custo minúsculo de usá-los. Isso vale especialmente para métodos maiores que têm mais do que simples acessos à memória, onde os outros cálculos são mais significativos que a instrução chamada no "Defer"
 
-### Channel Size is One or None
+### Tamanho no canal é um ou nenhum
 
-Channels should usually have a size of one or be unbuffered. By default,
-channels are unbuffered and have a size of zero. Any other size
-must be subject to a high level of scrutiny. Consider how the size is
-determined, what prevents the channel from filling up under load and blocking
-writers, and what happens when this occurs.
+Os canais geralmente devem ter o tamanho um ou não serem armazenados em buffer. Por padrão, os canais são sem buffer e têm tamanho zero. Qualquer outro tamanho deve estar sujeito a um alto nível de análise. Considere que, ao utilizar canais com um tamanho determinado, você precisa decidir o que vai impedir de o canal se encher e bloquear "escritores", e o que acontece quando isso ocorre.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
 ```go
-// Ought to be enough for anybody!
+// Deveria ser suficiente para qualquer um!
 c := make(chan int, 64)
 ```
 
 </td><td>
 
 ```go
-// Size of one
+// Tamanho 1
 c := make(chan int, 1) // or
-// Unbuffered channel, size of zero
+// Canal sem bufffer, tamanho zero
 c := make(chan int)
 ```
 
