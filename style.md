@@ -60,8 +60,8 @@ row before the </tbody></table> line.
   - [Copiar slices e mapas com limites](#copiar-slices-e-mapas-com-limites)
   - [Defer para "limpar"](#defer-para-limpar)
   - [Tamanho no canal é um ou nenhum](#tamanho-no-canal-é-um-ou-nenhum)
-  - [Start Enums at One](#start-enums-at-one)
-  - [Error Types](#error-types)
+  - [Iniciar enums em um](#iniciar-enums-em-um)
+  - [Tipo Erros](#tipo-erros)
   - [Error Wrapping](#error-wrapping)
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
   - [Don't Panic](#dont-panic)
@@ -457,14 +457,14 @@ c := make(chan int)
 </td></tr>
 </tbody></table>
 
-### Start Enums at One
+### Iniciar enums em um
 
-The standard way of introducing enumerations in Go is to declare a custom type
-and a `const` group with `iota`. Since variables have a 0 default value, you
-should usually start your enums on a non-zero value.
+A maneira padrão de introduzir enumerações no Go é declarar um tipo personalizado
+e um grupo `const` com `iota`. Como as variáveis têm um valor padrão 0, você
+geralmente deve iniciar suas enumerações com um valor diferente de zero.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -497,8 +497,8 @@ const (
 </td></tr>
 </tbody></table>
 
-There are cases where using the zero value makes sense, for example when the
-zero value case is the desirable default behavior.
+Há casos em que o uso do valor zero faz sentido, por exemplo, quando o
+caso com valor zero é o comportamento padrão desejável.
 
 ```go
 type LogOutput int
@@ -512,36 +512,33 @@ const (
 // LogToStdout=0, LogToFile=1, LogToRemote=2
 ```
 
-<!-- TODO: section on String methods for enums -->
+<!-- TODO: seção sobre métodos de string para enumerações -->
 
-### Error Types
+### Tipo Erros
 
-There are various options for declaring errors:
+Existem várias opções para declarar erros:
 
-- [`errors.New`] for errors with simple static strings
-- [`fmt.Errorf`] for formatted error strings
-- Custom types that implement an `Error()` method
-- Wrapped errors using [`"pkg/errors".Wrap`]
+- [`errors.New`] para erros formados por simples strings estáticos
+- [`fmt.Errorf`] para erros com strings formatados
+- Tipos customizados que implemetam o método `Error()`
+- Erros "wrapped" utilizando [`"pkg/errors".Wrap`]
 
-When returning errors, consider the following to determine the best choice:
+Ao retornar erros, considere o seguinte para determinar a melhor opção:
 
-- Is this a simple error that needs no extra information? If so, [`errors.New`]
-  should suffice.
-- Do the clients need to detect and handle this error? If so, you should use a
-  custom type, and implement the `Error()` method.
-- Are you propagating an error returned by a downstream function? If so, check
-  the [section on error wrapping](#error-wrapping).
-- Otherwise, [`fmt.Errorf`] is okay.
+- Este é um erro simples que não precisa de informações extras? Nesse caso, [`errors.New`] deve ser suficiente.
+- Os clientes precisam detectar e manipular esse erro? Nesse caso, você deve usar um tipo personalizado, utilize o método `Error ()`.
+- Você está propagando um erro retornado por uma função downstream? Se sim, verifique a TODO - colocar link[] ().
+- Para outros casos, [`fmt.Errorf`] esta ok.
 
   [`errors.New`]: https://golang.org/pkg/errors/#New
   [`fmt.Errorf`]: https://golang.org/pkg/fmt/#Errorf
   [`"pkg/errors".Wrap`]: https://godoc.org/github.com/pkg/errors#Wrap
 
-If the client needs to detect the error, and you have created a simple error
-using [`errors.New`], use a var for the error.
+Se o cliente precisar detectar o erro e você tiver criado um erro simples
+usando [`errors.New`], use uma var para o erro.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -590,12 +587,12 @@ if err := foo.Open(); err != nil {
 </td></tr>
 </tbody></table>
 
-If you have an error that clients may need to detect, and you would like to add
-more information to it (e.g., it is not a static string), then you should use a
-custom type.
+Se você tiver um erro que os clientes talvez precisem detectar e você gostaria de adicionar
+para obter mais informações (por exemplo, não é uma sequência estática), você deve usar um
+tipo personalizado.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -644,9 +641,9 @@ func use() {
 </td></tr>
 </tbody></table>
 
-Be careful with exporting custom error types directly since they become part of
-the public API of the package. It is preferable to expose matcher functions to
-check the error instead.
+Cuidado ao exportar tipos de erro personalizados diretamente, pois eles se tornam parte do
+a API pública do pacote. É preferível expor funções de correspondência a
+verifique o erro.
 
 ```go
 // package foo
@@ -679,7 +676,7 @@ if err := foo.Open("foo"); err != nil {
 }
 ```
 
-<!-- TODO: Exposing the information to callers with accessor functions. -->
+<!-- TODO: Expondo as informações aos chamadores com funções de acessador. -->
 
 ### Error Wrapping
 
