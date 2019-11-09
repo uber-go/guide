@@ -65,12 +65,12 @@ row before the </tbody></table> line.
   - [Utilizando Error Wrapping](#utilizando-error-wrapping)
   - [Manipular falhas de asserção de tipos](#manipular-falhas-de-asserção-de-tipos)
   - [Não utilize panic](#não-utilize-panic)
-  - [Use go.uber.org/atomic](#use-gouberorgatomic)
+  - [Utilize go.uber.org/atomic](#utilize-gouberorgatomic)
 - [Performance](#performance)
-  - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
-  - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
-  - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
-- [Style](#style)
+  - [Utilize strconv ao invés de fmt](#utilize-strconv-ao-invés-de-fmt)
+  - [Evite a conversão de string para byte](#evite-a-conversao-de-string-para-byte)
+  - [Utilize tamanho ao criar mapas](#utilize-tamanho-ao-criar-mapas)
+- [Estilo](#estilo)
   - [Be Consistent](#be-consistent)
   - [Group Similar Declarations](#group-similar-declarations)
   - [Import Group Ordering](#import-group-ordering)
@@ -868,20 +868,20 @@ if err != nil {
 
 <!-- TODO: Como utilizar _test packages. -->
 
-### Use go.uber.org/atomic
+### Utilize go.uber.org/atomic
 
-Atomic operations with the [sync/atomic] package operate on the raw types
-(`int32`, `int64`, etc.) so it is easy to forget to use the atomic operation to
-read or modify the variables.
+Operações atômicas com o pacote [sync / atomic] operam nos tipos brutos
+(`int32`,` int64` etc.), portanto é fácil esquecer de usar a operação atômica para
+ler ou modificar as variáveis.
 
-[go.uber.org/atomic] adds type safety to these operations by hiding the
-underlying type. Additionally, it includes a convenient `atomic.Bool` type.
+[go.uber.org/atomic] adiciona segurança de tipo a essas operações ocultando o
+tipo utilizado. Além disso, inclui um conveniente tipo `atomic.Bool`.
 
   [go.uber.org/atomic]: https://godoc.org/go.uber.org/atomic
   [sync/atomic]: https://golang.org/pkg/sync/atomic/
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -892,7 +892,7 @@ type foo struct {
 
 func (f* foo) start() {
   if atomic.SwapInt32(&f.running, 1) == 1 {
-     // already running…
+     // ja esta executando
      return
   }
   // start the Foo
@@ -912,7 +912,7 @@ type foo struct {
 
 func (f *foo) start() {
   if f.running.Swap(true) {
-     // already running…
+     // ja esta executando
      return
   }
   // start the Foo
@@ -930,13 +930,13 @@ func (f *foo) isRunning() bool {
 
 Performance-specific guidelines apply only to the hot path.
 
-### Prefer strconv over fmt
+### Utilize strconv ao invés de fmt
 
-When converting primitives to/from strings, `strconv` is faster than
+Ao converter primitivas para / de strings, `strconv` é mais rápido que
 `fmt`.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -970,13 +970,13 @@ BenchmarkStrconv-4    64.2 ns/op    1 allocs/op
 </td></tr>
 </tbody></table>
 
-### Avoid string-to-byte conversion
+### Evite a conversão de string para byte
 
-Do not create byte slices from a fixed string repeatedly. Instead, perform the
-conversion once and capture the result.
+Não crie slices de bytes a partir de um string repetidamente. Em vez disso, execute o
+conversão uma vez e capture o resultado.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1011,23 +1011,22 @@ BenchmarkGood-4  500000000   3.25 ns/op
 </td></tr>
 </tbody></table>
 
-### Prefer Specifying Map Capacity Hints
+### Utilize tamanho ao criar mapas
 
-Where possible, provide capacity hints when initializing
-maps with `make()`.
+Sempre que possível, utilize o parametro de tamanho ao criar mapas com `make()`.
 
 ```go
 make(map[T1]T2, hint)
 ```
 
-Providing a capacity hint to `make()` tries to right-size the
-map at initialization time, which reduces the need for growing
-the map and allocations as elements are added to the map. Note
-that the capacity hint is not guaranteed for maps, so adding
-elements may still allocate even if a capacity hint is provided.
+Fornecer o parâmetro de capacidade para `make ()` faz com que o sistema tente
+dimensionar memória corretamente no momento da inicialização, o que reduz a necessidade
+de crescimento do mapa e alocações como elementos são adicionados ao mapa. Nota-se
+que o parâmetro de capacidade não é garantida para mapas, portanto, é possível que
+novos elementos ainda tenham que ser alocados,mesmo que uma dica de capacidade seja fornecida.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1055,18 +1054,18 @@ for _, f := range files {
 </td></tr>
 <tr><td>
 
-`m` is created without a size hint; there may be more
-allocations at assignment time.
+`m` é criado sem parâmetro de tamanho; pode haver mais
+alocações no tempo de atribuição.
 
 </td><td>
 
-`m` is created with a size hint; there may be fewer
-allocations at assignment time.
+`m` é criado com parâmetro de tamanho; pode haver menos
+alocações no momento da atribuição.
 
 </td></tr>
 </tbody></table>
 
-## Style
+## Estilo
 
 ### Be Consistent
 
