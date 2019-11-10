@@ -76,9 +76,9 @@ row before the </tbody></table> line.
   - [Ordenação e agrupamento de imports](#ordenação-e-agrupamento-de-imports)
   - [Nome de pacotes](#nome-de-pacotes)
   - [Nome de funções](#nome-de-funções)
-  - [Import Aliasing](#import-aliasing)
-  - [Function Grouping and Ordering](#function-grouping-and-ordering)
-  - [Reduce Nesting](#reduce-nesting)
+  - [Alias de Import](#alias-de-import)
+  - [Agrupamento e ordenação de funçoes](#agrupamento-e-ordenação-de-funções)
+  - [Reduzir o aninhamento](#reduzir-o-aninhamento)
   - [Unnecessary Else](#unnecessary-else)
   - [Top-level Variable Declarations](#top-level-variable-declarations)
   - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
@@ -1291,10 +1291,10 @@ para fins de agrupar casos de teste relacionados, por exemplo,
 
   [MixedCaps for function names]: https://golang.org/doc/effective_go.html#mixed-caps
 
-### Import Aliasing
+### Alias de Import
 
-Import aliasing must be used if the package name does not match the last
-element of the import path.
+Alias para imports deve ser usado se o nome do pacote não corresponder ao último
+elemento do caminho de importação
 
 ```go
 import (
@@ -1305,11 +1305,11 @@ import (
 )
 ```
 
-In all other scenarios, import aliases should be avoided unless there is a
-direct conflict between imports.
+Em todos os outros cenários, os alias de importação devem ser evitados, a menos que haja um
+conflito direto entre importações.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1338,22 +1338,22 @@ import (
 </td></tr>
 </tbody></table>
 
-### Function Grouping and Ordering
+### Agrupamento e ordenação de funçoes
 
-- Functions should be sorted in rough call order.
-- Functions in a file should be grouped by receiver.
+- As funções devem ser ordenadas em ordem de chamada "aproximada".
+- As funções em um arquivo devem ser agrupadas pelo receptor.
 
-Therefore, exported functions should appear first in a file, after
-`struct`, `const`, `var` definitions.
+Portanto, as funções exportadas devem aparecer primeiro em um arquivo, após
+Definições `struct`,` const`, `var`
 
-A `newXYZ()`/`NewXYZ()` may appear after the type is defined, but before the
-rest of the methods on the receiver.
+Chamadas como `newXYZ ()` / `NewXYZ ()` podem aparecer após a definição do tipo, mas antes dos
+restante dos métodos com receptor.
 
-Since functions are grouped by receiver, plain utility functions should appear
-towards the end of the file.
+Como as funções são agrupadas pelo receptor, funções simples de utilidade devem aparecer
+no final do arquivo
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1394,14 +1394,14 @@ func calcCost(n []int) int {...}
 </td></tr>
 </tbody></table>
 
-### Reduce Nesting
+### Reduzir o aninhamento
 
-Code should reduce nesting where possible by handling error cases/special
-conditions first and returning early or continuing the loop. Reduce the amount
-of code that is nested multiple levels.
+O código deve reduzir o aninhamento sempre que possível, tratando casos de erro ou
+condições especiais primeiro e parando antes de percorer a iteração por completa.
+Diminua a quantidade de código aninhado em vários níveis.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
