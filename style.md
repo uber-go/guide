@@ -89,10 +89,10 @@ row before the </tbody></table> line.
   - [Reduzir o escopo das váriaveis](#reduzir-o-escopo-das-váriaveis)
   - [Evitar passar parâmetros sem identificação](#evitar-passar-parâmetros-sem-identificação)
   - [Use strings literais para evitar escape](#use-strings-literais-para-evitar-escape)
-  - [Initializing Struct References](#initializing-struct-references)
-  - [Initializing Maps](#initializing-maps)
-  - [Format Strings outside Printf](#format-strings-outside-printf)
-  - [Naming Printf-style Functions](#naming-printf-style-functions)
+  - [Inicializando referências de structs](#inicializando-referências-de-structs)
+  - [Inicializando mapas](#inicializando-mapas)
+  - [Formate strings fora da função Printf](#formate-strings-fora-da-função-printf)
+  - [Nomeando funções da família Printf](#nomeando-funções-da-família-printf)
 - [Patterns](#patterns)
   - [Test Tables](#test-tables)
   - [Functional Options](#functional-options)
@@ -1911,7 +1911,7 @@ func printInfo(name string, region Region, status Status)
 ### Use strings literais para evitar escape 
 
 Go suporta [raw string literals](https://golang.org/ref/spec#raw_string_lit), o que permite
-gerar linhas multiplas, incluindo vírgulas. Isso isso para para evitar "hand-escaped" strings
+gerar linhas multiplas, incluindo vírgulas. Isso serve para evitar "hand-escaped" strings
 que são muito mais dificeis de ler
 
 <table>
@@ -1932,13 +1932,13 @@ wantError := `unknown error:"test"`
 </td></tr>
 </tbody></table>
 
-### Initializing Struct References
+### Inicializando referências de structs
 
-Use `&T{}` instead of `new(T)` when initializing struct references so that it
-is consistent with the struct initialization.
+Utilize `&T{}` em vez de `new(T)` na inicialização de referências de structs, 
+isso é mais consistence ao inicializar uma struct
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1961,22 +1961,21 @@ sptr := &T{Name: "bar"}
 </td></tr>
 </tbody></table>
 
-### Initializing Maps
+### Inicializando mapas
 
-Prefer `make(..)` for empty maps, and maps populated
-programmatically. This makes map initialization visually
-distinct from declaration, and it makes it easy to add size
-hints later if available.
+Prefira `make(..)` para mapas vazios, e popule o mesmo programaticamente. 
+Isso torna a inicialização de mapa visualmente distinta da declaração, 
+e também torna mais fácil adicionar um tamanho depois.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
 ```go
 var (
-  // m1 is safe to read and write;
-  // m2 will panic on writes.
+  // m1 pode ser utilizado (escrita/leitura)
+  // m2 gerará um panic ao receber uma escrita
   m1 = map[T1]T2{}
   m2 map[T1]T2
 )
@@ -1986,8 +1985,8 @@ var (
 
 ```go
 var (
-  // m1 is safe to read and write;
-  // m2 will panic on writes.
+  // m1 pode ser utilizado (escrita/leitura)
+  // m2 gerará um panic ao receber uma escrita
   m1 = make(map[T1]T2)
   m2 map[T1]T2
 )
@@ -1996,25 +1995,23 @@ var (
 </td></tr>
 <tr><td>
 
-Declaration and initialization are visually similar.
+Declaração e incialização são visualmente parecidas.
 
 </td><td>
 
-Declaration and initialization are visually distinct.
+Declaração e incialização são visualmente distintas.
 
 </td></tr>
 </tbody></table>
 
-Where possible, provide capacity hints when initializing
-maps with `make()`. See
-[Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
-for more information.
+Quando possível, forneça o tamanho em uma inicialização de um mapa
+com `make()`. Veja em [Utilize tamanho ao criar mapas](#utilize-tamanho-ao-criar-mapas)
+for mais informações.
 
-On the other hand, if the map holds a fixed list of elements,
-use map literals to initialize the map.
+Se o mapa armazenar uma lista fixa de elementos, utilize a inicialização literal.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2038,20 +2035,18 @@ m := map[T1]T2{
 </td></tr>
 </tbody></table>
 
+A regra de forma geral é utilizar o modo literal para inicialização de mapas
+quando há elementos fixos, caso contrário utilize `make` e especifique o tamanho
 
-The basic rule of thumb is to use map literals when adding a fixed set of
-elements at initialization time, otherwise use `make` (and specify a size hint
-if available).
+### Formate strings fora da função Printf
 
-### Format Strings outside Printf
+Se você declarar strings formatados no estilo de `Printf` fora dessas funções,
+utilize valores do tipo `const`.
 
-If you declare format strings for `Printf`-style functions outside a string
-literal, make them `const` values.
-
-This helps `go vet` perform static analysis of the format string.
+Isso ajuda a ferramenta `go vet` realizar uma análise estática do string formatado.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2070,16 +2065,20 @@ fmt.Printf(msg, 1, 2)
 </td></tr>
 </tbody></table>
 
-### Naming Printf-style Functions
+### Nomeando funções da família Printf
 
-When you declare a `Printf`-style function, make sure that `go vet` can detect
-it and check the format string.
+Quando você declara uma função da família `Printf`, certifique-se que `go vet` pode detectar
+and verificar o formtado do string.
 
-This means that you should use predefined `Printf`-style function
-names if possible. `go vet` will check these by default. See [Printf family]
-for more information.
+Isso significa que você deve usar nomes predefinidos das funções da família `Printf`.
+Dessa forma a ferramenta `go vet` vai verifica-la por padrão. Veja [Printf family] para
+mais informações
 
   [Printf family]: https://golang.org/cmd/vet/#hdr-Printf_family
+
+Se não é possível utilizar estes nomes predefinidos, o fim do nome que foi escolhido
+deve ter o f: `Wrapf`, e não `Wrap`. `go vet` pode ser configurado para verificar
+específicas funções da família `Printf`, mas seuos nomes devem acabar com f.
 
 If using the predefined names is not an option, end the name you choose with
 f: `Wrapf`, not `Wrap`. `go vet` can be asked to check specific `Printf`-style
@@ -2089,7 +2088,7 @@ names but they must end with f.
 $ go vet -printfuncs=wrapf,statusf
 ```
 
-See also [go vet: Printf family check].
+Veja também [go vet: Printf family check].
 
   [go vet: Printf family check]: https://kuzminva.wordpress.com/2017/11/07/go-vet-printf-family-check/
 
