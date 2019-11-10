@@ -85,10 +85,10 @@ row before the </tbody></table> line.
   - [Tipos embutidos em structs](#tipos_embutidos_em_structs)
   - [Utilize nome dos campos para inicializar uma struct](#utilize-nome-dos-campos-para-inicializar-uma-struct)
   - [Declaração de variáveis locais](#declaração-de-variáveis-locais)
-  - [nil is a valid slice](#nil-is-a-valid-slice)
-  - [Reduce Scope of Variables](#reduce-scope-of-variables)
-  - [Avoid Naked Parameters](#avoid-naked-parameters)
-  - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
+  - [Nil é um slice válido](#nil-é-um-slice-válido)
+  - [Reduzir o escopo das váriaveis](#reduzir-o-escopo-das-váriaveis)
+  - [Evitar passar parâmetros sem identificação](#evitar-passar-parâmetros-sem-identificação)
+  - [Use strings literais para evitar escape](#use-strings-literais-para-evitar-escape)
   - [Initializing Struct References](#initializing-struct-references)
   - [Initializing Maps](#initializing-maps)
   - [Format Strings outside Printf](#format-strings-outside-printf)
@@ -1640,11 +1640,11 @@ tests := []struct{
 
 ### Declaração de variáveis locais
 
-Short variable declarations (`:=`) should be used if a variable is being set to
-some value explicitly.
+Declaração de variavéis de forma curta (`:=`) deve ser usada se a variável esta
+sendo definida com um valor explicitamente.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1661,13 +1661,13 @@ s := "foo"
 </td></tr>
 </tbody></table>
 
-However, there are cases where the default value is clearer when the `var`
-keyword is used. [Declaring Empty Slices], for example.
+No entanto, há casos em que o valor padrão é mais claro quando o termo `var`
+é usado. [Declarando fatias vazias], por exemplo.
 
   [Declaring Empty Slices]: https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1698,15 +1698,14 @@ func f(list []int) {
 </td></tr>
 </tbody></table>
 
-### nil is a valid slice
+### Nil é um slice válido
 
-`nil` is a valid slice of length 0. This means that,
+`nil` é um slice valido de tamanho 0. Isso significa que,
 
-- You should not return a slice of length zero explicitly. Return `nil`
-  instead.
+- Você não deve retornar um slice de tamanho zero explicitamente. Retorne `nil`
 
   <table>
-  <thead><tr><th>Bad</th><th>Good</th></tr></thead>
+  <thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
   <tbody>
   <tr><td>
 
@@ -1727,11 +1726,11 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
-- To check if a slice is empty, always use `len(s) == 0`. Do not check for
-  `nil`.
+- Para verificar se um slice esta vazio, sempre use `len(s) == 0`.
+Não verifique pela expressão `nil`
 
   <table>
-  <thead><tr><th>Bad</th><th>Good</th></tr></thead>
+  <thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
   <tbody>
   <tr><td>
 
@@ -1752,11 +1751,10 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
-- The zero value (a slice declared with `var`) is usable immediately without
-  `make()`.
+- O valor zero (declarado através do termo `var`) pode ser utilizado sem a chamada `make()`
 
   <table>
-  <thead><tr><th>Bad</th><th>Good</th></tr></thead>
+  <thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
   <tbody>
   <tr><td>
 
@@ -1790,13 +1788,13 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
-### Reduce Scope of Variables
+### Reduzir o escopo das váriaveis
 
-Where possible, reduce scope of variables. Do not reduce the scope if it
-conflicts with [Reduce Nesting](#reduce-nesting).
+Sempre que possível, reduza o escopo das váriaveis. Não faça isso se ocasionará
+um conflito com [Reduzir o aninhamento](#reduzir-o-aninhamento).
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1818,11 +1816,11 @@ if err := ioutil.WriteFile(name, data, 0644); err != nil {
 </td></tr>
 </tbody></table>
 
-If you need a result of a function call outside of the if, then you should not
-try to reduce the scope.
+Se você precisa utilizar um resultado da função fora do if, então você não deve
+reduzir o escopo.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1859,13 +1857,14 @@ return nil
 </td></tr>
 </tbody></table>
 
-### Avoid Naked Parameters
+### Evitar passar parâmetros sem identificação
 
-Naked parameters in function calls can hurt readability. Add C-style comments
-(`/* ... */`) for parameter names when their meaning is not obvious.
+Parâmetros "naked", ou seja, passados sem nenhuma identificação podem
+prejudicar a legibilidade. Adicione comentários no estilo de linguagem C 
+(`/* ... */`) para esses parâmetros
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1886,9 +1885,9 @@ printInfo("foo", true /* isLocal */, true /* done */)
 </td></tr>
 </tbody></table>
 
-Better yet, replace naked `bool` types with custom types for more readable and
-type-safe code. This allows more than just two states (true/false) for that
-parameter in the future.
+Ainda melhor, troque tipos "naked" booleanos para tipos customizados para ter
+uma melhor legibilidade e tornar o código "type-safe". Isso permite mais que dois estados
+(true/false) para esse parâmetro no futuro
 
 ```go
 type Region int
@@ -1903,20 +1902,20 @@ type Status int
 const (
   StatusReady = iota + 1
   StatusDone
-  // Maybe we will have a StatusInProgress in the future.
+  // Talvez teremos o status StatusInProgress no futuro.
 )
 
 func printInfo(name string, region Region, status Status)
 ```
 
-### Use Raw String Literals to Avoid Escaping
+### Use strings literais para evitar escape 
 
-Go supports [raw string literals](https://golang.org/ref/spec#raw_string_lit),
-which can span multiple lines and include quotes. Use these to avoid
-hand-escaped strings which are much harder to read.
+Go suporta [raw string literals](https://golang.org/ref/spec#raw_string_lit), o que permite
+gerar linhas multiplas, incluindo vírgulas. Isso isso para para evitar "hand-escaped" strings
+que são muito mais dificeis de ler
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
