@@ -52,8 +52,8 @@ row before the </tbody></table> line.
 
 ## Sumário
 
-- [Introdução](#Introdução)
-- [Diretrizes](#Diretrizes)
+- [Introdução](#introdução)
+- [Diretrizes](#diretrizes)
   - [Ponteiros para interfaces](#ponteiros-para-interfaces)
   - [Receptores e Interfaces](#receptores-e-interfaces)
   - [Mutexes com valor zero são validos](#mutexes-com-valor-zero-são-validos)
@@ -63,7 +63,7 @@ row before the </tbody></table> line.
   - [Iniciar enums em um](#iniciar-enums-em-um)
   - [Tipo Erros](#tipo-erros)
   - [Utilizando Error Wrapping](#utilizando-error-wrapping)
-  - [Manipular falhas de asserção de tipos](#manipular-falhas-de-asserção-de-tipos)
+  - [Manipular falhas de asserção de tipo](#manipular-falhas-de-asserção-de-tipo)
   - [Não utilize panic](#não-utilize-panic)
   - [Utilize go.uber.org/atomic](#utilize-gouberorgatomic)
 - [Performance](#performance)
@@ -77,12 +77,12 @@ row before the </tbody></table> line.
   - [Nome de pacotes](#nome-de-pacotes)
   - [Nome de funções](#nome-de-funções)
   - [Alias de Import](#alias-de-import)
-  - [Agrupamento e ordenação de funçoes](#agrupamento-e-ordenação-de-funções)
+  - [Agrupamento e ordenação de funções](#agrupamento-e-ordenação-de-funções)
   - [Reduzir o aninhamento](#reduzir-o-aninhamento)
-  - [Unnecessary Else](#unnecessary-else)
-  - [Top-level Variable Declarations](#top-level-variable-declarations)
-  - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
-  - [Embedding in Structs](#embedding-in-structs)
+  - [Else desnecessário](#else-desnecessário)
+  - [Declaração de variavéis top-level](#declaração-de-variavéis-top-level)
+  - [Utilize o prefixo _ para globais não exportados](#utilize-o-prefixo-_-para-globais-não-exportados)
+  - [Tipos embutidos em structs](#tipos_embutidos_em_structs)
   - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
   - [Local Variable Declarations](#local-variable-declarations)
   - [nil is a valid slice](#nil-is-a-valid-slice)
@@ -1440,13 +1440,13 @@ for _, v := range data {
 </td></tr>
 </tbody></table>
 
-### Unnecessary Else
+### Else desnecessário
 
-If a variable is set in both branches of an if, it can be replaced with a
-single if.
+Se uma variável tem seu valor atribuído nas duas condições de um if/else, 
+ela poderá ser substituída por um único if.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1471,13 +1471,15 @@ if b {
 </td></tr>
 </tbody></table>
 
-### Top-level Variable Declarations
+### Declaração de variavéis top-level
 
-At the top level, use the standard `var` keyword. Do not specify the type,
-unless it is not the same type as the expression.
+Na declaração de variavéis top-level, utilize o termo 'var'. Não especifique o tipo,
+
+At the top level, use the standard `var` keyword. Não especifique o tipo,
+a menos que não seja do mesmo tipo que a expressão.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1491,8 +1493,8 @@ func F() string { return "A" }
 
 ```go
 var _s = F()
-// Since F already states that it returns a string, we don't need to specify
-// the type again.
+// Nota-se que a função F() sempre retornará um string
+// entao não devemos especificar o tipo de _s
 
 func F() string { return "A" }
 ```
@@ -1500,8 +1502,8 @@ func F() string { return "A" }
 </td></tr>
 </tbody></table>
 
-Specify the type if the type of the expression does not match the desired type
-exactly.
+Especifique o tipo somente se o mesmo não corresponder ao tipo desejado
+exatamente.
 
 ```go
 type myError struct{}
@@ -1514,19 +1516,19 @@ var _e error = F()
 // F returns an object of type myError but we want error.
 ```
 
-### Prefix Unexported Globals with _
+### Utilize o prefixo _ para globais não exportados
 
-Prefix unexported top-level `var`s and `const`s with `_` to make it clear when
-they are used that they are global symbols.
+Nomeie top-level `var`s e `const`s com o prefixo `_` para deixar claro quando
+eles são usados, que os mesmos são globais.
 
-Exception: Unexported error values, which should be prefixed with `err`.
+Exceção: Erros não exportados, devem ser nomeados com o prefixo `err`.
 
-Rationale: Top-level variables and constants have a package scope. Using a
-generic name makes it easy to accidentally use the wrong value in a different
-file.
+Justificativa: Variáveis e constantes de nível superior têm um escopo de pacote. Usando um
+nome genérico facilita o uso acidental do valor errado em outro
+Arquivo
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1545,8 +1547,8 @@ func Bar() {
   ...
   fmt.Println("Default port", defaultPort)
 
-  // We will not see a compile error if the first line of
-  // Bar() is deleted.
+  // Neste caso, não haverá erro de compilação
+  // se apagarmos a primeira linha da funçao Bar()
 }
 ```
 
@@ -1564,14 +1566,13 @@ const (
 </td></tr>
 </tbody></table>
 
-### Embedding in Structs
+### Tipos embutidos em structs
 
-Embedded types (such as mutexes) should be at the top of the field list of a
-struct, and there must be an empty line separating embedded fields from regular
-fields.
+Tipos embutidos (como mutexes) devem estar ao topo da lista de campos da struct,
+e com uma linha em branco separando tipos embutidos dos campos "normais".
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
