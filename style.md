@@ -83,8 +83,8 @@ row before the </tbody></table> line.
   - [Declaração de variavéis top-level](#declaração-de-variavéis-top-level)
   - [Utilize o prefixo _ para globais não exportados](#utilize-o-prefixo-_-para-globais-não-exportados)
   - [Tipos embutidos em structs](#tipos_embutidos_em_structs)
-  - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
-  - [Local Variable Declarations](#local-variable-declarations)
+  - [Utilize nome dos campos para inicializar uma struct](#utilize-nome-dos-campos-para-inicializar-uma-struct)
+  - [Declaração de variáveis locais](#declaração-de-variáveis-locais)
   - [nil is a valid slice](#nil-is-a-valid-slice)
   - [Reduce Scope of Variables](#reduce-scope-of-variables)
   - [Avoid Naked Parameters](#avoid-naked-parameters)
@@ -1596,15 +1596,15 @@ type Client struct {
 </td></tr>
 </tbody></table>
 
-### Use Field Names to Initialize Structs
+### Utilize nome dos campos para inicializar uma struct
 
-You should almost always specify field names when initializing structs. This is
-now enforced by [`go vet`].
+Você quase sempre deve especificar nome dos campos ao inicializar structs. Essa regra
+agora é imposta eplo [`go vet`]
 
   [`go vet`]: https://golang.org/cmd/vet/
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1625,8 +1625,8 @@ k := User{
 </td></tr>
 </tbody></table>
 
-Exception: Field names *may* be omitted in test tables when there are 3 or
-fewer fields.
+Exceção: os nomes dos campos *podem* ser omitidos nas tabelas de teste quando houver 3 ou
+menos campos.
 
 ```go
 tests := []struct{
@@ -1638,7 +1638,7 @@ tests := []struct{
 }
 ```
 
-### Local Variable Declarations
+### Declaração de variáveis locais
 
 Short variable declarations (`:=`) should be used if a variable is being set to
 some value explicitly.
