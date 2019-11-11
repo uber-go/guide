@@ -2096,13 +2096,13 @@ Veja também [go vet: Printf family check].
 
 ### Test Tables
 
-Use table-driven tests with [subtests] to avoid duplicating code when the core
-test logic is repetitive.
+Utilize "table-driven tests" com o a técnica [subtests] para evitar código duplicado quando a 
+principal lógica do teste é repetitiva.
 
   [subtests]: https://blog.golang.org/subtests
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2175,12 +2175,12 @@ for _, tt := range tests {
 </td></tr>
 </tbody></table>
 
-Test tables make it easier to add context to error messages, reduce duplicate
-logic, and add new test cases.
+As "Test tables" tornam mais fácil adicionar contexto nas mensagens de erro, 
+reduzir lógica duplicada e adicionar novos casos de teste.
 
-We follow the convention that the slice of structs is referred to as `tests`
-and each test case `tt`. Further, we encourage explicating the input and output
-values for each test case with `give` and `want` prefixes.
+Seguimos a convenção de que o slice de estruturas é referido como `tests`
+e cada caso de teste `tt`. Além disso, incentivamos a explicar as entradas e saídas
+valores para cada caso de teste com os prefixos `give` e` want`.
 
 ```go
 tests := []struct{
