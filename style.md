@@ -2198,17 +2198,17 @@ for _, tt := range tests {
 
 ### Functional Options
 
-Functional options is a pattern in which you declare an opaque `Option` type
-that records information in some internal struct. You accept a variadic number
-of these options and act upon the full information recorded by the options on
-the internal struct.
+Functional options é uma pattern que você declara um tipo `Option` oculto
+que armazena a informação em alguma struct interna. Você aceita um número
+variável dessas opções e age com base nas informações completas registradas
+pelas opções na struct interna.
 
-Use this pattern for optional arguments in constructors and other public APIs
-that you foresee needing to expand, especially if you already have three or
-more arguments on those functions.
+Utilize essa pattern para argumentos opcionais em construtores e outras APIs públicas
+que você prevê a necessidade de expandir, especialmente se você já tem três ou
+mais argumentos sobre essas funções.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Ruim</th><th>Bom</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2295,7 +2295,7 @@ db.Connect(
 </td></tr>
 </tbody></table>
 
-See also,
+Veja também,
 
 - [Self-referential functions and the design of options]
 - [Functional options for friendly APIs]
