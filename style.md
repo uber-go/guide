@@ -1124,7 +1124,7 @@ all of which can directly contribute to lower velocity, painful code reviews,
 and bugs.
 
 When applying these guidelines to a codebase, it is recommended that changes
-are made at a package (or larger) level: application at at a sub-package level
+are made at a package (or larger) level: application at a sub-package level
 violates the above concern by introducing multiple styles into the same code.
 
 ### Group Similar Declarations
