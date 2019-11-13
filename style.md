@@ -50,10 +50,10 @@ row before the </tbody></table> line.
 
 # Uber Go Style Guide
 
-## Table of Contents
+## Содержание
 
-- [Introduction](#introduction)
-- [Guidelines](#guidelines)
+- [Введение](#Введение)
+- [Гайдлайн](#guidelines)
   - [Pointers to Interfaces](#pointers-to-interfaces)
   - [Receivers and Interfaces](#receivers-and-interfaces)
   - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
@@ -97,7 +97,7 @@ row before the </tbody></table> line.
   - [Test Tables](#test-tables)
   - [Functional Options](#functional-options)
 
-## Introduction
+## Введение
 
 Styles are the conventions that govern our code. The term style is a bit of a
 misnomer, since these conventions cover far more than just source file
