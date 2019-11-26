@@ -977,7 +977,7 @@ This applies to function pointers as well as other kinds of values.
 <tr><td>
 
 ```go
-// In foo.go
+// foo.go
 
 var _doFoo = foo
 
@@ -993,20 +993,20 @@ func foo(a int) int {
 </td><td>
 
 ```go
-// In foo.go
+// foo.go
 
 type Fooer struct {
-  f func(int) int
+  foo func(int) int
 }
 
-func NewFooer()  *Fooer {
-  return &Fooer {
-    f : foo,
+func NewFooer() *Fooer {
+  return &Fooer{
+    foo: foo,
   }
 }
 
 func (f *Fooer) Foo(a int) int {
-  return f.f(a)
+  return f.foo(a)
 }
 
 func foo(a int) int {
@@ -1015,9 +1015,10 @@ func foo(a int) int {
 ```
 </td></tr>
 <tr><td>
-  
+
 ```go
-// In foo_test.go
+// foo_test.go
+
 func TestFoo(t *testing.T) {
   old := _doFoo
   _doFoo = func(a int) int { return a }
@@ -1030,17 +1031,17 @@ func TestFoo(t *testing.T) {
 </td><td>
 
 ```go
-// In foo_test.go
+// foo_test.go
+
 func TestFoo(t *testing.T) {
   f := NewFooer()
-  f.f = func(a int) int { return a }
+  f.foo = func(a int) int { return a }
   assert.Equal(t, 2, f.Foo(2))
 }
 ```
 
 </td></tr>
 </tbody></table>
-
 
 ## Performance
 
