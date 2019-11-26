@@ -977,66 +977,65 @@ This applies to function pointers as well as other kinds of values.
 <tr><td>
 
 ```go
-// foo.go
+// sign.go
 
-var _doFoo = foo
+var _timeNow = time.Now
 
-func Foo(a int) int {
-  return _doFoo(a)
-}
-
-func foo(a int) int {
-  return a * 2
+func Sign(msg string) string {
+  now := _timeNow()
+  return signWithTime(msg, now)
 }
 ```
 
 </td><td>
 
 ```go
-// foo.go
+// sign.go
 
-type Fooer struct {
-  foo func(int) int
+type Signer struct {
+  now func() time.Time
 }
 
-func NewFooer() *Fooer {
-  return &Fooer{
-    foo: foo,
+func NewSigner() *Signer {
+  return &Signer{
+    now: time.Now,
   }
 }
 
-func (f *Fooer) Foo(a int) int {
-  return f.foo(a)
-}
-
-func foo(a int) int {
-  return a * 2
+func (s *Signer) Sign(msg string) string {
+  now := f.now()
+  return signWithTime(msg, now)
 }
 ```
 </td></tr>
 <tr><td>
 
 ```go
-// foo_test.go
+// sign_test.go
 
-func TestFoo(t *testing.T) {
-  old := _doFoo
-  _doFoo = func(a int) int { return a }
-  defer func() { _doFoo = old }()
+func TestSign(t *testing.T) {
+  oldTimeNow := _timeNow
+  _timeNow = func() time.Time {
+    return someFixedTime
+  }
+  defer func() { _timeNow = oldTimeNow }()
 
-  assert.Equal(t, 2, Foo(2))
+  assert.Equal(t, want, Sign(give))
 }
 ```
 
 </td><td>
 
 ```go
-// foo_test.go
+// sign_test.go
 
-func TestFoo(t *testing.T) {
-  f := NewFooer()
-  f.foo = func(a int) int { return a }
-  assert.Equal(t, 2, f.Foo(2))
+func TestSigner(t *testing.T) {
+  s := NewSigner()
+  s.now = func() time.Time {
+    return someFixedTime
+  }
+
+  assert.Equal(t, want, Sign(give))
 }
 ```
 
