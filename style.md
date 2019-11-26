@@ -1003,7 +1003,7 @@ func NewSigner() *Signer {
 }
 
 func (s *Signer) Sign(msg string) string {
-  now := f.now()
+  now := s.now()
   return signWithTime(msg, now)
 }
 ```
@@ -1035,7 +1035,7 @@ func TestSigner(t *testing.T) {
     return someFixedTime
   }
 
-  assert.Equal(t, want, Sign(give))
+  assert.Equal(t, want, s.Sign(give))
 }
 ```
 
