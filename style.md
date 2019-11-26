@@ -66,7 +66,7 @@ row before the </tbody></table> line.
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
   - [Don't Panic](#dont-panic)
   - [Use go.uber.org/atomic](#use-gouberorgatomic)
-  - [Mutable Globals](#mutable-globals)
+  - [Avoid Mutable Globals](#avoid-mutable-globals)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
@@ -966,9 +966,10 @@ func (f *foo) isRunning() bool {
 </td></tr>
 </tbody></table>
 
-### Mutable Globals
+### Avoid Mutable Globals
 
-Mutating global variables are forbidden. This includes mutable pointers to functions. Use dependency injection instead.
+Avoid mutating global variables, instead opting for dependency injection.
+This applies to function pointers as well as other kinds of values.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
