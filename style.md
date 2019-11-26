@@ -66,6 +66,7 @@ row before the </tbody></table> line.
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
   - [Don't Panic](#dont-panic)
   - [Use go.uber.org/atomic](#use-gouberorgatomic)
+  - [Mutable Globals](#mutable-globals)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
@@ -964,6 +965,81 @@ func (f *foo) isRunning() bool {
 
 </td></tr>
 </tbody></table>
+
+### Mutable Globals
+
+Mutating global variables are forbidden. This includes mutable pointers to functions. Use dependency injection instead.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// In foo.go
+
+var _doFoo = foo
+
+func Foo(a int) int {
+  return _doFoo(a)
+}
+
+func foo(a int) int {
+  return a * 2
+}
+```
+
+</td><td>
+
+```go
+// In foo.go
+
+type Fooer struct {
+  f func(int) int
+}
+
+func NewFooer()  *Fooer {
+  return &Fooer {
+    f : foo,
+  }
+}
+
+func (f *Fooer) Foo(a int) int {
+  return f.f(a)
+}
+
+func foo(a int) int {
+  return a * 2
+}
+```
+</td></tr>
+<tr><td>
+  
+```go
+// In foo_test.go
+func TestFoo(t *testing.T) {
+  old := _doFoo
+  _doFoo = func(a int) int { return a }
+  defer func() { _doFoo = old }()
+
+  assert.Equal(t, 2, Foo(2))
+}
+```
+
+</td><td>
+
+```go
+// In foo_test.go
+func TestFoo(t *testing.T) {
+  f := NewFooer()
+  f.f = func(a int) int { return a }
+  assert.Equal(t, 2, f.Foo(2))
+}
+```
+
+</td></tr>
+</tbody></table>
+
 
 ## Performance
 
