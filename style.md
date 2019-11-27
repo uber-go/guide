@@ -981,7 +981,7 @@ This applies to function pointers as well as other kinds of values.
 
 var _timeNow = time.Now
 
-func Sign(msg string) string {
+func sign(msg string) string {
   now := _timeNow()
   return signWithTime(msg, now)
 }
@@ -992,17 +992,17 @@ func Sign(msg string) string {
 ```go
 // sign.go
 
-type Signer struct {
+type signer struct {
   now func() time.Time
 }
 
-func NewSigner() *Signer {
-  return &Signer{
+func newSigner() *signer {
+  return &signer{
     now: time.Now,
   }
 }
 
-func (s *Signer) Sign(msg string) string {
+func (s *signer) Sign(msg string) string {
   now := s.now()
   return signWithTime(msg, now)
 }
@@ -1020,7 +1020,7 @@ func TestSign(t *testing.T) {
   }
   defer func() { _timeNow = oldTimeNow }()
 
-  assert.Equal(t, want, Sign(give))
+  assert.Equal(t, want, sign(give))
 }
 ```
 
@@ -1030,7 +1030,7 @@ func TestSign(t *testing.T) {
 // sign_test.go
 
 func TestSigner(t *testing.T) {
-  s := NewSigner()
+  s := newSigner()
   s.now = func() time.Time {
     return someFixedTime
   }
