@@ -1,3 +1,7 @@
+# 2019-11-26
+
+- Add guidance against mutating global variables.
+
 # 2019-10-21
 
 - Add section on remaining consistent with existing practices.
