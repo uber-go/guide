@@ -1,3 +1,7 @@
+# 2020-01-23
+
+- Recommend using the `time` package when dealing with time.
+
 # 2019-12-17
 
 - Functional Options: Recommend struct implementations of `Option` interface

@@ -61,6 +61,7 @@ row before the </tbody></table> line.
   - [Defer to Clean Up](#defer-to-clean-up)
   - [Channel Size is One or None](#channel-size-is-one-or-none)
   - [Start Enums at One](#start-enums-at-one)
+  - [Use time](#use-time)
   - [Error Types](#error-types)
   - [Error Wrapping](#error-wrapping)
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
@@ -543,6 +544,102 @@ const (
 )
 
 // LogToStdout=0, LogToFile=1, LogToRemote=2
+```
+
+### Use time
+
+Time is complicated. Incorrect assumptions often made about time include the
+following.
+
+1. A day has 24 hours
+2. An hour has 60 minutes
+3. A week has 7 days
+4. A year has 365 days
+5. [And a lot more](https://infiniteundo.com/post/25326999628/falsehoods-programmers-believe-about-time)
+
+For example, *1* means that adding 24 hours to a time instant will not always
+yield a new calendar day.
+
+Therefore, always use the [`time`] package when dealing with time because it
+helps deal with these incorrect assumptions in a safer, more accurate manner.
+
+  [`time`]: https://golang.org/pkg/time/
+
+Use [`time.Duration`] when dealing with periods of time.
+
+  [`time.Duration`]: https://golang.org/pkg/time/#Duration
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+func poll(delay int) {
+  for {
+    // ...
+    time.Sleep(time.Duration(delay) * time.Millisecond)
+  }
+}
+
+poll(10) // was it seconds or milliseconds?
+```
+
+</td><td>
+
+```go
+func poll(delay time.Duration) {
+  for {
+    // ...
+    time.Sleep(delay)
+  }
+}
+
+poll(10*time.Second)
+```
+
+</td></tr>
+</tbody></table>
+
+Use [`time.Time`] when dealing with instants of time, and the methods on
+`time.Time` when comparing, adding, or subtracting time.
+
+  [`time.Time`]: https://golang.org/pkg/time/#Time
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+func isActive(now, start, stop int) bool {
+  return start <= now && now < stop
+}
+```
+
+</td><td>
+
+```go
+func isActive(now, start, stop time.Time) bool {
+  return (start.Before(now) || start.Equal(now)) && now.Before(stop)
+}
+```
+
+</td></tr>
+</tbody></table>
+
+Going back to the example of adding 24 hours to a time instant, the method we
+use to add time depends on intent. If we want the same time of the day, but on
+the next calendar day, we should use [`Time.AddDate`]. However, if we want an
+instant of time guaranteed to be 24 hours after the previous time, we should
+use [`Time.Add`].
+
+  [`Time.AddDate`]: https://golang.org/pkg/time/#Time.AddDate
+  [`Time.Add`]: https://golang.org/pkg/time/#Time.Add
+
+```go
+newDay := t.AddDate(0 /* years */, 0, /* months */, 1 /* days */)
+maybeNewDay := t.Add(24 * time.Hour)
 ```
 
 <!-- TODO: section on String methods for enums -->
