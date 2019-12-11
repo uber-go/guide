@@ -2340,15 +2340,6 @@ func Open(
 ) (*Connection, error) {
   // ...
 }
-
-// The cache and logger parameters must always
-// be provided, even if the user wants to use
-// the default.
-
-db.Open(addr, db.DefaultCache, zap.NewNop())
-db.Open(addr, db.DefaultCache, log)
-db.Open(addr, false /* cache */, zap.NewNop())
-db.Open(addr, false /* cache */, log)
 ```
 
 </td><td>
@@ -2375,9 +2366,26 @@ func Open(
 ) (*Connection, error) {
   // ...
 }
+```
 
-// Options must be provided only if needed.
+</td></tr>
+<tr><td>
 
+The cache and logger parameters must always be provided, even if the user
+wants to use the default.
+
+```go
+db.Open(addr, db.DefaultCache, zap.NewNop())
+db.Open(addr, db.DefaultCache, log)
+db.Open(addr, false /* cache */, zap.NewNop())
+db.Open(addr, false /* cache */, log)
+```
+
+</td><td>
+
+Options must be provided only if needed.
+
+```go
 db.Open(addr)
 db.Open(addr, db.WithLogger(log))
 db.Open(addr, db.WithCache(false))
