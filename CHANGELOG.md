@@ -1,3 +1,8 @@
+# 2019-12-11
+
+- Functional Options: Recommend individual implementations of `Option`
+  interface instead of capturing values with a closure.
+
 # 2019-11-26
 
 - Add guidance against mutating global variables.
