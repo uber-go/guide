@@ -2354,12 +2354,53 @@ db.Open(addr, false /* cache */, log)
 </td><td>
 
 ```go
+// package db
+
+type Option interface {
+  // ...
+}
+
+func WithCache(c bool) Option {
+  // ...
+}
+
+func WithLogger(log *zap.Logger) Option {
+  // ...
+}
+
+// Open creates a connection.
+func Open(
+  addr string,
+  opts ...Option,
+) (*Connection, error) {
+  // ...
+}
+
+// Options must be provided only if needed.
+
+db.Open(addr)
+db.Open(addr, db.WithLogger(log))
+db.Open(addr, db.WithCache(false))
+db.Open(
+  addr,
+  db.WithCache(false),
+  db.WithLogger(log),
+)
+```
+
+</td></tr>
+</tbody></table>
+
+Our suggested way of implementing this pattern is with an `Option` interface
+that holds an unexported method, recording options on an unexported `options`
+struct.
+
+```go
 type options struct {
   cache  bool
   logger *zap.Logger
 }
 
-// Option overrides behavior of Open.
 type Option interface {
   apply(*options)
 }
@@ -2402,21 +2443,7 @@ func Open(
 
   // ...
 }
-
-// Options must be provided only if needed.
-
-db.Open(addr)
-db.Open(addr, db.WithLogger(log))
-db.Open(addr, db.WithCache(false))
-db.Open(
-  addr,
-  db.WithCache(false),
-  db.WithLogger(log),
-)
 ```
-
-</td></tr>
-</tbody></table>
 
 Note that there's a method of implementing this pattern with closures but we
 believe that the pattern above provides more flexibility for authors and is
