@@ -2455,7 +2455,11 @@ func Open(
 
 Note that there's a method of implementing this pattern with closures but we
 believe that the pattern above provides more flexibility for authors and is
-easier to debug for users.
+easier to debug and test for users. In particular, it allows options to be
+compared against each other in tests and mocks, versus closures where this is
+impossible. Further, it lets options implement other interfaces, including
+`fmt.Stringer` which allows for user-readable string representations of the
+options.
 
 See also,
 
