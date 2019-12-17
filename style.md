@@ -2383,7 +2383,7 @@ db.Open(addr, false /* cache */, log)
 
 </td><td>
 
-Options must be provided only if needed.
+Options are provided only if needed.
 
 ```go
 db.Open(addr)
