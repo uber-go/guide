@@ -1,4 +1,4 @@
-# 2019-12-11
+# 2019-12-17
 
 - Functional Options: Recommend struct implementations of `Option` interface
   instead of capturing values with a closure.
