@@ -71,6 +71,7 @@ row before the </tbody></table> line.
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
   - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+  - [Avoid memory leak in http requests ](#avoid-memory-leak-in-http-requests)
 - [Style](#style)
   - [Be Consistent](#be-consistent)
   - [Group Similar Declarations](#group-similar-declarations)
@@ -1180,6 +1181,72 @@ allocations at assignment time.
 allocations at assignment time.
 
 </td></tr>
+</tbody></table>
+
+### Avoid memory leak in http requests
+
+In a program that makes HTTP requests, it's important to close the body request. If not,
+your application will stack memory consume, resulting in a memory leak problem.
+
+Another good practice you must do, it's read the data body even the data is not important,
+it avoid memory leak in http requests.
+
+read more: 
+- [Avoiding memory leak in golang](https://hackernoon.com/avoiding-memory-leak-in-golang-api-1843ef45fca8)
+- [Http package docs](https://golang.org/src/net/http/request.go)
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+
+  func checkGetError() error {
+
+    req, err := http.NewRequest("GET", "https://example.com?q=123", nil)
+
+    if err != nil {
+      return err
+    }
+
+    _, err := client.Do(req)
+
+    return err
+  }
+
+
+```
+
+</td><td>
+
+```go
+
+  func checkGetError() error {
+
+    req, err := http.NewRequest("GET", "https://example.com?q=123", nil)
+
+    if err != nil {
+      return err
+    }
+
+    resp, err := client.Do(req)
+
+    if resp != nil {
+      defer resp.Body.Close() // must close this
+    }
+
+    if err != nil {
+      return err
+    }
+
+    _, err = io.Copy(ioutil.Discard, resp.Body) // always read the body
+    
+    return err
+  }
+
+```
+
 </tbody></table>
 
 ## Style
