@@ -52,88 +52,82 @@ row before the </tbody></table> line.
 
 ## Содержание
 
-- [Введение](#Введение)
-- [Гайдлайн](#guidelines)
-  - [Pointers to Interfaces](#pointers-to-interfaces)
-  - [Receivers and Interfaces](#receivers-and-interfaces)
-  - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
-  - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
-  - [Defer to Clean Up](#defer-to-clean-up)
-  - [Channel Size is One or None](#channel-size-is-one-or-none)
-  - [Start Enums at One](#start-enums-at-one)
-  - [Error Types](#error-types)
-  - [Error Wrapping](#error-wrapping)
-  - [Handle Type Assertion Failures](#handle-type-assertion-failures)
-  - [Don't Panic](#dont-panic)
-  - [Use go.uber.org/atomic](#use-gouberorgatomic)
-- [Performance](#performance)
-  - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
-  - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
-  - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
-- [Style](#style)
-  - [Be Consistent](#be-consistent)
-  - [Group Similar Declarations](#group-similar-declarations)
-  - [Import Group Ordering](#import-group-ordering)
-  - [Package Names](#package-names)
-  - [Function Names](#function-names)
-  - [Import Aliasing](#import-aliasing)
-  - [Function Grouping and Ordering](#function-grouping-and-ordering)
-  - [Reduce Nesting](#reduce-nesting)
-  - [Unnecessary Else](#unnecessary-else)
-  - [Top-level Variable Declarations](#top-level-variable-declarations)
-  - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
-  - [Embedding in Structs](#embedding-in-structs)
-  - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
-  - [Local Variable Declarations](#local-variable-declarations)
-  - [nil is a valid slice](#nil-is-a-valid-slice)
-  - [Reduce Scope of Variables](#reduce-scope-of-variables)
-  - [Avoid Naked Parameters](#avoid-naked-parameters)
-  - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
-  - [Initializing Struct References](#initializing-struct-references)
-  - [Initializing Maps](#initializing-maps)
-  - [Format Strings outside Printf](#format-strings-outside-printf)
-  - [Naming Printf-style Functions](#naming-printf-style-functions)
-- [Patterns](#patterns)
-  - [Test Tables](#test-tables)
-  - [Functional Options](#functional-options)
+- [Uber Go Style Guide](#uber-go-style-guide)
+  - [Содержание](#%d0%a1%d0%be%d0%b4%d0%b5%d1%80%d0%b6%d0%b0%d0%bd%d0%b8%d0%b5)
+  - [Введение](#%d0%92%d0%b2%d0%b5%d0%b4%d0%b5%d0%bd%d0%b8%d0%b5)
+  - [Рекомендации](#%d0%a0%d0%b5%d0%ba%d0%be%d0%bc%d0%b5%d0%bd%d0%b4%d0%b0%d1%86%d0%b8%d0%b8)
+    - [Указатели на интерфейсы](#%d0%a3%d0%ba%d0%b0%d0%b7%d0%b0%d1%82%d0%b5%d0%bb%d0%b8-%d0%bd%d0%b0-%d0%b8%d0%bd%d1%82%d0%b5%d1%80%d1%84%d0%b5%d0%b9%d1%81%d1%8b)
+    - [Receivers and Interfaces](#receivers-and-interfaces)
+    - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
+    - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
+      - [Receiving Slices and Maps](#receiving-slices-and-maps)
+      - [Returning Slices and Maps](#returning-slices-and-maps)
+    - [Defer для очистки](#defer-%d0%b4%d0%bb%d1%8f-%d0%be%d1%87%d0%b8%d1%81%d1%82%d0%ba%d0%b8)
+    - [Channel Size is One or None](#channel-size-is-one-or-none)
+    - [Start Enums at One](#start-enums-at-one)
+    - [Error Types](#error-types)
+    - [Error Wrapping](#error-wrapping)
+    - [Handle Type Assertion Failures](#handle-type-assertion-failures)
+    - [Don't Panic](#dont-panic)
+    - [Use go.uber.org/atomic](#use-gouberorgatomic)
+  - [Performance](#performance)
+    - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
+    - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
+    - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+  - [Style](#style)
+    - [Be Consistent](#be-consistent)
+    - [Group Similar Declarations](#group-similar-declarations)
+    - [Import Group Ordering](#import-group-ordering)
+    - [Package Names](#package-names)
+    - [Function Names](#function-names)
+    - [Import Aliasing](#import-aliasing)
+    - [Function Grouping and Ordering](#function-grouping-and-ordering)
+    - [Reduce Nesting](#reduce-nesting)
+    - [Unnecessary Else](#unnecessary-else)
+    - [Top-level Variable Declarations](#top-level-variable-declarations)
+    - [Prefix Unexported Globals with _](#prefix-unexported-globals-with)
+    - [Embedding in Structs](#embedding-in-structs)
+    - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
+    - [Local Variable Declarations](#local-variable-declarations)
+    - [nil is a valid slice](#nil-is-a-valid-slice)
+    - [Reduce Scope of Variables](#reduce-scope-of-variables)
+    - [Avoid Naked Parameters](#avoid-naked-parameters)
+    - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
+    - [Initializing Struct References](#initializing-struct-references)
+    - [Initializing Maps](#initializing-maps)
+    - [Format Strings outside Printf](#format-strings-outside-printf)
+    - [Naming Printf-style Functions](#naming-printf-style-functions)
+  - [Patterns](#patterns)
+    - [Test Tables](#test-tables)
+    - [Functional Options](#functional-options)
 
 ## Введение
 
-Styles are the conventions that govern our code. The term style is a bit of a
-misnomer, since these conventions cover far more than just source file
-formatting—gofmt handles that for us.
+Стили - это соглашениями, которые определяют наш код. Термин стиль является не слишком полным, так как данные соглашения покрывают гораздо больше, чем просто форматирование исходного кода, c которым прекрасно справляется gofmt.
 
-The goal of this guide is to manage this complexity by describing in detail the
-Dos and Don'ts of writing Go code at Uber. These rules exist to keep the code
-base manageable while still allowing engineers to use Go language features
-productively.
+Целью данного руководства является является упростить понимание, описав в деталях как нужно, а как нельзя писать код на языке Go в Uber. Эти правила существуют для того, чтобы сохранить контроль над кодовой базой прокета и при этом позволить инженерам эффективно использовать возможности языка Go.
 
-This guide was originally created by [Prashant Varanasi] and [Simon Newton] as
-a way to bring some colleagues up to speed with using Go. Over the years it has
-been amended based on feedback from others.
+Данное руководство было создано [Прашантом Варанаси] и [Саймоном Ньютоном] как способ научить некоторых коллег использовать Go. С течением времени в него были внесены изменения на основе обратной связи читателей.
 
-  [Prashant Varanasi]: https://github.com/prashantv
-  [Simon Newton]: https://github.com/nomis52
+  [Прашант Варанаси]: https://github.com/prashantv
+  [Саймон Ньютон]: https://github.com/nomis52
 
-This documents idiomatic conventions in Go code that we follow at Uber. A lot
-of these are general guidelines for Go, while others extend upon external
-resources:
+Данный документ является соглашением, которому мы следуем в Uber. Многое из этого является общими рекомендациями для написания кода на Go, в то время как некоторые вещи были почерпнуты из внешних ресурсов:
 
-1. [Effective Go](https://golang.org/doc/effective_go.html)
-2. [The Go common mistakes guide](https://github.com/golang/go/wiki/CodeReviewComments)
+1. [Эффективный Go](https://golang.org/doc/effective_go.html)
+2. [Руководство по распространненым ошибкам в Go](https://github.com/golang/go/wiki/CodeReviewComments)
 
-All code should be error-free when run through `golint` and `go vet`. We
-recommend setting up your editor to:
+Код не должен содержать ошибок при запуске `golint` и `go vet`. Мы рекомендуем настроить вашу редактор на:
 
-- Run `goimports` on save
-- Run `golint` and `go vet` to check for errors
+- Запуск `goimports` во время сохранения
+- Запуск `golint` и `go vet` для проверки на ошибки
 
-You can find information in editor support for Go tools here:
+Информацию по поддержке Go тулзов для вашего редактора вы можете найти здесь:
 <https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins>
 
-## Guidelines
+## Рекомендации
 
-### Pointers to Interfaces
+### Указатели на интерфейсы
 
 You almost never need a pointer to an interface. You should be passing
 interfaces as values—the underlying data can still be a pointer.
@@ -409,12 +403,12 @@ snapshot := stats.Snapshot()
 </td></tr>
 </tbody></table>
 
-### Defer to Clean Up
+### Defer для очистки
 
-Use defer to clean up resources such as files and locks.
+Используйте defer для очистки ресурсов, таких как файлы и блокировки.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Хорошо</th><th>Плохо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -431,7 +425,7 @@ p.Unlock()
 
 return newCount
 
-// easy to miss unlocks due to multiple returns
+// легко потерять unlock'и из-за множественного return
 ```
 
 </td><td>
@@ -447,7 +441,7 @@ if p.count < 10 {
 p.count++
 return p.count
 
-// more readable
+// более читаемо
 ```
 
 </td></tr>
