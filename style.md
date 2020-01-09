@@ -55,7 +55,7 @@ row before the </tbody></table> line.
 - [Uber Go Style Guide](#uber-go-style-guide)
   - [Содержание](#%d0%a1%d0%be%d0%b4%d0%b5%d1%80%d0%b6%d0%b0%d0%bd%d0%b8%d0%b5)
   - [Введение](#%d0%92%d0%b2%d0%b5%d0%b4%d0%b5%d0%bd%d0%b8%d0%b5)
-  - [Рекомендации](#%d0%a0%d0%b5%d0%ba%d0%be%d0%bc%d0%b5%d0%bd%d0%b4%d0%b0%d1%86%d0%b8%d0%b8)
+  - [Методические указания](#%d0%9c%d0%b5%d1%82%d0%be%d0%b4%d0%b8%d1%87%d0%b5%d1%81%d0%ba%d0%b8%d0%b5-%d1%83%d0%ba%d0%b0%d0%b7%d0%b0%d0%bd%d0%b8%d1%8f)
     - [Указатели на интерфейсы](#%d0%a3%d0%ba%d0%b0%d0%b7%d0%b0%d1%82%d0%b5%d0%bb%d0%b8-%d0%bd%d0%b0-%d0%b8%d0%bd%d1%82%d0%b5%d1%80%d1%84%d0%b5%d0%b9%d1%81%d1%8b)
     - [Receivers and Interfaces](#receivers-and-interfaces)
     - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
@@ -125,11 +125,11 @@ row before the </tbody></table> line.
 Информацию по поддержке Go инструментов для вашего редактора можно найти здесь:
 <https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins>
 
-## Рекомендации
+## Методические указания
 
 ### Указатели на интерфейсы
 
-Вам практически никогда не потребуется указать на интерфейс. 
+Вам практически никогда не потребуется указатель на интерфейс. 
 You almost never need a pointer to an interface. You should be passing
 interfaces as values—the underlying data can still be a pointer.
 
