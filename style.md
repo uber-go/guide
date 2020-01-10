@@ -50,79 +50,87 @@ row before the </tbody></table> line.
 
 # Uber Go Style Guide
 
-## Содержание
+## Table of Contents
 
-- [Uber Go Style Guide](#uber-go-style-guide)
-  - [Содержание](#%d0%a1%d0%be%d0%b4%d0%b5%d1%80%d0%b6%d0%b0%d0%bd%d0%b8%d0%b5)
-  - [Введение](#%d0%92%d0%b2%d0%b5%d0%b4%d0%b5%d0%bd%d0%b8%d0%b5)
-  - [Методические указания](#%d0%9c%d0%b5%d1%82%d0%be%d0%b4%d0%b8%d1%87%d0%b5%d1%81%d0%ba%d0%b8%d0%b5-%d1%83%d0%ba%d0%b0%d0%b7%d0%b0%d0%bd%d0%b8%d1%8f)
-    - [Указатели на интерфейсы](#%d0%a3%d0%ba%d0%b0%d0%b7%d0%b0%d1%82%d0%b5%d0%bb%d0%b8-%d0%bd%d0%b0-%d0%b8%d0%bd%d1%82%d0%b5%d1%80%d1%84%d0%b5%d0%b9%d1%81%d1%8b)
-    - [Receivers and Interfaces](#receivers-and-interfaces)
-    - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
-    - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
-      - [Receiving Slices and Maps](#receiving-slices-and-maps)
-      - [Returning Slices and Maps](#returning-slices-and-maps)
-    - [Defer для очистки](#defer-%d0%b4%d0%bb%d1%8f-%d0%be%d1%87%d0%b8%d1%81%d1%82%d0%ba%d0%b8)
-    - [Channel Size is One or None](#channel-size-is-one-or-none)
-    - [Start Enums at One](#start-enums-at-one)
-    - [Error Types](#error-types)
-    - [Error Wrapping](#error-wrapping)
-    - [Handle Type Assertion Failures](#handle-type-assertion-failures)
-    - [Don't Panic](#dont-panic)
-    - [Use go.uber.org/atomic](#use-gouberorgatomic)
-  - [Performance](#performance)
-    - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
-    - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
-    - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
-  - [Style](#style)
-    - [Be Consistent](#be-consistent)
-    - [Group Similar Declarations](#group-similar-declarations)
-    - [Import Group Ordering](#import-group-ordering)
-    - [Package Names](#package-names)
-    - [Function Names](#function-names)
-    - [Import Aliasing](#import-aliasing)
-    - [Function Grouping and Ordering](#function-grouping-and-ordering)
-    - [Reduce Nesting](#reduce-nesting)
-    - [Unnecessary Else](#unnecessary-else)
-    - [Top-level Variable Declarations](#top-level-variable-declarations)
-    - [Prefix Unexported Globals with _](#prefix-unexported-globals-with)
-    - [Embedding in Structs](#embedding-in-structs)
-    - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
-    - [Local Variable Declarations](#local-variable-declarations)
-    - [nil is a valid slice](#nil-is-a-valid-slice)
-    - [Reduce Scope of Variables](#reduce-scope-of-variables)
-    - [Avoid Naked Parameters](#avoid-naked-parameters)
-    - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
-    - [Initializing Struct References](#initializing-struct-references)
-    - [Initializing Maps](#initializing-maps)
-    - [Format Strings outside Printf](#format-strings-outside-printf)
-    - [Naming Printf-style Functions](#naming-printf-style-functions)
-  - [Patterns](#patterns)
-    - [Test Tables](#test-tables)
-    - [Functional Options](#functional-options)
+- [Introduction](#introduction)
+- [Guidelines](#guidelines)
+  - [Pointers to Interfaces](#pointers-to-interfaces)
+  - [Receivers and Interfaces](#receivers-and-interfaces)
+  - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
+  - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
+  - [Defer to Clean Up](#defer-to-clean-up)
+  - [Channel Size is One or None](#channel-size-is-one-or-none)
+  - [Start Enums at One](#start-enums-at-one)
+  - [Error Types](#error-types)
+  - [Error Wrapping](#error-wrapping)
+  - [Handle Type Assertion Failures](#handle-type-assertion-failures)
+  - [Don't Panic](#dont-panic)
+  - [Use go.uber.org/atomic](#use-gouberorgatomic)
+  - [Avoid Mutable Globals](#avoid-mutable-globals)
+- [Performance](#performance)
+  - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
+  - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
+  - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+- [Style](#style)
+  - [Be Consistent](#be-consistent)
+  - [Group Similar Declarations](#group-similar-declarations)
+  - [Import Group Ordering](#import-group-ordering)
+  - [Package Names](#package-names)
+  - [Function Names](#function-names)
+  - [Import Aliasing](#import-aliasing)
+  - [Function Grouping and Ordering](#function-grouping-and-ordering)
+  - [Reduce Nesting](#reduce-nesting)
+  - [Unnecessary Else](#unnecessary-else)
+  - [Top-level Variable Declarations](#top-level-variable-declarations)
+  - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
+  - [Embedding in Structs](#embedding-in-structs)
+  - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
+  - [Local Variable Declarations](#local-variable-declarations)
+  - [nil is a valid slice](#nil-is-a-valid-slice)
+  - [Reduce Scope of Variables](#reduce-scope-of-variables)
+  - [Avoid Naked Parameters](#avoid-naked-parameters)
+  - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
+  - [Initializing Struct References](#initializing-struct-references)
+  - [Initializing Maps](#initializing-maps)
+  - [Format Strings outside Printf](#format-strings-outside-printf)
+  - [Naming Printf-style Functions](#naming-printf-style-functions)
+- [Patterns](#patterns)
+  - [Test Tables](#test-tables)
+  - [Functional Options](#functional-options)
 
-## Введение
+## Introduction
 
-Стили - это соглашения, определяющие качество нашего код. Термин стиль является не слишком полным, так как данное соглашение описывает гораздо больше, чем просто форматирование исходного кода, c которым прекрасно справляется gofmt.
+Styles are the conventions that govern our code. The term style is a bit of a
+misnomer, since these conventions cover far more than just source file
+formatting—gofmt handles that for us.
 
-Целью данного руководства является упрощение понимания, того как как нужно, а как нельзя писать код на Go в Uber. Эти правила существуют для того, чтобы сохранить контроль над кодовой базой прокета и при этом позволить программистам эффективно использовать возможности языка Go.
+The goal of this guide is to manage this complexity by describing in detail the
+Dos and Don'ts of writing Go code at Uber. These rules exist to keep the code
+base manageable while still allowing engineers to use Go language features
+productively.
 
-Данное руководство было создано [Прашантом Варанаси] и [Саймоном Ньютоном] как способ помочь коллегам начать использовать Go. С течением времени в него были внесены изменения на основе обратной связи от читателей.
+This guide was originally created by [Prashant Varanasi] and [Simon Newton] as
+a way to bring some colleagues up to speed with using Go. Over the years it has
+been amended based on feedback from others.
 
-  [Прашант Варанаси]: https://github.com/prashantv
-  [Саймон Ньютон]: https://github.com/nomis52
+  [Prashant Varanasi]: https://github.com/prashantv
+  [Simon Newton]: https://github.com/nomis52
 
-Данный документ является соглашением, которому мы следуем в Uber. Многое из этого является общими рекомендациями для написания кода на Go, в то время как некоторые вещи были почерпнуты из внешних источников:
+This documents idiomatic conventions in Go code that we follow at Uber. A lot
+of these are general guidelines for Go, while others extend upon external
+resources:
 
-1. [Эффективный Go](https://golang.org/doc/effective_go.html)
-2. [Руководство по распространненым ошибкам в Go](https://github.com/golang/go/wiki/CodeReviewComments)
+1. [Effective Go](https://golang.org/doc/effective_go.html)
+2. [The Go common mistakes guide](https://github.com/golang/go/wiki/CodeReviewComments)
 
-Код не должен содержать ошибок при запуске `golint` и `go vet`. Мы рекомендуем настроить ваш редактор на:
+All code should be error-free when run through `golint` and `go vet`. We
+recommend setting up your editor to:
 
-- Запуск `goimports` во время сохранения
-- Запуск `golint` и `go vet` для проверки на ошибки
+- Run `goimports` on save
+- Run `golint` and `go vet` to check for errors
 
-Информацию по поддержке Go инструментов вашим редактором можно найти здесь:
+You can find information in editor support for Go tools here:
+
 <https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins>
 
 ## Методические указания
@@ -954,6 +962,82 @@ func (f *foo) start() {
 
 func (f *foo) isRunning() bool {
   return f.running.Load()
+}
+```
+
+</td></tr>
+</tbody></table>
+
+### Avoid Mutable Globals
+
+Avoid mutating global variables, instead opting for dependency injection.
+This applies to function pointers as well as other kinds of values.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// sign.go
+
+var _timeNow = time.Now
+
+func sign(msg string) string {
+  now := _timeNow()
+  return signWithTime(msg, now)
+}
+```
+
+</td><td>
+
+```go
+// sign.go
+
+type signer struct {
+  now func() time.Time
+}
+
+func newSigner() *signer {
+  return &signer{
+    now: time.Now,
+  }
+}
+
+func (s *signer) Sign(msg string) string {
+  now := s.now()
+  return signWithTime(msg, now)
+}
+```
+</td></tr>
+<tr><td>
+
+```go
+// sign_test.go
+
+func TestSign(t *testing.T) {
+  oldTimeNow := _timeNow
+  _timeNow = func() time.Time {
+    return someFixedTime
+  }
+  defer func() { _timeNow = oldTimeNow }()
+
+  assert.Equal(t, want, sign(give))
+}
+```
+
+</td><td>
+
+```go
+// sign_test.go
+
+func TestSigner(t *testing.T) {
+  s := newSigner()
+  s.now = func() time.Time {
+    return someFixedTime
+  }
+
+  assert.Equal(t, want, s.Sign(give))
 }
 ```
 
@@ -2251,62 +2335,116 @@ more arguments on those functions.
 ```go
 // package db
 
-func Connect(
+func Open(
   addr string,
-  timeout time.Duration,
-  caching bool,
+  cache bool,
+  logger *zap.Logger
 ) (*Connection, error) {
   // ...
 }
-
-// Timeout and caching must always be provided,
-// even if the user wants to use the default.
-
-db.Connect(addr, db.DefaultTimeout, db.DefaultCaching)
-db.Connect(addr, newTimeout, db.DefaultCaching)
-db.Connect(addr, db.DefaultTimeout, false /* caching */)
-db.Connect(addr, newTimeout, false /* caching */)
 ```
 
 </td><td>
 
 ```go
-type options struct {
-  timeout time.Duration
-  caching bool
+// package db
+
+type Option interface {
+  // ...
 }
 
-// Option overrides behavior of Connect.
+func WithCache(c bool) Option {
+  // ...
+}
+
+func WithLogger(log *zap.Logger) Option {
+  // ...
+}
+
+// Open creates a connection.
+func Open(
+  addr string,
+  opts ...Option,
+) (*Connection, error) {
+  // ...
+}
+```
+
+</td></tr>
+<tr><td>
+
+The cache and logger parameters must always be provided, even if the user
+wants to use the default.
+
+```go
+db.Open(addr, db.DefaultCache, zap.NewNop())
+db.Open(addr, db.DefaultCache, log)
+db.Open(addr, false /* cache */, zap.NewNop())
+db.Open(addr, false /* cache */, log)
+```
+
+</td><td>
+
+Options are provided only if needed.
+
+```go
+db.Open(addr)
+db.Open(addr, db.WithLogger(log))
+db.Open(addr, db.WithCache(false))
+db.Open(
+  addr,
+  db.WithCache(false),
+  db.WithLogger(log),
+)
+```
+
+</td></tr>
+</tbody></table>
+
+Our suggested way of implementing this pattern is with an `Option` interface
+that holds an unexported method, recording options on an unexported `options`
+struct.
+
+```go
+type options struct {
+  cache  bool
+  logger *zap.Logger
+}
+
 type Option interface {
   apply(*options)
 }
 
-type optionFunc func(*options)
+type cacheOption bool
 
-func (f optionFunc) apply(o *options) {
-  f(o)
+func (c cacheOption) apply(opts *options) {
+  opts.cache = bool(c)
 }
 
-func WithTimeout(t time.Duration) Option {
-  return optionFunc(func(o *options) {
-    o.timeout = t
-  })
+func WithCache(c bool) Option {
+  return cacheOption(c)
 }
 
-func WithCaching(cache bool) Option {
-  return optionFunc(func(o *options) {
-    o.caching = cache
-  })
+type loggerOption struct {
+  Log *zap.Logger
 }
 
-// Connect creates a connection.
-func Connect(
+func (l loggerOption) apply(opts *options) {
+  opts.Logger = l.Log
+}
+
+func WithLogger(log *zap.Logger) Option {
+  return loggerOption{Log: log}
+}
+
+// Open creates a connection.
+func Open(
   addr string,
   opts ...Option,
 ) (*Connection, error) {
   options := options{
-    timeout: defaultTimeout,
-    caching: defaultCaching,
+    cache:  defaultCache,
+    logger: zap.NewNop(),
   }
 
   for _, o := range opts {
@@ -2315,21 +2453,15 @@ func Connect(
 
   // ...
 }
-
-// Options must be provided only if needed.
-
-db.Connect(addr)
-db.Connect(addr, db.WithTimeout(newTimeout))
-db.Connect(addr, db.WithCaching(false))
-db.Connect(
-  addr,
-  db.WithCaching(false),
-  db.WithTimeout(newTimeout),
-)
 ```
 
-</td></tr>
-</tbody></table>
+Note that there's a method of implementing this pattern with closures but we
+believe that the pattern above provides more flexibility for authors and is
+easier to debug and test for users. In particular, it allows options to be
+compared against each other in tests and mocks, versus closures where this is
+impossible. Further, it lets options implement other interfaces, including
+`fmt.Stringer` which allows for user-readable string representations of the
+options.
 
 See also,
 
