@@ -80,8 +80,8 @@ row before the </tbody></table> line.
     - [Порядок импорта пакетов](#%d0%9f%d0%be%d1%80%d1%8f%d0%b4%d0%be%d0%ba-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%b0-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
     - [Названия пакетов](#%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
     - [Function Names](#function-names)
-    - [Import Aliasing](#import-aliasing)
-    - [Function Grouping and Ordering](#function-grouping-and-ordering)
+    - [Псевдонимы импортов](#%d0%9f%d1%81%d0%b5%d0%b2%d0%b4%d0%be%d0%bd%d0%b8%d0%bc%d1%8b-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%be%d0%b2)
+    - [Группировка и упорядочивание функций](#%d0%93%d1%80%d1%83%d0%bf%d0%bf%d0%b8%d1%80%d0%be%d0%b2%d0%ba%d0%b0-%d0%b8-%d1%83%d0%bf%d0%be%d1%80%d1%8f%d0%b4%d0%be%d1%87%d0%b8%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9)
     - [Reduce Nesting](#reduce-nesting)
     - [Unnecessary Else](#unnecessary-else)
     - [Top-level Variable Declarations](#top-level-variable-declarations)
@@ -1323,10 +1323,10 @@ for the purpose of grouping related test cases, e.g.,
 
   [MixedCaps for function names]: https://golang.org/doc/effective_go.html#mixed-caps
 
-### Import Aliasing
+### Псевдонимы импортов
 
-Import aliasing must be used if the package name does not match the last
-element of the import path.
+Используйте псевдонимы импортов, в случае если название пакета не совпадает с 
+последним элементом в пути импорта. 
 
 ```go
 import (
@@ -1337,11 +1337,11 @@ import (
 )
 ```
 
-In all other scenarios, import aliases should be avoided unless there is a
-direct conflict between imports.
+Во всех остальных случаях использование псевдонимов необходимо избегать, исключением
+является прямой конфликт в названиях импортов.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1370,22 +1370,22 @@ import (
 </td></tr>
 </tbody></table>
 
-### Function Grouping and Ordering
+### Группировка и упорядочивание функций
 
-- Functions should be sorted in rough call order.
-- Functions in a file should be grouped by receiver.
+- Функции должны быть отсортированны строго в порядке вызова.
+- Функции в файле должны быть сгруппированы по получателю.
 
-Therefore, exported functions should appear first in a file, after
-`struct`, `const`, `var` definitions.
+Таким образом, экспортируемые функции должны располагаться в файле первыми, сразу после
+объявления `struct`, `const` и `var`.
 
-A `newXYZ()`/`NewXYZ()` may appear after the type is defined, but before the
-rest of the methods on the receiver.
+Методы `newXYZ()`/`NewXYZ()` должны располагаться после определения типов, но до остальных
+методов получателя.
 
-Since functions are grouped by receiver, plain utility functions should appear
-towards the end of the file.
+Поскольку функции сгруппированы по получателю, утилитарные функции должны располагаться
+в конце файла.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
