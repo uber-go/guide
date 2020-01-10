@@ -56,7 +56,7 @@ row before the </tbody></table> line.
   - [Содержание](#%d0%a1%d0%be%d0%b4%d0%b5%d1%80%d0%b6%d0%b0%d0%bd%d0%b8%d0%b5)
   - [Введение](#%d0%92%d0%b2%d0%b5%d0%b4%d0%b5%d0%bd%d0%b8%d0%b5)
   - [Методические указания](#%d0%9c%d0%b5%d1%82%d0%be%d0%b4%d0%b8%d1%87%d0%b5%d1%81%d0%ba%d0%b8%d0%b5-%d1%83%d0%ba%d0%b0%d0%b7%d0%b0%d0%bd%d0%b8%d1%8f)
-    - [Указатели на интерфейсы](#%d0%a3%d0%ba%d0%b0%d0%b7%d0%b0%d1%82%d0%b5%d0%bb%d0%b8-%d0%bd%d0%b0-%d0%b8%d0%bd%d1%82%d0%b5%d1%80%d1%84%d0%b5%d0%b9%d1%81%d1%8b)
+    - [Pointers to Interfaces](#pointers-to-interfaces)
     - [Receivers and Interfaces](#receivers-and-interfaces)
     - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
     - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
@@ -77,8 +77,8 @@ row before the </tbody></table> line.
   - [Style](#style)
     - [Be Consistent](#be-consistent)
     - [Group Similar Declarations](#group-similar-declarations)
-    - [Import Group Ordering](#import-group-ordering)
-    - [Package Names](#package-names)
+    - [Порядок импорта пакетов](#%d0%9f%d0%be%d1%80%d1%8f%d0%b4%d0%be%d0%ba-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%b0-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
+    - [Наименование пакетов](#%d0%9d%d0%b0%d0%b8%d0%bc%d0%b5%d0%bd%d0%be%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
     - [Function Names](#function-names)
     - [Import Aliasing](#import-aliasing)
     - [Function Grouping and Ordering](#function-grouping-and-ordering)
@@ -127,9 +127,7 @@ row before the </tbody></table> line.
 
 ## Методические указания
 
-### Указатели на интерфейсы
-
-Вам практически никогда не потребуется указатель на интерфейс. 
+### Pointers to Interfaces
 You almost never need a pointer to an interface. You should be passing
 interfaces as values—the underlying data can still be a pointer.
 
@@ -1263,17 +1261,17 @@ func f() string {
 </td></tr>
 </tbody></table>
 
-### Import Group Ordering
+### Порядок импорта пакетов
 
-There should be two import groups:
+Импортируемые пакеты должны быть разделены на две группы:
 
-- Standard library
-- Everything else
+- Стандартная библиотека
+- Все остальные пакеты
 
-This is the grouping applied by goimports by default.
+Такой порядок сортировки применяется утилитой goimports по умолчанию.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1301,7 +1299,7 @@ import (
 </td></tr>
 </tbody></table>
 
-### Package Names
+### Наименование пакетов
 
 When naming packages, choose a name that is:
 
