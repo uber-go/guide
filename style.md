@@ -78,7 +78,7 @@ row before the </tbody></table> line.
     - [Be Consistent](#be-consistent)
     - [Group Similar Declarations](#group-similar-declarations)
     - [Порядок импорта пакетов](#%d0%9f%d0%be%d1%80%d1%8f%d0%b4%d0%be%d0%ba-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%b0-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
-    - [Наименование пакетов](#%d0%9d%d0%b0%d0%b8%d0%bc%d0%b5%d0%bd%d0%be%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
+    - [Названия пакетов](#%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
     - [Function Names](#function-names)
     - [Import Aliasing](#import-aliasing)
     - [Function Grouping and Ordering](#function-grouping-and-ordering)
@@ -1299,18 +1299,17 @@ import (
 </td></tr>
 </tbody></table>
 
-### Наименование пакетов
+### Названия пакетов
 
-When naming packages, choose a name that is:
+При наименовании пакетов используйте название, которое:
 
-- All lower-case. No capitals or underscores.
-- Does not need to be renamed using named imports at most call sites.
-- Short and succinct. Remember that the name is identified in full at every call
-  site.
-- Not plural. For example, `net/url`, not `net/urls`.
-- Not "common", "util", "shared", or "lib". These are bad, uninformative names.
+- Состоит только из символов нижнего регистра. Использовать заглавные буквы и подчеркивания запрещено.
+- Для большинства вызовов нет необходимости использовать именованный импорт.
+- Коротко и ясно. Помните, что к имени пакета необходимо обращаться при каждом вызове.
+- В единственном числе/ Например, `net/url` вместо `net/urls`.
+- Не "common", "util", "shared", или "lib". Это плохие и неинформативные названия.
 
-See also [Package Names] and [Style guideline for Go packages].
+Также смотрите [Package Names] и [Style guidline for Go packages].
 
   [Package Names]: https://blog.golang.org/package-names
   [Style guideline for Go packages]: https://rakyll.org/style-packages/
