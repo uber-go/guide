@@ -83,7 +83,7 @@ row before the </tbody></table> line.
     - [Псевдонимы импортов](#%d0%9f%d1%81%d0%b5%d0%b2%d0%b4%d0%be%d0%bd%d0%b8%d0%bc%d1%8b-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%be%d0%b2)
     - [Группировка и упорядочивание функций](#%d0%93%d1%80%d1%83%d0%bf%d0%bf%d0%b8%d1%80%d0%be%d0%b2%d0%ba%d0%b0-%d0%b8-%d1%83%d0%bf%d0%be%d1%80%d1%8f%d0%b4%d0%be%d1%87%d0%b8%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9)
     - [Reduce Nesting](#reduce-nesting)
-    - [Unnecessary Else](#unnecessary-else)
+    - [Лишние Else](#%d0%9b%d0%b8%d1%88%d0%bd%d0%b8%d0%b5-else)
     - [Top-level Variable Declarations](#top-level-variable-declarations)
     - [Prefix Unexported Globals with _](#prefix-unexported-globals-with)
     - [Embedding in Structs](#embedding-in-structs)
@@ -1472,13 +1472,13 @@ for _, v := range data {
 </td></tr>
 </tbody></table>
 
-### Unnecessary Else
+### Лишние Else
 
-If a variable is set in both branches of an if, it can be replaced with a
-single if.
+Если переменной присваивается значение в обоих ветвях if/else, то это может быть заменено
+единственным вызовом if.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
