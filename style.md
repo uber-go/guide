@@ -79,7 +79,7 @@ row before the </tbody></table> line.
     - [Group Similar Declarations](#group-similar-declarations)
     - [Порядок импорта пакетов](#%d0%9f%d0%be%d1%80%d1%8f%d0%b4%d0%be%d0%ba-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%b0-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
     - [Названия пакетов](#%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
-    - [Function Names](#function-names)
+    - [Названия функций](#%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9)
     - [Псевдонимы импортов](#%d0%9f%d1%81%d0%b5%d0%b2%d0%b4%d0%be%d0%bd%d0%b8%d0%bc%d1%8b-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%be%d0%b2)
     - [Группировка и упорядочивание функций](#%d0%93%d1%80%d1%83%d0%bf%d0%bf%d0%b8%d1%80%d0%be%d0%b2%d0%ba%d0%b0-%d0%b8-%d1%83%d0%bf%d0%be%d1%80%d1%8f%d0%b4%d0%be%d1%87%d0%b8%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9)
     - [Reduce Nesting](#reduce-nesting)
@@ -1314,11 +1314,11 @@ import (
   [Package Names]: https://blog.golang.org/package-names
   [Style guideline for Go packages]: https://rakyll.org/style-packages/
 
-### Function Names
+### Названия функций
 
-We follow the Go community's convention of using [MixedCaps for function
-names]. An exception is made for test functions, which may contain underscores
-for the purpose of grouping related test cases, e.g.,
+Мы следуем соглашению сообщества Go о наименовании функций [MixedCaps for function
+names]. Исключением являются функции тестов, которые могут содержать нижнее подчеркивание
+с целью объединения родственных тест-кейсов, например
 `TestMyFunction_WhatIsBeingTested`.
 
   [MixedCaps for function names]: https://golang.org/doc/effective_go.html#mixed-caps
