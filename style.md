@@ -2428,7 +2428,7 @@ type loggerOption struct {
 }
 
 func (l loggerOption) apply(opts *options) {
-  opts.Logger = l.Log
+  opts.logger = l.Log
 }
 
 func WithLogger(log *zap.Logger) Option {
