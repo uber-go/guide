@@ -82,24 +82,24 @@ row before the </tbody></table> line.
     - [Названия функций](#%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9)
     - [Псевдонимы импортов](#%d0%9f%d1%81%d0%b5%d0%b2%d0%b4%d0%be%d0%bd%d0%b8%d0%bc%d1%8b-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%be%d0%b2)
     - [Группировка и упорядочивание функций](#%d0%93%d1%80%d1%83%d0%bf%d0%bf%d0%b8%d1%80%d0%be%d0%b2%d0%ba%d0%b0-%d0%b8-%d1%83%d0%bf%d0%be%d1%80%d1%8f%d0%b4%d0%be%d1%87%d0%b8%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9)
-    - [Reduce Nesting](#reduce-nesting)
-    - [Лишние Else](#%d0%9b%d0%b8%d1%88%d0%bd%d0%b8%d0%b5-else)
-    - [Top-level Variable Declarations](#top-level-variable-declarations)
-    - [Prefix Unexported Globals with _](#prefix-unexported-globals-with)
-    - [Embedding in Structs](#embedding-in-structs)
-    - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
-    - [Local Variable Declarations](#local-variable-declarations)
-    - [nil is a valid slice](#nil-is-a-valid-slice)
-    - [Reduce Scope of Variables](#reduce-scope-of-variables)
-    - [Avoid Naked Parameters](#avoid-naked-parameters)
+    - [Уменьшение вложенности](#%d0%a3%d0%bc%d0%b5%d0%bd%d1%8c%d1%88%d0%b5%d0%bd%d0%b8%d0%b5-%d0%b2%d0%bb%d0%be%d0%b6%d0%b5%d0%bd%d0%bd%d0%be%d1%81%d1%82%d0%b8)
+    - [Излишние Else](#%d0%98%d0%b7%d0%bb%d0%b8%d1%88%d0%bd%d0%b8%d0%b5-else)
+    - [Объявление верхнеуровневых переменных](#%d0%9e%d0%b1%d1%8a%d1%8f%d0%b2%d0%bb%d0%b5%d0%bd%d0%b8%d0%b5-%d0%b2%d0%b5%d1%80%d1%85%d0%bd%d0%b5%d1%83%d1%80%d0%be%d0%b2%d0%bd%d0%b5%d0%b2%d1%8b%d1%85-%d0%bf%d0%b5%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%bd%d1%8b%d1%85)
+    - [Используйте префикс _ для глобальных неэкспортируемых переменных](#%d0%98%d1%81%d0%bf%d0%be%d0%bb%d1%8c%d0%b7%d1%83%d0%b9%d1%82%d0%b5-%d0%bf%d1%80%d0%b5%d1%84%d0%b8%d0%ba%d1%81--%d0%b4%d0%bb%d1%8f-%d0%b3%d0%bb%d0%be%d0%b1%d0%b0%d0%bb%d1%8c%d0%bd%d1%8b%d1%85-%d0%bd%d0%b5%d1%8d%d0%ba%d1%81%d0%bf%d0%be%d1%80%d1%82%d0%b8%d1%80%d1%83%d0%b5%d0%bc%d1%8b%d1%85-%d0%bf%d0%b5%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%bd%d1%8b%d1%85)
+    - [Встреивание в структуры](#%d0%92%d1%81%d1%82%d1%80%d0%b5%d0%b8%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d0%b2-%d1%81%d1%82%d1%80%d1%83%d0%ba%d1%82%d1%83%d1%80%d1%8b)
+    - [Используйте названия полей при инициализации структур](#%d0%98%d1%81%d0%bf%d0%be%d0%bb%d1%8c%d0%b7%d1%83%d0%b9%d1%82%d0%b5-%d0%bd%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d0%bf%d0%be%d0%bb%d0%b5%d0%b9-%d0%bf%d1%80%d0%b8-%d0%b8%d0%bd%d0%b8%d1%86%d0%b8%d0%b0%d0%bb%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d0%b8-%d1%81%d1%82%d1%80%d1%83%d0%ba%d1%82%d1%83%d1%80)
+    - [Определение локальных переменных](#%d0%9e%d0%bf%d1%80%d0%b5%d0%b4%d0%b5%d0%bb%d0%b5%d0%bd%d0%b8%d0%b5-%d0%bb%d0%be%d0%ba%d0%b0%d0%bb%d1%8c%d0%bd%d1%8b%d1%85-%d0%bf%d0%b5%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%bd%d1%8b%d1%85)
+    - [nil это полноценный срез](#nil-%d1%8d%d1%82%d0%be-%d0%bf%d0%be%d0%bb%d0%bd%d0%be%d1%86%d0%b5%d0%bd%d0%bd%d1%8b%d0%b9-%d1%81%d1%80%d0%b5%d0%b7)
+    - [Уменьшайте область видимости переменных](#%d0%a3%d0%bc%d0%b5%d0%bd%d1%8c%d1%88%d0%b0%d0%b9%d1%82%d0%b5-%d0%be%d0%b1%d0%bb%d0%b0%d1%81%d1%82%d1%8c-%d0%b2%d0%b8%d0%b4%d0%b8%d0%bc%d0%be%d1%81%d1%82%d0%b8-%d0%bf%d0%b5%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%bd%d1%8b%d1%85)
+    - [Избегайте прямых аргументов](#%d0%98%d0%b7%d0%b1%d0%b5%d0%b3%d0%b0%d0%b9%d1%82%d0%b5-%d0%bf%d1%80%d1%8f%d0%bc%d1%8b%d1%85-%d0%b0%d1%80%d0%b3%d1%83%d0%bc%d0%b5%d0%bd%d1%82%d0%be%d0%b2)
     - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
-    - [Initializing Struct References](#initializing-struct-references)
-    - [Initializing Maps](#initializing-maps)
-    - [Format Strings outside Printf](#format-strings-outside-printf)
+    - [Инициализация ссылок на структуры](#%d0%98%d0%bd%d0%b8%d1%86%d0%b8%d0%b0%d0%bb%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d1%8f-%d1%81%d1%81%d1%8b%d0%bb%d0%be%d0%ba-%d0%bd%d0%b0-%d1%81%d1%82%d1%80%d1%83%d0%ba%d1%82%d1%83%d1%80%d1%8b)
+    - [Инициализация мап](#%d0%98%d0%bd%d0%b8%d1%86%d0%b8%d0%b0%d0%bb%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d1%8f-%d0%bc%d0%b0%d0%bf)
+    - [Строки форматирования за Printf](#%d0%a1%d1%82%d1%80%d0%be%d0%ba%d0%b8-%d1%84%d0%be%d1%80%d0%bc%d0%b0%d1%82%d0%b8%d1%80%d0%be%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d0%b7%d0%b0-printf)
     - [Naming Printf-style Functions](#naming-printf-style-functions)
-  - [Patterns](#patterns)
+  - [Паттерны](#%d0%9f%d0%b0%d1%82%d1%82%d0%b5%d1%80%d0%bd%d1%8b)
     - [Test Tables](#test-tables)
-    - [Functional Options](#functional-options)
+    - [Параметры функций (Functional Options)](#%d0%9f%d0%b0%d1%80%d0%b0%d0%bc%d0%b5%d1%82%d1%80%d1%8b-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9-functional-options)
 
 ## Введение
 
@@ -1426,14 +1426,14 @@ func calcCost(n []int) int {...}
 </td></tr>
 </tbody></table>
 
-### Reduce Nesting
+### Уменьшение вложенности
 
-Code should reduce nesting where possible by handling error cases/special
-conditions first and returning early or continuing the loop. Reduce the amount
-of code that is nested multiple levels.
+Уменьшайте уровень вложенности кода, где это возможно. Старайтесь сперва
+обрабатывать ошибки / специальные условия и возвращать результат или 
+continue внутри циклов. Уменьшайте количество многоуровневого вложенного кода.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1472,7 +1472,7 @@ for _, v := range data {
 </td></tr>
 </tbody></table>
 
-### Лишние Else
+### Излишние Else
 
 Если переменной присваивается значение в обоих ветвях if/else, то это может быть заменено
 единственным вызовом if.
@@ -1503,13 +1503,13 @@ if b {
 </td></tr>
 </tbody></table>
 
-### Top-level Variable Declarations
+### Объявление верхнеуровневых переменных
 
-At the top level, use the standard `var` keyword. Do not specify the type,
-unless it is not the same type as the expression.
+Для объявления верхнеуровневых переменных используйте `var`. Не указывайте тип,
+за исключением тех случаев, когда выражение не совпадает с типом.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1523,8 +1523,8 @@ func F() string { return "A" }
 
 ```go
 var _s = F()
-// Since F already states that it returns a string, we don't need to specify
-// the type again.
+// Поскольку F возвращает строку, нам не нужно явно указывать
+// тип еще раз.
 
 func F() string { return "A" }
 ```
@@ -1532,8 +1532,7 @@ func F() string { return "A" }
 </td></tr>
 </tbody></table>
 
-Specify the type if the type of the expression does not match the desired type
-exactly.
+Указывайте тип, если тип выражения не совпадает явно с желаемым типом.
 
 ```go
 type myError struct{}
@@ -1543,22 +1542,22 @@ func (myError) Error() string { return "error" }
 func F() myError { return myError{} }
 
 var _e error = F()
-// F returns an object of type myError but we want error.
+// F возвращает объект типа myError, при этом мы хотим вернуть error.
 ```
 
-### Prefix Unexported Globals with _
+### Используйте префикс _ для глобальных неэкспортируемых переменных
 
-Prefix unexported top-level `var`s and `const`s with `_` to make it clear when
-they are used that they are global symbols.
+Используйте префикс `_` для верхнеуровневых переменных `var` и констант `const`, для
+явного обозначения глобальных переменных.
 
-Exception: Unexported error values, which should be prefixed with `err`.
+Исключения: Неэксортируемые значения ошибок, которые должны быть с префиксом `err`.
 
-Rationale: Top-level variables and constants have a package scope. Using a
-generic name makes it easy to accidentally use the wrong value in a different
-file.
+Объяснение: Верхнеуровневые переменные и константы находятся в области видимости всего пакета.
+Использование общих имен может привести к случайному использованию не тех переменных в
+разных файлах.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1577,8 +1576,8 @@ func Bar() {
   ...
   fmt.Println("Default port", defaultPort)
 
-  // We will not see a compile error if the first line of
-  // Bar() is deleted.
+  // Мы не увидим ошибку компиляции, если первая строка 
+  // Bar() будет удалена.
 }
 ```
 
@@ -1596,14 +1595,14 @@ const (
 </td></tr>
 </tbody></table>
 
-### Embedding in Structs
+### Встреивание в структуры
 
-Embedded types (such as mutexes) should be at the top of the field list of a
-struct, and there must be an empty line separating embedded fields from regular
-fields.
+Встраиваемые типы (такие, как мьютексы) следует определять в самом начале
+списка структуры, также необходимо разделять встраиваемые поля от обычных переносом
+строки.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1627,15 +1626,15 @@ type Client struct {
 </td></tr>
 </tbody></table>
 
-### Use Field Names to Initialize Structs
+### Используйте названия полей при инициализации структур
 
-You should almost always specify field names when initializing structs. This is
-now enforced by [`go vet`].
+Вам практически всегда потребуется использовать названия полей при инициализации
+структур. Этого требует [`go vet`].
 
   [`go vet`]: https://golang.org/cmd/vet/
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1656,8 +1655,8 @@ k := User{
 </td></tr>
 </tbody></table>
 
-Exception: Field names *may* be omitted in test tables when there are 3 or
-fewer fields.
+Исключения: Названия полей могут быть опущены в тестовых таблицах, где 
+присутствует менее 3-ех полей.
 
 ```go
 tests := []struct{
@@ -1669,13 +1668,13 @@ tests := []struct{
 }
 ```
 
-### Local Variable Declarations
+### Определение локальных переменных
 
-Short variable declarations (`:=`) should be used if a variable is being set to
-some value explicitly.
+Короткое определение переменных (`:=`) должно использоваться в случаях если переменная
+определяется явным значением.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1692,13 +1691,12 @@ s := "foo"
 </td></tr>
 </tbody></table>
 
-However, there are cases where the default value is clearer when the `var`
-keyword is used. [Declaring Empty Slices], for example.
+Тем не менее, существуют случаи, когда определение через `var` выглядит понятнее. [Declaring Empty Slices], например.
 
   [Declaring Empty Slices]: https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1729,12 +1727,11 @@ func f(list []int) {
 </td></tr>
 </tbody></table>
 
-### nil is a valid slice
+### nil это полноценный срез
 
-`nil` is a valid slice of length 0. This means that,
+`nil` является полноценный срезом длины 0. Это озночает, что,
 
-- You should not return a slice of length zero explicitly. Return `nil`
-  instead.
+- Не следует возвращать срез длины 0 явным образом. Вместо этого необходимо возвращать `nil`.
 
   <table>
   <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1758,11 +1755,10 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
-- To check if a slice is empty, always use `len(s) == 0`. Do not check for
-  `nil`.
+- Для проверки, является ли срез пустым всегда используйте `len(s) == 0`. Не проверяйте его на `nil`.
 
   <table>
-  <thead><tr><th>Bad</th><th>Good</th></tr></thead>
+  <thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
   <tbody>
   <tr><td>
 
@@ -1783,11 +1779,10 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
-- The zero value (a slice declared with `var`) is usable immediately without
-  `make()`.
+- Срез инициализированный через `var` сразу готов к использованию. (без `make()`).
 
   <table>
-  <thead><tr><th>Bad</th><th>Good</th></tr></thead>
+  <thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
   <tbody>
   <tr><td>
 
@@ -1821,13 +1816,12 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
-### Reduce Scope of Variables
+### Уменьшайте область видимости переменных
 
-Where possible, reduce scope of variables. Do not reduce the scope if it
-conflicts with [Reduce Nesting](#reduce-nesting).
+Где возможно, уменьшайте область видимости переменных, только если это не ведет к увеличению вложенности. Данное правило не должно конфликтовать с [Уменьшением вложенности](#reduce-nesting).
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1849,11 +1843,11 @@ if err := ioutil.WriteFile(name, data, 0644); err != nil {
 </td></tr>
 </tbody></table>
 
-If you need a result of a function call outside of the if, then you should not
-try to reduce the scope.
+Если вам необходим результат, вызовите функцию снаружи if, тогда в этом случае
+нет необходимости пытаться уменьшать область видимости.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1890,13 +1884,13 @@ return nil
 </td></tr>
 </tbody></table>
 
-### Avoid Naked Parameters
+### Избегайте прямых аргументов
 
-Naked parameters in function calls can hurt readability. Add C-style comments
-(`/* ... */`) for parameter names when their meaning is not obvious.
+Прямые аргументы в функциях могут навредить читабельности. Добавляйте C-style комментарии
+(`/* ... */`) для аргументов в тех случаях, когда их значения неочевидны.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1917,9 +1911,9 @@ printInfo("foo", true /* isLocal */, true /* done */)
 </td></tr>
 </tbody></table>
 
-Better yet, replace naked `bool` types with custom types for more readable and
-type-safe code. This allows more than just two states (true/false) for that
-parameter in the future.
+Еще лучше, если заменить типы `bool` кастомными типами для повышения
+читаемости и типо-безопасности. Также это позволит хранить и передавать
+для заданного параметра больше, чем два состояния (true/false).
 
 ```go
 type Region int
@@ -1964,13 +1958,13 @@ wantError := `unknown error:"test"`
 </td></tr>
 </tbody></table>
 
-### Initializing Struct References
+### Инициализация ссылок на структуры
 
-Use `&T{}` instead of `new(T)` when initializing struct references so that it
-is consistent with the struct initialization.
+Используйте `&T{}` вместо `new(T)` при инициализации ссылок на структуры, так как
+таким методом вы можете сразу инициализировать значения структуры.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1993,15 +1987,15 @@ sptr := &T{Name: "bar"}
 </td></tr>
 </tbody></table>
 
-### Initializing Maps
+### Инициализация мап
 
-Prefer `make(..)` for empty maps, and maps populated
-programmatically. This makes map initialization visually
-distinct from declaration, and it makes it easy to add size
-hints later if available.
+Используйте `make(..)` для пустых мапов, и мапов заполняемыми
+в рантайме. Это позволяет визуально отличить инициализацию мапы от 
+ее объявления, также это позволяет в дальнейшем добавить размер мапы
+при инциализации в случае необходимости.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2028,25 +2022,24 @@ var (
 </td></tr>
 <tr><td>
 
-Declaration and initialization are visually similar.
+Объявление и инициализация внешне похожи.
 
 </td><td>
 
-Declaration and initialization are visually distinct.
+Объявление и инициализация внешне различаются.
 
 </td></tr>
 </tbody></table>
 
-Where possible, provide capacity hints when initializing
-maps with `make()`. See
-[Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
-for more information.
+Где возможно, указывайте capacity мапы при инициализации
+через `make()`.  Смотрите [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+для более подробной информации.
 
-On the other hand, if the map holds a fixed list of elements,
-use map literals to initialize the map.
+С другой стороны, если мапа содержит фиксированное количество элементов
+используйте прямую инициализацию мапы.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2070,20 +2063,20 @@ m := map[T1]T2{
 </td></tr>
 </tbody></table>
 
+Проще говоря, используйте явное определение мапы если заранее извесно
+количество элементов и сами элементы, которые будут содержаться в мапе,
+во всех остальных случаях используйте `make` (также старайтесь указывать capacity)
 
-The basic rule of thumb is to use map literals when adding a fixed set of
-elements at initialization time, otherwise use `make` (and specify a size hint
-if available).
 
-### Format Strings outside Printf
+### Строки форматирования за Printf
 
-If you declare format strings for `Printf`-style functions outside a string
-literal, make them `const` values.
+Если вы определяете строки форматирования для `Printf`-style функций вне сигнатуры
+функции, то обозначайте их как `const`.
 
-This helps `go vet` perform static analysis of the format string.
+Это поможет `go vet` проводить статический анализ строк форматирования.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2125,7 +2118,7 @@ See also [go vet: Printf family check].
 
   [go vet: Printf family check]: https://kuzminva.wordpress.com/2017/11/07/go-vet-printf-family-check/
 
-## Patterns
+## Паттерны
 
 ### Test Tables
 
@@ -2229,19 +2222,19 @@ for _, tt := range tests {
 }
 ```
 
-### Functional Options
+### Параметры функций (Functional Options)
 
-Functional options is a pattern in which you declare an opaque `Option` type
-that records information in some internal struct. You accept a variadic number
-of these options and act upon the full information recorded by the options on
-the internal struct.
+Параметры функций (Functional Options) это паттерн, в котором вы определяете интерфейсный 
+тип `Option` который записывает информацию в какую-то внутреннюю структуру. Вы можете принимать
+некоторое количество таких опций и работать со всей информацией записанной опциями во внутреннюю
+структуру.
 
-Use this pattern for optional arguments in constructors and other public APIs
-that you foresee needing to expand, especially if you already have three or
-more arguments on those functions.
+Используйте данный паттерн для необязательных аргументов в конструкторах или в других
+методах публичных API которые будут потенциально расширяться, особенно если в этих методах
+уже есть три или более аргументов.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2328,7 +2321,7 @@ db.Connect(
 </td></tr>
 </tbody></table>
 
-See also,
+Смотрите также,
 
 - [Self-referential functions and the design of options]
 - [Functional options for friendly APIs]
