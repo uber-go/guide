@@ -48,112 +48,109 @@ row before the </tbody></table> line.
 
 -->
 
-# Uber Go Style Guide
+# Методические рекомендации по написанию Go кода от Uber
 
-## Table of Contents
+## Дисклеймер
+Гайд находится в процессе перевода и доработки. Для более полного и глубокого понимания рекомендуется читать параллельно с английской версией.
 
-- [Introduction](#introduction)
-- [Guidelines](#guidelines)
-  - [Pointers to Interfaces](#pointers-to-interfaces)
-  - [Receivers and Interfaces](#receivers-and-interfaces)
-  - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
-  - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
-  - [Defer to Clean Up](#defer-to-clean-up)
-  - [Channel Size is One or None](#channel-size-is-one-or-none)
-  - [Start Enums at One](#start-enums-at-one)
-  - [Error Types](#error-types)
-  - [Error Wrapping](#error-wrapping)
-  - [Handle Type Assertion Failures](#handle-type-assertion-failures)
-  - [Don't Panic](#dont-panic)
-  - [Use go.uber.org/atomic](#use-gouberorgatomic)
-  - [Avoid Mutable Globals](#avoid-mutable-globals)
-- [Performance](#performance)
-  - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
-  - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
-  - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
-- [Style](#style)
-  - [Be Consistent](#be-consistent)
-  - [Group Similar Declarations](#group-similar-declarations)
-  - [Import Group Ordering](#import-group-ordering)
-  - [Package Names](#package-names)
-  - [Function Names](#function-names)
-  - [Import Aliasing](#import-aliasing)
-  - [Function Grouping and Ordering](#function-grouping-and-ordering)
-  - [Reduce Nesting](#reduce-nesting)
-  - [Unnecessary Else](#unnecessary-else)
-  - [Top-level Variable Declarations](#top-level-variable-declarations)
-  - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
-  - [Embedding in Structs](#embedding-in-structs)
-  - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
-  - [Local Variable Declarations](#local-variable-declarations)
-  - [nil is a valid slice](#nil-is-a-valid-slice)
-  - [Reduce Scope of Variables](#reduce-scope-of-variables)
-  - [Avoid Naked Parameters](#avoid-naked-parameters)
-  - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
-  - [Initializing Struct References](#initializing-struct-references)
-  - [Initializing Maps](#initializing-maps)
-  - [Format Strings outside Printf](#format-strings-outside-printf)
-  - [Naming Printf-style Functions](#naming-printf-style-functions)
-- [Patterns](#patterns)
-  - [Test Tables](#test-tables)
-  - [Functional Options](#functional-options)
+Также вы можете направлять свои пожелания / исправления в issues.
 
-## Introduction
+## Содержание
 
-Styles are the conventions that govern our code. The term style is a bit of a
-misnomer, since these conventions cover far more than just source file
-formatting—gofmt handles that for us.
+- [Методические рекомендации по написанию Go кода от Uber](#%d0%9c%d0%b5%d1%82%d0%be%d0%b4%d0%b8%d1%87%d0%b5%d1%81%d0%ba%d0%b8%d0%b5-%d1%80%d0%b5%d0%ba%d0%be%d0%bc%d0%b5%d0%bd%d0%b4%d0%b0%d1%86%d0%b8%d0%b8-%d0%bf%d0%be-%d0%bd%d0%b0%d0%bf%d0%b8%d1%81%d0%b0%d0%bd%d0%b8%d1%8e-go-%d0%ba%d0%be%d0%b4%d0%b0-%d0%be%d1%82-uber)
+  - [Дисклеймер](#%d0%94%d0%b8%d1%81%d0%ba%d0%bb%d0%b5%d0%b9%d0%bc%d0%b5%d1%80)
+  - [Содержание](#%d0%a1%d0%be%d0%b4%d0%b5%d1%80%d0%b6%d0%b0%d0%bd%d0%b8%d0%b5)
+  - [Введение](#%d0%92%d0%b2%d0%b5%d0%b4%d0%b5%d0%bd%d0%b8%d0%b5)
+  - [Методические указания](#%d0%9c%d0%b5%d1%82%d0%be%d0%b4%d0%b8%d1%87%d0%b5%d1%81%d0%ba%d0%b8%d0%b5-%d1%83%d0%ba%d0%b0%d0%b7%d0%b0%d0%bd%d0%b8%d1%8f)
+    - [Указатели на интерфейсы](#%d0%a3%d0%ba%d0%b0%d0%b7%d0%b0%d1%82%d0%b5%d0%bb%d0%b8-%d0%bd%d0%b0-%d0%b8%d0%bd%d1%82%d0%b5%d1%80%d1%84%d0%b5%d0%b9%d1%81%d1%8b)
+    - [Получатели и интерфейсы](#%d0%9f%d0%be%d0%bb%d1%83%d1%87%d0%b0%d1%82%d0%b5%d0%bb%d0%b8-%d0%b8-%d0%b8%d0%bd%d1%82%d0%b5%d1%80%d1%84%d0%b5%d0%b9%d1%81%d1%8b)
+    - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
+    - [Копирование срезов и мапов на границах](#%d0%9a%d0%be%d0%bf%d0%b8%d1%80%d0%be%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d1%81%d1%80%d0%b5%d0%b7%d0%be%d0%b2-%d0%b8-%d0%bc%d0%b0%d0%bf%d0%be%d0%b2-%d0%bd%d0%b0-%d0%b3%d1%80%d0%b0%d0%bd%d0%b8%d1%86%d0%b0%d1%85)
+      - [Получение срезов и мапов](#%d0%9f%d0%be%d0%bb%d1%83%d1%87%d0%b5%d0%bd%d0%b8%d0%b5-%d1%81%d1%80%d0%b5%d0%b7%d0%be%d0%b2-%d0%b8-%d0%bc%d0%b0%d0%bf%d0%be%d0%b2)
+      - [Возврат слайсов или мап](#%d0%92%d0%be%d0%b7%d0%b2%d1%80%d0%b0%d1%82-%d1%81%d0%bb%d0%b0%d0%b9%d1%81%d0%be%d0%b2-%d0%b8%d0%bb%d0%b8-%d0%bc%d0%b0%d0%bf)
+    - [Используйте Defer для освобождения ресурсов](#%d0%98%d1%81%d0%bf%d0%be%d0%bb%d1%8c%d0%b7%d1%83%d0%b9%d1%82%d0%b5-defer-%d0%b4%d0%bb%d1%8f-%d0%be%d1%81%d0%b2%d0%be%d0%b1%d0%be%d0%b6%d0%b4%d0%b5%d0%bd%d0%b8%d1%8f-%d1%80%d0%b5%d1%81%d1%83%d1%80%d1%81%d0%be%d0%b2)
+    - [Channel Size is One or None](#channel-size-is-one-or-none)
+    - [Начинайте перечисления (Enums) с единицы](#%d0%9d%d0%b0%d1%87%d0%b8%d0%bd%d0%b0%d0%b9%d1%82%d0%b5-%d0%bf%d0%b5%d1%80%d0%b5%d1%87%d0%b8%d1%81%d0%bb%d0%b5%d0%bd%d0%b8%d1%8f-enums-%d1%81-%d0%b5%d0%b4%d0%b8%d0%bd%d0%b8%d1%86%d1%8b)
+    - [Error Types](#error-types)
+    - [Error Wrapping](#error-wrapping)
+    - [Handle Type Assertion Failures](#handle-type-assertion-failures)
+    - [Don't Panic](#dont-panic)
+    - [Use go.uber.org/atomic](#use-gouberorgatomic)
+  - [Производительность](#%d0%9f%d1%80%d0%be%d0%b8%d0%b7%d0%b2%d0%be%d0%b4%d0%b8%d1%82%d0%b5%d0%bb%d1%8c%d0%bd%d0%be%d1%81%d1%82%d1%8c)
+    - [Предпочитайте strconv вместо fmt](#%d0%9f%d1%80%d0%b5%d0%b4%d0%bf%d0%be%d1%87%d0%b8%d1%82%d0%b0%d0%b9%d1%82%d0%b5-strconv-%d0%b2%d0%bc%d0%b5%d1%81%d1%82%d0%be-fmt)
+    - [Избегайте приведения string-to-byte](#%d0%98%d0%b7%d0%b1%d0%b5%d0%b3%d0%b0%d0%b9%d1%82%d0%b5-%d0%bf%d1%80%d0%b8%d0%b2%d0%b5%d0%b4%d0%b5%d0%bd%d0%b8%d1%8f-string-to-byte)
+    - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+  - [Style](#style)
+    - [Be Consistent](#be-consistent)
+    - [Группируйте похожие объявления](#%d0%93%d1%80%d1%83%d0%bf%d0%bf%d0%b8%d1%80%d1%83%d0%b9%d1%82%d0%b5-%d0%bf%d0%be%d1%85%d0%be%d0%b6%d0%b8%d0%b5-%d0%be%d0%b1%d1%8a%d1%8f%d0%b2%d0%bb%d0%b5%d0%bd%d0%b8%d1%8f)
+    - [Порядок импорта пакетов](#%d0%9f%d0%be%d1%80%d1%8f%d0%b4%d0%be%d0%ba-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%b0-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
+    - [Названия пакетов](#%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
+    - [Названия функций](#%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9)
+    - [Псевдонимы импортов](#%d0%9f%d1%81%d0%b5%d0%b2%d0%b4%d0%be%d0%bd%d0%b8%d0%bc%d1%8b-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%be%d0%b2)
+    - [Группировка и упорядочивание функций](#%d0%93%d1%80%d1%83%d0%bf%d0%bf%d0%b8%d1%80%d0%be%d0%b2%d0%ba%d0%b0-%d0%b8-%d1%83%d0%bf%d0%be%d1%80%d1%8f%d0%b4%d0%be%d1%87%d0%b8%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9)
+    - [Уменьшение вложенности](#%d0%a3%d0%bc%d0%b5%d0%bd%d1%8c%d1%88%d0%b5%d0%bd%d0%b8%d0%b5-%d0%b2%d0%bb%d0%be%d0%b6%d0%b5%d0%bd%d0%bd%d0%be%d1%81%d1%82%d0%b8)
+    - [Излишние Else](#%d0%98%d0%b7%d0%bb%d0%b8%d1%88%d0%bd%d0%b8%d0%b5-else)
+    - [Объявление верхнеуровневых переменных](#%d0%9e%d0%b1%d1%8a%d1%8f%d0%b2%d0%bb%d0%b5%d0%bd%d0%b8%d0%b5-%d0%b2%d0%b5%d1%80%d1%85%d0%bd%d0%b5%d1%83%d1%80%d0%be%d0%b2%d0%bd%d0%b5%d0%b2%d1%8b%d1%85-%d0%bf%d0%b5%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%bd%d1%8b%d1%85)
+    - [Используйте префикс _ для глобальных неэкспортируемых переменных](#%d0%98%d1%81%d0%bf%d0%be%d0%bb%d1%8c%d0%b7%d1%83%d0%b9%d1%82%d0%b5-%d0%bf%d1%80%d0%b5%d1%84%d0%b8%d0%ba%d1%81--%d0%b4%d0%bb%d1%8f-%d0%b3%d0%bb%d0%be%d0%b1%d0%b0%d0%bb%d1%8c%d0%bd%d1%8b%d1%85-%d0%bd%d0%b5%d1%8d%d0%ba%d1%81%d0%bf%d0%be%d1%80%d1%82%d0%b8%d1%80%d1%83%d0%b5%d0%bc%d1%8b%d1%85-%d0%bf%d0%b5%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%bd%d1%8b%d1%85)
+    - [Встраивание в структуры](#%d0%92%d1%81%d1%82%d1%80%d0%b0%d0%b8%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d0%b2-%d1%81%d1%82%d1%80%d1%83%d0%ba%d1%82%d1%83%d1%80%d1%8b)
+    - [Используйте названия полей при инициализации структур](#%d0%98%d1%81%d0%bf%d0%be%d0%bb%d1%8c%d0%b7%d1%83%d0%b9%d1%82%d0%b5-%d0%bd%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d0%bf%d0%be%d0%bb%d0%b5%d0%b9-%d0%bf%d1%80%d0%b8-%d0%b8%d0%bd%d0%b8%d1%86%d0%b8%d0%b0%d0%bb%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d0%b8-%d1%81%d1%82%d1%80%d1%83%d0%ba%d1%82%d1%83%d1%80)
+    - [Определение локальных переменных](#%d0%9e%d0%bf%d1%80%d0%b5%d0%b4%d0%b5%d0%bb%d0%b5%d0%bd%d0%b8%d0%b5-%d0%bb%d0%be%d0%ba%d0%b0%d0%bb%d1%8c%d0%bd%d1%8b%d1%85-%d0%bf%d0%b5%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%bd%d1%8b%d1%85)
+    - [nil это полноценный срез](#nil-%d1%8d%d1%82%d0%be-%d0%bf%d0%be%d0%bb%d0%bd%d0%be%d1%86%d0%b5%d0%bd%d0%bd%d1%8b%d0%b9-%d1%81%d1%80%d0%b5%d0%b7)
+    - [Уменьшайте область видимости переменных](#%d0%a3%d0%bc%d0%b5%d0%bd%d1%8c%d1%88%d0%b0%d0%b9%d1%82%d0%b5-%d0%be%d0%b1%d0%bb%d0%b0%d1%81%d1%82%d1%8c-%d0%b2%d0%b8%d0%b4%d0%b8%d0%bc%d0%be%d1%81%d1%82%d0%b8-%d0%bf%d0%b5%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%bd%d1%8b%d1%85)
+    - [Избегайте прямых аргументов](#%d0%98%d0%b7%d0%b1%d0%b5%d0%b3%d0%b0%d0%b9%d1%82%d0%b5-%d0%bf%d1%80%d1%8f%d0%bc%d1%8b%d1%85-%d0%b0%d1%80%d0%b3%d1%83%d0%bc%d0%b5%d0%bd%d1%82%d0%be%d0%b2)
+    - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
+    - [Инициализация ссылок на структуры](#%d0%98%d0%bd%d0%b8%d1%86%d0%b8%d0%b0%d0%bb%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d1%8f-%d1%81%d1%81%d1%8b%d0%bb%d0%be%d0%ba-%d0%bd%d0%b0-%d1%81%d1%82%d1%80%d1%83%d0%ba%d1%82%d1%83%d1%80%d1%8b)
+    - [Инициализация мап](#%d0%98%d0%bd%d0%b8%d1%86%d0%b8%d0%b0%d0%bb%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d1%8f-%d0%bc%d0%b0%d0%bf)
+    - [Строки форматирования за Printf](#%d0%a1%d1%82%d1%80%d0%be%d0%ba%d0%b8-%d1%84%d0%be%d1%80%d0%bc%d0%b0%d1%82%d0%b8%d1%80%d0%be%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d0%b7%d0%b0-printf)
+    - [Naming Printf-style Functions](#naming-printf-style-functions)
+  - [Паттерны](#%d0%9f%d0%b0%d1%82%d1%82%d0%b5%d1%80%d0%bd%d1%8b)
+    - [Test Tables](#test-tables)
+    - [Параметры функций (Functional Options)](#%d0%9f%d0%b0%d1%80%d0%b0%d0%bc%d0%b5%d1%82%d1%80%d1%8b-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9-functional-options)
 
-The goal of this guide is to manage this complexity by describing in detail the
-Dos and Don'ts of writing Go code at Uber. These rules exist to keep the code
-base manageable while still allowing engineers to use Go language features
-productively.
+## Введение
 
-This guide was originally created by [Prashant Varanasi] and [Simon Newton] as
-a way to bring some colleagues up to speed with using Go. Over the years it has
-been amended based on feedback from others.
+Стили - это соглашения, определяющие качество нашего код. Термин стиль является не слишком полным, так как данное соглашение описывает гораздо больше, чем просто форматирование исходного кода, c которым прекрасно справляется gofmt.
 
-  [Prashant Varanasi]: https://github.com/prashantv
-  [Simon Newton]: https://github.com/nomis52
+Целью данного руководства является упрощение понимания, того как как нужно, а как нельзя писать код на Go в Uber. Эти правила существуют для того, чтобы сохранить контроль над кодовой базой прокета и при этом позволить программистам эффективно использовать возможности языка Go.
 
-This documents idiomatic conventions in Go code that we follow at Uber. A lot
-of these are general guidelines for Go, while others extend upon external
-resources:
+Данное руководство было создано [Прашантом Варанаси] и [Саймоном Ньютоном] как способ помочь коллегам начать использовать Go. С течением времени в него были внесены изменения на основе обратной связи от читателей.
 
-1. [Effective Go](https://golang.org/doc/effective_go.html)
-2. [The Go common mistakes guide](https://github.com/golang/go/wiki/CodeReviewComments)
+  [Прашант Варанаси]: https://github.com/prashantv
+  [Саймон Ньютон]: https://github.com/nomis52
 
-All code should be error-free when run through `golint` and `go vet`. We
-recommend setting up your editor to:
+Данный документ является соглашением, которому мы следуем в Uber. Многое из этого является общими рекомендациями для написания кода на Go, в то время как некоторые вещи были почерпнуты из внешних источников:
 
-- Run `goimports` on save
-- Run `golint` and `go vet` to check for errors
+1. [Эффективный Go](https://golang.org/doc/effective_go.html)
+2. [Руководство по распространненым ошибкам в Go](https://github.com/golang/go/wiki/CodeReviewComments)
 
-You can find information in editor support for Go tools here:
+Код не должен содержать ошибок при запуске `golint` и `go vet`. Мы рекомендуем настроить ваш редактор на:
+
+- Запуск `goimports` во время сохранения
+- Запуск `golint` и `go vet` для проверки на ошибки
+
+Информацию по поддержке Go инструментов вашим редактором можно найти здесь:
 <https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins>
 
-## Guidelines
+## Методические указания
 
-### Pointers to Interfaces
+### Указатели на интерфейсы
+Вам практически никогда не понадобится указатель на интерфейс. Интерфейсы
+необходимо передавать по значению, в то время как данные интерфейсов могут
+содержать в себе указатель.
 
-You almost never need a pointer to an interface. You should be passing
-interfaces as values—the underlying data can still be a pointer.
+Интерфейс содержит в себе два поля:
 
-An interface is two fields:
+1. Указатель на type-specific информацию. Можете принять это поле как "тип".
+2. Указатель на данные. Если поле содержит указатель, то он сохраняется напрямую. Если поле содержит значение, то сохраняется указатель на это значение.
 
-1. A pointer to some type-specific information. You can think of this as
-  "type."
-2. Data pointer. If the data stored is a pointer, it’s stored directly. If
-  the data stored is a value, then a pointer to the value is stored.
+Если вы хотите, чтобы интерфейс мог изменять данные, то вам необходимо использовать
+указатель.
 
-If you want interface methods to modify the underlying data, you must use a
-pointer.
+### Получатели и интерфейсы
 
-### Receivers and Interfaces
+Методы с получателями по значению могут также вызываться указателями.
 
-Methods with value receivers can be called on pointers as well as values.
-
-For example,
+Например,
 
 ```go
 type S struct {
@@ -183,8 +180,8 @@ sPtrs[1].Read()
 sPtrs[1].Write("test")
 ```
 
-Similarly, an interface can be satisfied by a pointer, even if the method has a
-value receiver.
+Аналогично, интерфейс может быть имплементировать указателем, даже если получатель
+метода передан по указателю.
 
 ```go
 type F interface {
@@ -305,18 +302,18 @@ func (m *SMap) Get(k string) string {
 
 </tbody></table>
 
-### Copy Slices and Maps at Boundaries
+### Копирование срезов и мапов на границах
 
-Slices and maps contain pointers to the underlying data so be wary of scenarios
-when they need to be copied.
+Срезы и мапы хранят указатели на содержащиеся в них данные, так что будьте
+осторожны в тех ситуациях, когда вам необходимо их копировать.
 
-#### Receiving Slices and Maps
+#### Получение срезов и мапов
 
-Keep in mind that users can modify a map or slice you received as an argument
-if you store a reference to it.
+Помните, что пользователи в дальнейшем могут изменить мапу или слайс, которую вы получили в качестве
+аргумента. Поэтому при сохранении мапы или слайса необходимо пользоваться `copy()`.
 
 <table>
-<thead><tr><th>Bad</th> <th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th> <th>Хорошо</th></tr></thead>
 <tbody>
 <tr>
 <td>
@@ -355,13 +352,12 @@ trips[0] = ...
 </tbody>
 </table>
 
-#### Returning Slices and Maps
+#### Возврат слайсов или мап
 
-Similarly, be wary of user modifications to maps or slices exposing internal
-state.
+Аналогично, имейте ввиду, что пользователи смогут изменить содержимое возвращаемой внутренней мапы или слайса.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -410,12 +406,12 @@ snapshot := stats.Snapshot()
 </td></tr>
 </tbody></table>
 
-### Defer to Clean Up
+### Используйте Defer для освобождения ресурсов
 
-Use defer to clean up resources such as files and locks.
+Используйте defer для освобождения ресурсов, таких как файлы и блокировки.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Хорошо</th><th>Плохо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -432,7 +428,7 @@ p.Unlock()
 
 return newCount
 
-// easy to miss unlocks due to multiple returns
+// легко потерять unlock'и из-за множественного return
 ```
 
 </td><td>
@@ -448,7 +444,7 @@ if p.count < 10 {
 p.count++
 return p.count
 
-// more readable
+// более читаемо
 ```
 
 </td></tr>
@@ -490,14 +486,14 @@ c := make(chan int)
 </td></tr>
 </tbody></table>
 
-### Start Enums at One
+### Начинайте перечисления (Enums) с единицы
 
-The standard way of introducing enumerations in Go is to declare a custom type
-and a `const` group with `iota`. Since variables have a 0 default value, you
-should usually start your enums on a non-zero value.
+Стандартный путь объявления перечислений в Go начинается с создания кастомного
+типа и группы `const` при помощи `iota`. Так как значением по умолчанию для переменных
+является 0, необходимо вводить перечисления, начинающихся с не нулевого значения, например с 1.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -530,8 +526,8 @@ const (
 </td></tr>
 </tbody></table>
 
-There are cases where using the zero value makes sense, for example when the
-zero value case is the desirable default behavior.
+Существуют случаи, когда использование нулевого значения имеет смысл, например,
+в тех ситуациях, когда нулевое значение является желаемым значением по умолчанию.
 
 ```go
 type LogOutput int
@@ -638,7 +634,7 @@ func open(file string) error {
 }
 
 func use() {
-  if err := open("testfile.txt"); err != nil {
+  if err := open(); err != nil {
     if strings.Contains(err.Error(), "not found") {
       // handle
     } else {
@@ -664,7 +660,7 @@ func open(file string) error {
 }
 
 func use() {
-  if err := open("testfile.txt"); err != nil {
+  if err := open(); err != nil {
     if _, ok := err.(errNotFound); ok {
       // handle
     } else {
@@ -966,93 +962,16 @@ func (f *foo) isRunning() bool {
 </td></tr>
 </tbody></table>
 
-### Avoid Mutable Globals
-
-Avoid mutating global variables, instead opting for dependency injection.
-This applies to function pointers as well as other kinds of values.
-
-<table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
-<tbody>
-<tr><td>
-
-```go
-// sign.go
-
-var _timeNow = time.Now
-
-func sign(msg string) string {
-  now := _timeNow()
-  return signWithTime(msg, now)
-}
-```
-
-</td><td>
-
-```go
-// sign.go
-
-type signer struct {
-  now func() time.Time
-}
-
-func newSigner() *signer {
-  return &signer{
-    now: time.Now,
-  }
-}
-
-func (s *signer) Sign(msg string) string {
-  now := s.now()
-  return signWithTime(msg, now)
-}
-```
-</td></tr>
-<tr><td>
-
-```go
-// sign_test.go
-
-func TestSign(t *testing.T) {
-  oldTimeNow := _timeNow
-  _timeNow = func() time.Time {
-    return someFixedTime
-  }
-  defer func() { _timeNow = oldTimeNow }()
-
-  assert.Equal(t, want, sign(give))
-}
-```
-
-</td><td>
-
-```go
-// sign_test.go
-
-func TestSigner(t *testing.T) {
-  s := newSigner()
-  s.now = func() time.Time {
-    return someFixedTime
-  }
-
-  assert.Equal(t, want, s.Sign(give))
-}
-```
-
-</td></tr>
-</tbody></table>
-
-## Performance
+## Производительность
 
 Performance-specific guidelines apply only to the hot path.
 
-### Prefer strconv over fmt
+### Предпочитайте strconv вместо fmt
 
-When converting primitives to/from strings, `strconv` is faster than
-`fmt`.
+При конвертации типов к/из строки, `strconv` быстрее, чем `fmt`.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1086,13 +1005,13 @@ BenchmarkStrconv-4    64.2 ns/op    1 allocs/op
 </td></tr>
 </tbody></table>
 
-### Avoid string-to-byte conversion
+### Избегайте приведения string-to-byte
 
-Do not create byte slices from a fixed string repeatedly. Instead, perform the
-conversion once and capture the result.
+Не приводите строку в слайс байтов много раз. Вместо этого 
+выполните преобразование один раз и сохраните результат.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1204,12 +1123,12 @@ When applying these guidelines to a codebase, it is recommended that changes
 are made at a package (or larger) level: application at a sub-package level
 violates the above concern by introducing multiple styles into the same code.
 
-### Group Similar Declarations
+### Группируйте похожие объявления
 
-Go supports grouping similar declarations.
+Go поддерживает группировку похожих объявлений.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1230,10 +1149,10 @@ import (
 </td></tr>
 </tbody></table>
 
-This also applies to constants, variables, and type declarations.
+Это также применимо к константам, переменным и объявлениям типов.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1275,10 +1194,10 @@ type (
 </td></tr>
 </tbody></table>
 
-Only group related declarations. Do not group declarations that are unrelated.
+Группируйте только близкие по смыслу объявления. Не следует группировать все подряд.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1310,11 +1229,11 @@ const ENV_VAR = "MY_ENV"
 </td></tr>
 </tbody></table>
 
-Groups are not limited in where they can be used. For example, you can use them
-inside of functions.
+Группы не ограничиваются местом, где могут быть использованы. Например, вы можете
+использовать их внутри функций.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1345,17 +1264,17 @@ func f() string {
 </td></tr>
 </tbody></table>
 
-### Import Group Ordering
+### Порядок импорта пакетов
 
-There should be two import groups:
+Импортируемые пакеты должны быть разделены на две группы:
 
-- Standard library
-- Everything else
+- Стандартная библиотека
+- Все остальные пакеты
 
-This is the grouping applied by goimports by default.
+Такой порядок сортировки применяется утилитой goimports по умолчанию.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1383,35 +1302,34 @@ import (
 </td></tr>
 </tbody></table>
 
-### Package Names
+### Названия пакетов
 
-When naming packages, choose a name that is:
+При наименовании пакетов руководствуйтесь следующими принципами:
 
-- All lower-case. No capitals or underscores.
-- Does not need to be renamed using named imports at most call sites.
-- Short and succinct. Remember that the name is identified in full at every call
-  site.
-- Not plural. For example, `net/url`, not `net/urls`.
-- Not "common", "util", "shared", or "lib". These are bad, uninformative names.
+- Название должно состоять только из символов нижнего регистра. Использовать заглавные буквы и подчеркивания запрещено.
+- Название при котором для большинства вызовов нет необходимости использовать именованный импорт.
+- Коротко и ясно. Помните, что к имени пакета необходимо обращаться при каждом вызове.
+- В единственном числе. Например, `net/url` вместо `net/urls`.
+- Не "common", "util", "shared", или "lib". Это плохие и неинформативные названия.
 
-See also [Package Names] and [Style guideline for Go packages].
+Также смотрите [Package Names] и [Style guidline for Go packages].
 
   [Package Names]: https://blog.golang.org/package-names
   [Style guideline for Go packages]: https://rakyll.org/style-packages/
 
-### Function Names
+### Названия функций
 
-We follow the Go community's convention of using [MixedCaps for function
-names]. An exception is made for test functions, which may contain underscores
-for the purpose of grouping related test cases, e.g.,
+Мы следуем соглашению сообщества Go о наименовании функций [MixedCaps for function
+names]. Исключением являются функции тестов, которые могут содержать нижнее подчеркивание
+с целью объединения родственных тест-кейсов, например
 `TestMyFunction_WhatIsBeingTested`.
 
   [MixedCaps for function names]: https://golang.org/doc/effective_go.html#mixed-caps
 
-### Import Aliasing
+### Псевдонимы импортов
 
-Import aliasing must be used if the package name does not match the last
-element of the import path.
+Используйте псевдонимы импортов, в случае если название пакета не совпадает с 
+последним элементом в пути импорта. 
 
 ```go
 import (
@@ -1422,11 +1340,11 @@ import (
 )
 ```
 
-In all other scenarios, import aliases should be avoided unless there is a
-direct conflict between imports.
+Во всех остальных случаях использование псевдонимов необходимо избегать, исключением
+является прямой конфликт в названиях импортов.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1455,22 +1373,22 @@ import (
 </td></tr>
 </tbody></table>
 
-### Function Grouping and Ordering
+### Группировка и упорядочивание функций
 
-- Functions should be sorted in rough call order.
-- Functions in a file should be grouped by receiver.
+- Функции должны быть отсортированны в порядке приблизительного вызова.
+- Функции в файле должны быть сгруппированы по получателю.
 
-Therefore, exported functions should appear first in a file, after
-`struct`, `const`, `var` definitions.
+Таким образом, экспортируемые функции должны располагаться в файле первыми, сразу после
+объявления `struct`, `const` и `var`.
 
-A `newXYZ()`/`NewXYZ()` may appear after the type is defined, but before the
-rest of the methods on the receiver.
+Методы `newXYZ()`/`NewXYZ()` должны располагаться после определения типов, но до остальных
+методов получателя.
 
-Since functions are grouped by receiver, plain utility functions should appear
-towards the end of the file.
+Поскольку функции сгруппированы по получателю, утилитарные функции должны располагаться
+в конце файла.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1511,14 +1429,14 @@ func calcCost(n []int) int {...}
 </td></tr>
 </tbody></table>
 
-### Reduce Nesting
+### Уменьшение вложенности
 
-Code should reduce nesting where possible by handling error cases/special
-conditions first and returning early or continuing the loop. Reduce the amount
-of code that is nested multiple levels.
+Уменьшайте уровень вложенности кода, где это возможно. Старайтесь сперва
+обрабатывать ошибки / специальные условия и возвращать результат или 
+continue внутри циклов. Уменьшайте количество многоуровневого вложенного кода.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1557,13 +1475,13 @@ for _, v := range data {
 </td></tr>
 </tbody></table>
 
-### Unnecessary Else
+### Излишние Else
 
-If a variable is set in both branches of an if, it can be replaced with a
-single if.
+Если переменной присваивается значение в обоих ветвях if/else, то это может быть заменено
+единственным вызовом if.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1588,13 +1506,13 @@ if b {
 </td></tr>
 </tbody></table>
 
-### Top-level Variable Declarations
+### Объявление верхнеуровневых переменных
 
-At the top level, use the standard `var` keyword. Do not specify the type,
-unless it is not the same type as the expression.
+Для объявления верхнеуровневых переменных используйте `var`. Не указывайте тип,
+за исключением тех случаев, когда выражение не совпадает с типом.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1608,8 +1526,8 @@ func F() string { return "A" }
 
 ```go
 var _s = F()
-// Since F already states that it returns a string, we don't need to specify
-// the type again.
+// Поскольку F возвращает строку, нам не нужно явно указывать
+// тип еще раз.
 
 func F() string { return "A" }
 ```
@@ -1617,8 +1535,7 @@ func F() string { return "A" }
 </td></tr>
 </tbody></table>
 
-Specify the type if the type of the expression does not match the desired type
-exactly.
+Указывайте тип, если тип выражения не совпадает явно с желаемым типом.
 
 ```go
 type myError struct{}
@@ -1628,22 +1545,22 @@ func (myError) Error() string { return "error" }
 func F() myError { return myError{} }
 
 var _e error = F()
-// F returns an object of type myError but we want error.
+// F возвращает объект типа myError, при этом мы хотим вернуть error.
 ```
 
-### Prefix Unexported Globals with _
+### Используйте префикс _ для глобальных неэкспортируемых переменных
 
-Prefix unexported top-level `var`s and `const`s with `_` to make it clear when
-they are used that they are global symbols.
+Используйте префикс `_` для верхнеуровневых переменных `var` и констант `const`, для
+явного обозначения глобальных переменных.
 
-Exception: Unexported error values, which should be prefixed with `err`.
+Исключения: Неэксортируемые значения ошибок, которые должны быть с префиксом `err`.
 
-Rationale: Top-level variables and constants have a package scope. Using a
-generic name makes it easy to accidentally use the wrong value in a different
-file.
+Объяснение: Верхнеуровневые переменные и константы находятся в области видимости всего пакета.
+Использование общих имен может привести к случайному использованию не тех переменных в
+разных файлах.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1662,8 +1579,8 @@ func Bar() {
   ...
   fmt.Println("Default port", defaultPort)
 
-  // We will not see a compile error if the first line of
-  // Bar() is deleted.
+  // Мы не увидим ошибку компиляции, если первая строка 
+  // Bar() будет удалена.
 }
 ```
 
@@ -1681,14 +1598,14 @@ const (
 </td></tr>
 </tbody></table>
 
-### Embedding in Structs
+### Встраивание в структуры
 
-Embedded types (such as mutexes) should be at the top of the field list of a
-struct, and there must be an empty line separating embedded fields from regular
-fields.
+Встраиваемые типы (такие, как мьютексы) следует определять в самом начале
+списка структуры, также необходимо разделять встраиваемые поля от обычных переносом
+строки.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1712,15 +1629,15 @@ type Client struct {
 </td></tr>
 </tbody></table>
 
-### Use Field Names to Initialize Structs
+### Используйте названия полей при инициализации структур
 
-You should almost always specify field names when initializing structs. This is
-now enforced by [`go vet`].
+Вам практически всегда потребуется использовать названия полей при инициализации
+структур. Этого требует [`go vet`].
 
   [`go vet`]: https://golang.org/cmd/vet/
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1741,8 +1658,8 @@ k := User{
 </td></tr>
 </tbody></table>
 
-Exception: Field names *may* be omitted in test tables when there are 3 or
-fewer fields.
+Исключения: Названия полей могут быть опущены в тестовых таблицах, где 
+присутствует менее 3-ех полей.
 
 ```go
 tests := []struct{
@@ -1754,13 +1671,13 @@ tests := []struct{
 }
 ```
 
-### Local Variable Declarations
+### Определение локальных переменных
 
-Short variable declarations (`:=`) should be used if a variable is being set to
-some value explicitly.
+Короткое определение переменных (`:=`) должно использоваться в случаях если переменная
+определяется явным значением.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1777,13 +1694,12 @@ s := "foo"
 </td></tr>
 </tbody></table>
 
-However, there are cases where the default value is clearer when the `var`
-keyword is used. [Declaring Empty Slices], for example.
+Тем не менее, существуют случаи, когда определение через `var` выглядит понятнее. [Declaring Empty Slices], например.
 
   [Declaring Empty Slices]: https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1814,12 +1730,11 @@ func f(list []int) {
 </td></tr>
 </tbody></table>
 
-### nil is a valid slice
+### nil это полноценный срез
 
-`nil` is a valid slice of length 0. This means that,
+`nil` является полноценный срезом длины 0. Это озночает, что,
 
-- You should not return a slice of length zero explicitly. Return `nil`
-  instead.
+- Не следует возвращать срез длины 0 явным образом. Вместо этого необходимо возвращать `nil`.
 
   <table>
   <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1843,11 +1758,10 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
-- To check if a slice is empty, always use `len(s) == 0`. Do not check for
-  `nil`.
+- Для проверки, является ли срез пустым всегда используйте `len(s) == 0`. Не проверяйте его на `nil`.
 
   <table>
-  <thead><tr><th>Bad</th><th>Good</th></tr></thead>
+  <thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
   <tbody>
   <tr><td>
 
@@ -1868,11 +1782,10 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
-- The zero value (a slice declared with `var`) is usable immediately without
-  `make()`.
+- Срез инициализированный через `var` сразу готов к использованию. (без `make()`).
 
   <table>
-  <thead><tr><th>Bad</th><th>Good</th></tr></thead>
+  <thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
   <tbody>
   <tr><td>
 
@@ -1906,13 +1819,12 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
-### Reduce Scope of Variables
+### Уменьшайте область видимости переменных
 
-Where possible, reduce scope of variables. Do not reduce the scope if it
-conflicts with [Reduce Nesting](#reduce-nesting).
+Где возможно, уменьшайте область видимости переменных, только если это не ведет к увеличению вложенности. Данное правило не должно конфликтовать с [Уменьшением вложенности](#reduce-nesting).
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1934,11 +1846,11 @@ if err := ioutil.WriteFile(name, data, 0644); err != nil {
 </td></tr>
 </tbody></table>
 
-If you need a result of a function call outside of the if, then you should not
-try to reduce the scope.
+Если вам необходим результат, вызовите функцию снаружи if, тогда в этом случае
+нет необходимости пытаться уменьшать область видимости.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1975,13 +1887,13 @@ return nil
 </td></tr>
 </tbody></table>
 
-### Avoid Naked Parameters
+### Избегайте прямых аргументов
 
-Naked parameters in function calls can hurt readability. Add C-style comments
-(`/* ... */`) for parameter names when their meaning is not obvious.
+Прямые аргументы в функциях могут навредить читабельности. Добавляйте C-style комментарии
+(`/* ... */`) для аргументов в тех случаях, когда их значения неочевидны.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2002,9 +1914,9 @@ printInfo("foo", true /* isLocal */, true /* done */)
 </td></tr>
 </tbody></table>
 
-Better yet, replace naked `bool` types with custom types for more readable and
-type-safe code. This allows more than just two states (true/false) for that
-parameter in the future.
+Еще лучше, если заменить типы `bool` кастомными типами для повышения
+читаемости и типо-безопасности. Также это позволит хранить и передавать
+для заданного параметра больше, чем два состояния (true/false).
 
 ```go
 type Region int
@@ -2049,13 +1961,13 @@ wantError := `unknown error:"test"`
 </td></tr>
 </tbody></table>
 
-### Initializing Struct References
+### Инициализация ссылок на структуры
 
-Use `&T{}` instead of `new(T)` when initializing struct references so that it
-is consistent with the struct initialization.
+Используйте `&T{}` вместо `new(T)` при инициализации ссылок на структуры, так как
+таким методом вы можете сразу инициализировать значения структуры.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2078,15 +1990,15 @@ sptr := &T{Name: "bar"}
 </td></tr>
 </tbody></table>
 
-### Initializing Maps
+### Инициализация мап
 
-Prefer `make(..)` for empty maps, and maps populated
-programmatically. This makes map initialization visually
-distinct from declaration, and it makes it easy to add size
-hints later if available.
+Используйте `make(..)` для пустых мапов, и мапов заполняемыми
+в рантайме. Это позволяет визуально отличить инициализацию мапы от 
+ее объявления, также это позволяет в дальнейшем добавить размер мапы
+при инциализации в случае необходимости.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2113,25 +2025,24 @@ var (
 </td></tr>
 <tr><td>
 
-Declaration and initialization are visually similar.
+Объявление и инициализация внешне похожи.
 
 </td><td>
 
-Declaration and initialization are visually distinct.
+Объявление и инициализация внешне различаются.
 
 </td></tr>
 </tbody></table>
 
-Where possible, provide capacity hints when initializing
-maps with `make()`. See
-[Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
-for more information.
+Где возможно, указывайте capacity мапы при инициализации
+через `make()`.  Смотрите [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+для более подробной информации.
 
-On the other hand, if the map holds a fixed list of elements,
-use map literals to initialize the map.
+С другой стороны, если мапа содержит фиксированное количество элементов
+используйте прямую инициализацию мапы.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2155,20 +2066,20 @@ m := map[T1]T2{
 </td></tr>
 </tbody></table>
 
+Проще говоря, используйте явное определение мапы если заранее извесно
+количество элементов и сами элементы, которые будут содержаться в мапе,
+во всех остальных случаях используйте `make` (также старайтесь указывать capacity)
 
-The basic rule of thumb is to use map literals when adding a fixed set of
-elements at initialization time, otherwise use `make` (and specify a size hint
-if available).
 
-### Format Strings outside Printf
+### Строки форматирования за Printf
 
-If you declare format strings for `Printf`-style functions outside a string
-literal, make them `const` values.
+Если вы определяете строки форматирования для `Printf`-style функций вне сигнатуры
+функции, то обозначайте их как `const`.
 
-This helps `go vet` perform static analysis of the format string.
+Это поможет `go vet` проводить статический анализ строк форматирования.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2210,7 +2121,7 @@ See also [go vet: Printf family check].
 
   [go vet: Printf family check]: https://kuzminva.wordpress.com/2017/11/07/go-vet-printf-family-check/
 
-## Patterns
+## Паттерны
 
 ### Test Tables
 
@@ -2314,135 +2225,81 @@ for _, tt := range tests {
 }
 ```
 
-### Functional Options
+### Параметры функций (Functional Options)
 
-Functional options is a pattern in which you declare an opaque `Option` type
-that records information in some internal struct. You accept a variadic number
-of these options and act upon the full information recorded by the options on
-the internal struct.
+Параметры функций (Functional Options) это паттерн, в котором вы определяете интерфейсный 
+тип `Option` который записывает информацию в какую-то внутреннюю структуру. Вы можете принимать
+некоторое количество таких опций и работать со всей информацией записанной опциями во внутреннюю
+структуру.
 
-Use this pattern for optional arguments in constructors and other public APIs
-that you foresee needing to expand, especially if you already have three or
-more arguments on those functions.
+Используйте данный паттерн для необязательных аргументов в конструкторах или в других
+методах публичных API которые будут потенциально расширяться, особенно если в этих методах
+уже есть три или более аргументов.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
 ```go
 // package db
 
-func Open(
+func Connect(
   addr string,
-  cache bool,
-  logger *zap.Logger
+  timeout time.Duration,
+  caching bool,
 ) (*Connection, error) {
   // ...
 }
+
+// Timeout and caching must always be provided,
+// even if the user wants to use the default.
+
+db.Connect(addr, db.DefaultTimeout, db.DefaultCaching)
+db.Connect(addr, newTimeout, db.DefaultCaching)
+db.Connect(addr, db.DefaultTimeout, false /* caching */)
+db.Connect(addr, newTimeout, false /* caching */)
 ```
 
 </td><td>
-
-```go
-// package db
-
-type Option interface {
-  // ...
-}
-
-func WithCache(c bool) Option {
-  // ...
-}
-
-func WithLogger(log *zap.Logger) Option {
-  // ...
-}
-
-// Open creates a connection.
-func Open(
-  addr string,
-  opts ...Option,
-) (*Connection, error) {
-  // ...
-}
-```
-
-</td></tr>
-<tr><td>
-
-The cache and logger parameters must always be provided, even if the user
-wants to use the default.
-
-```go
-db.Open(addr, db.DefaultCache, zap.NewNop())
-db.Open(addr, db.DefaultCache, log)
-db.Open(addr, false /* cache */, zap.NewNop())
-db.Open(addr, false /* cache */, log)
-```
-
-</td><td>
-
-Options are provided only if needed.
-
-```go
-db.Open(addr)
-db.Open(addr, db.WithLogger(log))
-db.Open(addr, db.WithCache(false))
-db.Open(
-  addr,
-  db.WithCache(false),
-  db.WithLogger(log),
-)
-```
-
-</td></tr>
-</tbody></table>
-
-Our suggested way of implementing this pattern is with an `Option` interface
-that holds an unexported method, recording options on an unexported `options`
-struct.
 
 ```go
 type options struct {
-  cache  bool
-  logger *zap.Logger
+  timeout time.Duration
+  caching bool
 }
 
+// Option overrides behavior of Connect.
 type Option interface {
   apply(*options)
 }
 
-type cacheOption bool
+type optionFunc func(*options)
 
-func (c cacheOption) apply(opts *options) {
-  opts.cache = bool(c)
+func (f optionFunc) apply(o *options) {
+  f(o)
 }
 
-func WithCache(c bool) Option {
-  return cacheOption(c)
+func WithTimeout(t time.Duration) Option {
+  return optionFunc(func(o *options) {
+    o.timeout = t
+  })
 }
 
-type loggerOption struct {
-  Log *zap.Logger
+func WithCaching(cache bool) Option {
+  return optionFunc(func(o *options) {
+    o.caching = cache
+  })
 }
 
-func (l loggerOption) apply(opts *options) {
-  opts.logger = l.Log
-}
-
-func WithLogger(log *zap.Logger) Option {
-  return loggerOption{Log: log}
-}
-
-// Open creates a connection.
-func Open(
+// Connect creates a connection.
+func Connect(
   addr string,
   opts ...Option,
 ) (*Connection, error) {
   options := options{
-    cache:  defaultCache,
-    logger: zap.NewNop(),
+    timeout: defaultTimeout,
+    caching: defaultCaching,
   }
 
   for _, o := range opts {
@@ -2451,17 +2308,23 @@ func Open(
 
   // ...
 }
+
+// Options must be provided only if needed.
+
+db.Connect(addr)
+db.Connect(addr, db.WithTimeout(newTimeout))
+db.Connect(addr, db.WithCaching(false))
+db.Connect(
+  addr,
+  db.WithCaching(false),
+  db.WithTimeout(newTimeout),
+)
 ```
 
-Note that there's a method of implementing this pattern with closures but we
-believe that the pattern above provides more flexibility for authors and is
-easier to debug and test for users. In particular, it allows options to be
-compared against each other in tests and mocks, versus closures where this is
-impossible. Further, it lets options implement other interfaces, including
-`fmt.Stringer` which allows for user-readable string representations of the
-options.
+</td></tr>
+</tbody></table>
 
-See also,
+Смотрите также,
 
 - [Self-referential functions and the design of options]
 - [Functional options for friendly APIs]
