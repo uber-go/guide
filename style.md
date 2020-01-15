@@ -56,27 +56,27 @@ row before the </tbody></table> line.
   - [Содержание](#%d0%a1%d0%be%d0%b4%d0%b5%d1%80%d0%b6%d0%b0%d0%bd%d0%b8%d0%b5)
   - [Введение](#%d0%92%d0%b2%d0%b5%d0%b4%d0%b5%d0%bd%d0%b8%d0%b5)
   - [Методические указания](#%d0%9c%d0%b5%d1%82%d0%be%d0%b4%d0%b8%d1%87%d0%b5%d1%81%d0%ba%d0%b8%d0%b5-%d1%83%d0%ba%d0%b0%d0%b7%d0%b0%d0%bd%d0%b8%d1%8f)
-    - [Pointers to Interfaces](#pointers-to-interfaces)
-    - [Receivers and Interfaces](#receivers-and-interfaces)
+    - [Указатели на интерфейсы](#%d0%a3%d0%ba%d0%b0%d0%b7%d0%b0%d1%82%d0%b5%d0%bb%d0%b8-%d0%bd%d0%b0-%d0%b8%d0%bd%d1%82%d0%b5%d1%80%d1%84%d0%b5%d0%b9%d1%81%d1%8b)
+    - [Получатели и интерфейсы](#%d0%9f%d0%be%d0%bb%d1%83%d1%87%d0%b0%d1%82%d0%b5%d0%bb%d0%b8-%d0%b8-%d0%b8%d0%bd%d1%82%d0%b5%d1%80%d1%84%d0%b5%d0%b9%d1%81%d1%8b)
     - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
-    - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
-      - [Receiving Slices and Maps](#receiving-slices-and-maps)
-      - [Returning Slices and Maps](#returning-slices-and-maps)
-    - [Defer для очистки](#defer-%d0%b4%d0%bb%d1%8f-%d0%be%d1%87%d0%b8%d1%81%d1%82%d0%ba%d0%b8)
+    - [Копирование срезов и мапов на границах](#%d0%9a%d0%be%d0%bf%d0%b8%d1%80%d0%be%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d1%81%d1%80%d0%b5%d0%b7%d0%be%d0%b2-%d0%b8-%d0%bc%d0%b0%d0%bf%d0%be%d0%b2-%d0%bd%d0%b0-%d0%b3%d1%80%d0%b0%d0%bd%d0%b8%d1%86%d0%b0%d1%85)
+      - [Получение срезов и мапов](#%d0%9f%d0%be%d0%bb%d1%83%d1%87%d0%b5%d0%bd%d0%b8%d0%b5-%d1%81%d1%80%d0%b5%d0%b7%d0%be%d0%b2-%d0%b8-%d0%bc%d0%b0%d0%bf%d0%be%d0%b2)
+      - [Возврат слайсов или мап](#%d0%92%d0%be%d0%b7%d0%b2%d1%80%d0%b0%d1%82-%d1%81%d0%bb%d0%b0%d0%b9%d1%81%d0%be%d0%b2-%d0%b8%d0%bb%d0%b8-%d0%bc%d0%b0%d0%bf)
+    - [Используйте Defer для освобождения ресурсов](#%d0%98%d1%81%d0%bf%d0%be%d0%bb%d1%8c%d0%b7%d1%83%d0%b9%d1%82%d0%b5-defer-%d0%b4%d0%bb%d1%8f-%d0%be%d1%81%d0%b2%d0%be%d0%b1%d0%be%d0%b6%d0%b4%d0%b5%d0%bd%d0%b8%d1%8f-%d1%80%d0%b5%d1%81%d1%83%d1%80%d1%81%d0%be%d0%b2)
     - [Channel Size is One or None](#channel-size-is-one-or-none)
-    - [Start Enums at One](#start-enums-at-one)
+    - [Начинайте перечисления (Enums) с единицы](#%d0%9d%d0%b0%d1%87%d0%b8%d0%bd%d0%b0%d0%b9%d1%82%d0%b5-%d0%bf%d0%b5%d1%80%d0%b5%d1%87%d0%b8%d1%81%d0%bb%d0%b5%d0%bd%d0%b8%d1%8f-enums-%d1%81-%d0%b5%d0%b4%d0%b8%d0%bd%d0%b8%d1%86%d1%8b)
     - [Error Types](#error-types)
     - [Error Wrapping](#error-wrapping)
     - [Handle Type Assertion Failures](#handle-type-assertion-failures)
     - [Don't Panic](#dont-panic)
     - [Use go.uber.org/atomic](#use-gouberorgatomic)
-  - [Performance](#performance)
-    - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
-    - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
+  - [Производительность](#%d0%9f%d1%80%d0%be%d0%b8%d0%b7%d0%b2%d0%be%d0%b4%d0%b8%d1%82%d0%b5%d0%bb%d1%8c%d0%bd%d0%be%d1%81%d1%82%d1%8c)
+    - [Предпочитайте strconv вместо fmt](#%d0%9f%d1%80%d0%b5%d0%b4%d0%bf%d0%be%d1%87%d0%b8%d1%82%d0%b0%d0%b9%d1%82%d0%b5-strconv-%d0%b2%d0%bc%d0%b5%d1%81%d1%82%d0%be-fmt)
+    - [Избегайте приведения string-to-byte](#%d0%98%d0%b7%d0%b1%d0%b5%d0%b3%d0%b0%d0%b9%d1%82%d0%b5-%d0%bf%d1%80%d0%b8%d0%b2%d0%b5%d0%b4%d0%b5%d0%bd%d0%b8%d1%8f-string-to-byte)
     - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
   - [Style](#style)
     - [Be Consistent](#be-consistent)
-    - [Group Similar Declarations](#group-similar-declarations)
+    - [Группируйте похожие объявления](#%d0%93%d1%80%d1%83%d0%bf%d0%bf%d0%b8%d1%80%d1%83%d0%b9%d1%82%d0%b5-%d0%bf%d0%be%d1%85%d0%be%d0%b6%d0%b8%d0%b5-%d0%be%d0%b1%d1%8a%d1%8f%d0%b2%d0%bb%d0%b5%d0%bd%d0%b8%d1%8f)
     - [Порядок импорта пакетов](#%d0%9f%d0%be%d1%80%d1%8f%d0%b4%d0%be%d0%ba-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%b0-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
     - [Названия пакетов](#%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
     - [Названия функций](#%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9)
@@ -127,25 +127,24 @@ row before the </tbody></table> line.
 
 ## Методические указания
 
-### Pointers to Interfaces
-You almost never need a pointer to an interface. You should be passing
-interfaces as values—the underlying data can still be a pointer.
+### Указатели на интерфейсы
+Вам практически никогда не понадобится указатель на интерфейс. Интерфейсы
+необходимо передавать по значению, в то время как данные интерфейсов могут
+содержать в себе указатель.
 
-An interface is two fields:
+Интерфейс содержит в себе два поля:
 
-1. A pointer to some type-specific information. You can think of this as
-  "type."
-2. Data pointer. If the data stored is a pointer, it’s stored directly. If
-  the data stored is a value, then a pointer to the value is stored.
+1. Указатель на type-specific информацию. Можете принять это поле как "тип".
+2. Указатель на данные. Если поле содержит указатель, то он сохраняется напрямую. Если поле содержит значение, то сохраняется указатель на это значение.
 
-If you want interface methods to modify the underlying data, you must use a
-pointer.
+Если вы хотите, чтобы интерфейс мог изменять данные, то вам необходимо использовать
+указатель.
 
-### Receivers and Interfaces
+### Получатели и интерфейсы
 
-Methods with value receivers can be called on pointers as well as values.
+Методы с получателями по значению могут также вызываться указателями.
 
-For example,
+Например,
 
 ```go
 type S struct {
@@ -175,8 +174,8 @@ sPtrs[1].Read()
 sPtrs[1].Write("test")
 ```
 
-Similarly, an interface can be satisfied by a pointer, even if the method has a
-value receiver.
+Аналогично, интерфейс может быть имплементировать указателем, даже если получатель
+метода передан по указателю.
 
 ```go
 type F interface {
@@ -297,18 +296,18 @@ func (m *SMap) Get(k string) string {
 
 </tbody></table>
 
-### Copy Slices and Maps at Boundaries
+### Копирование срезов и мапов на границах
 
-Slices and maps contain pointers to the underlying data so be wary of scenarios
-when they need to be copied.
+Срезы и мапы хранят указатели на содержащиеся в них данные, так что будьте
+осторожны в тех ситуациях, когда вам необходимо их копировать.
 
-#### Receiving Slices and Maps
+#### Получение срезов и мапов
 
-Keep in mind that users can modify a map or slice you received as an argument
-if you store a reference to it.
+Помните, что пользователи в дальнейшем могут изменить мапу или слайс, которую вы получили в качестве
+аргумента. Поэтому при сохранении мапы или слайса необходимо пользоваться `copy()`.
 
 <table>
-<thead><tr><th>Bad</th> <th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th> <th>Хорошо</th></tr></thead>
 <tbody>
 <tr>
 <td>
@@ -347,13 +346,12 @@ trips[0] = ...
 </tbody>
 </table>
 
-#### Returning Slices and Maps
+#### Возврат слайсов или мап
 
-Similarly, be wary of user modifications to maps or slices exposing internal
-state.
+Аналогично, имейте ввиду, что пользователи смогут изменить содержимое возвращаемой внутренней мапы или слайса.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -402,9 +400,9 @@ snapshot := stats.Snapshot()
 </td></tr>
 </tbody></table>
 
-### Defer для очистки
+### Используйте Defer для освобождения ресурсов
 
-Используйте defer для очистки ресурсов, таких как файлы и блокировки.
+Используйте defer для освобождения ресурсов, таких как файлы и блокировки.
 
 <table>
 <thead><tr><th>Хорошо</th><th>Плохо</th></tr></thead>
@@ -482,14 +480,14 @@ c := make(chan int)
 </td></tr>
 </tbody></table>
 
-### Start Enums at One
+### Начинайте перечисления (Enums) с единицы
 
-The standard way of introducing enumerations in Go is to declare a custom type
-and a `const` group with `iota`. Since variables have a 0 default value, you
-should usually start your enums on a non-zero value.
+Стандартный путь объявления перечислений в Go начинается с создания кастомного
+типа и группы `const` при помощи `iota`. Так как значением по умолчанию для переменных
+является 0, необходимо вводить перечисления, начинающихся с не нулевого значения, например с 1.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -522,8 +520,8 @@ const (
 </td></tr>
 </tbody></table>
 
-There are cases where using the zero value makes sense, for example when the
-zero value case is the desirable default behavior.
+Существуют случаи, когда использование нулевого значения имеет смысл, например,
+в тех ситуациях, когда нулевое значение является желаемым значением по умолчанию.
 
 ```go
 type LogOutput int
@@ -958,17 +956,16 @@ func (f *foo) isRunning() bool {
 </td></tr>
 </tbody></table>
 
-## Performance
+## Производительность
 
 Performance-specific guidelines apply only to the hot path.
 
-### Prefer strconv over fmt
+### Предпочитайте strconv вместо fmt
 
-When converting primitives to/from strings, `strconv` is faster than
-`fmt`.
+При конвертации типов к/из строки, `strconv` быстрее, чем `fmt`.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1002,13 +999,13 @@ BenchmarkStrconv-4    64.2 ns/op    1 allocs/op
 </td></tr>
 </tbody></table>
 
-### Avoid string-to-byte conversion
+### Избегайте приведения string-to-byte
 
-Do not create byte slices from a fixed string repeatedly. Instead, perform the
-conversion once and capture the result.
+Не приводите строку в слайс байтов много раз. Вместо этого 
+выполните преобразование один раз и сохраните результат.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1120,12 +1117,12 @@ When applying these guidelines to a codebase, it is recommended that changes
 are made at a package (or larger) level: application at a sub-package level
 violates the above concern by introducing multiple styles into the same code.
 
-### Group Similar Declarations
+### Группируйте похожие объявления
 
-Go supports grouping similar declarations.
+Go поддерживает группировку похожих объявлений.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1146,10 +1143,10 @@ import (
 </td></tr>
 </tbody></table>
 
-This also applies to constants, variables, and type declarations.
+Это также применимо к константам, переменным и объявлениям типов.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1191,10 +1188,10 @@ type (
 </td></tr>
 </tbody></table>
 
-Only group related declarations. Do not group declarations that are unrelated.
+Группируйте только близкие по смыслу объявления. Не следует группировать все подряд.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1226,11 +1223,11 @@ const ENV_VAR = "MY_ENV"
 </td></tr>
 </tbody></table>
 
-Groups are not limited in where they can be used. For example, you can use them
-inside of functions.
+Группы не ограничиваются местом, где могут быть использованы. Например, вы можете
+использовать их внутри функций.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
