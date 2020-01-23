@@ -71,7 +71,7 @@ row before the </tbody></table> line.
     - [Используйте Defer для освобождения ресурсов](#%d0%98%d1%81%d0%bf%d0%be%d0%bb%d1%8c%d0%b7%d1%83%d0%b9%d1%82%d0%b5-defer-%d0%b4%d0%bb%d1%8f-%d0%be%d1%81%d0%b2%d0%be%d0%b1%d0%be%d0%b6%d0%b4%d0%b5%d0%bd%d0%b8%d1%8f-%d1%80%d0%b5%d1%81%d1%83%d1%80%d1%81%d0%be%d0%b2)
     - [Channel Size is One or None](#channel-size-is-one-or-none)
     - [Начинайте перечисления (Enums) с единицы](#%d0%9d%d0%b0%d1%87%d0%b8%d0%bd%d0%b0%d0%b9%d1%82%d0%b5-%d0%bf%d0%b5%d1%80%d0%b5%d1%87%d0%b8%d1%81%d0%bb%d0%b5%d0%bd%d0%b8%d1%8f-enums-%d1%81-%d0%b5%d0%b4%d0%b8%d0%bd%d0%b8%d1%86%d1%8b)
-    - [Error Types](#error-types)
+    - [Типизация ошибок](#%d0%a2%d0%b8%d0%bf%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d1%8f-%d0%be%d1%88%d0%b8%d0%b1%d0%be%d0%ba)
     - [Error Wrapping](#error-wrapping)
     - [Handle Type Assertion Failures](#handle-type-assertion-failures)
     - [Don't Panic](#dont-panic)
@@ -543,34 +543,30 @@ const (
 
 <!-- TODO: section on String methods for enums -->
 
-### Error Types
+### Типизация ошибок
 
-There are various options for declaring errors:
+Существует несколько вариантов создания ошибок:
 
-- [`errors.New`] for errors with simple static strings
-- [`fmt.Errorf`] for formatted error strings
-- Custom types that implement an `Error()` method
-- Wrapped errors using [`"pkg/errors".Wrap`]
+- [`errors.New`] для ошибок с простой статичной строкой
+- [`fmt.Errorf`] для ошибок с форматируемой строкой
+- Пользовательские типы ошибок, которые имплементируют метод `Error()`
+- Обернутые ошибки при помощи [`"pkg/errors".Wrap`]
 
-When returning errors, consider the following to determine the best choice:
+Во время возвращения ошибок, учтите следующие пункты, для выбора наиболее оптимального решения:
 
-- Is this a simple error that needs no extra information? If so, [`errors.New`]
-  should suffice.
-- Do the clients need to detect and handle this error? If so, you should use a
-  custom type, and implement the `Error()` method.
-- Are you propagating an error returned by a downstream function? If so, check
-  the [section on error wrapping](#error-wrapping).
-- Otherwise, [`fmt.Errorf`] is okay.
+- Возвращается простая ошибка, которая не несет в себе дополнительной информации? [`errors.New`] будет подходящим выбором.
+- Клиентам необходимо получать и обрабатывать эту ошибку? Тогда необходимо использовать кастомный тип и имплементировать метод `Error()`.
+- Передаете ошибку из функции, которая расположена ниже по стеку вызовов? Тогда обратите внимание на [section on error wrapping](#error-wrapping).
+- Во всех остальных случаях [`fmt.Errorf`] будет хорошим выбором.
 
   [`errors.New`]: https://golang.org/pkg/errors/#New
   [`fmt.Errorf`]: https://golang.org/pkg/fmt/#Errorf
   [`"pkg/errors".Wrap`]: https://godoc.org/github.com/pkg/errors#Wrap
 
-If the client needs to detect the error, and you have created a simple error
-using [`errors.New`], use a var for the error.
+Если клиенту необходимо определять ошибку и вы создали простую ошибку при помощи [`errors.New`], используйте var для инициализации ошибки.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -619,12 +615,11 @@ if err := foo.Open(); err != nil {
 </td></tr>
 </tbody></table>
 
-If you have an error that clients may need to detect, and you would like to add
-more information to it (e.g., it is not a static string), then you should use a
-custom type.
+Если у вас ошибка, с которой могут работать клиенты и вы хотели бы добавить
+больше информации к ней, тогда необходимо использовать пользовательский тип.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -673,9 +668,7 @@ func use() {
 </td></tr>
 </tbody></table>
 
-Be careful with exporting custom error types directly since they become part of
-the public API of the package. It is preferable to expose matcher functions to
-check the error instead.
+Будьте осторожны с экспортом пользовательских ошибок, так как они становятся частью публичного API пакета. Желательно экспотировать функцию, которая в свою очередь проверяет ошибку.
 
 ```go
 // package foo
