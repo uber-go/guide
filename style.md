@@ -1045,6 +1045,67 @@ func TestSigner(t *testing.T) {
 
 ### Embedding considered harmful
 
+Avoid embedding types in public structs.
+These obscure documentation and leak a detail about your implementation that
+may need to change.
+
+Assuming you have implemented a variety of `List` type using a shared
+`AbstractList`.
+
+```go
+package abstractlist
+
+type AbstractList struct {}
+
+// Add adds an entity to the list.
+func (l *List) Add(e Entity) {
+    // ...
+}
+
+// Remove removes an entity from the list.
+func (l *List) Remove(e Entity) {
+    // ...
+}
+```
+
+Avoid embedding the AbstractList in your concrete list implementations.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+package list
+
+// List is a list of entities.
+type List struct {
+    *abstractlist.AbstractList
+}
+```
+
+</td><td>
+
+```go
+// List is a list of entities.
+type List struct {
+    list *abstractlist.AbstractList
+}
+
+// Add adds an entity to the list.
+func (l *List) Add(e Entity) {
+    return l.list.Add(e)
+}
+
+// Remove removes an entity from the list.
+func (l *List) Remove(e Entity) {
+    return l.list.Remove(e)
+}
+```
+
+</td></tr>
+</tbody></table>
+
 To provide a middle ground between inheritance and composition, Go allows for
 types to be [embedded] in structs.
 The type gains the methods of the embedded type.
@@ -1067,21 +1128,6 @@ your ability to evolve the concrete type.
 Consider a list type that "inherits" much of its interface from an underlying
 abstract list.
 
-<table>
-<thead><tr><th>Bad</th></tr></thead>
-<tbody>
-<tr><td>
-
-```go
-// List is a list of entities.
-type List struct {
-    *abstractlist.AbstractList
-}
-```
-
-</td></tr>
-</tbody></table>
-
 The abstract list provides implementations for `Add` and `Remove`, as well as
 possibly a number of other methods useful for testing its particular
 implementation but immaterial to the `List`.
@@ -1089,11 +1135,17 @@ Every future version of `List` is obliged indefinitely to embed `AbstractList`,
 eliminating the possibility of replacing the implementation with an alternative
 in a future version.
 
-Embedding an AbstractList interface would offer the developer more flexibility
-to change in the future.
+Embedding an AbstractList *interface*, instead of the struct directly, would
+offer the developer more flexibility to change in the future.
+While this limits the scope of the interface to those that the List wishes to
+proxy, it would be tempting as well for the interface to capture methods that
+only the `List` will use internally, entraining those in the public API.
+The embedded interface also leaks the implementation detail that the list uses
+an abstract list at all, which is of no concern to the end user and could
+otherwise change in a future version.
 
 <table>
-<thead><tr><th>Bad</th></tr></thead>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1111,20 +1163,7 @@ type List struct {
 }
 ```
 
-</td></tr>
-</tbody></table>
-
-While this limits the scope of the interface to those that the List wishes to
-proxy, it would be tempting as well for the interface to capture methods that
-only the `List` will use internally, entraining those in the public API.
-The embedded interface also leaks the implementation detail that the list uses
-an abstract list at all, which is of no concern to the end user and could
-otherwise change in a future version.
-
-<table>
-<thead><tr><th>Good</th></tr></thead>
-<tbody>
-<tr><td>
+</td><td>
 
 ```go
 // List is a list of entities.
