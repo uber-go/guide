@@ -1123,12 +1123,6 @@ public interface.
 
 An embedded type is rarely necessary.
 It is a convenience that implies monotonous delegate methods.
-That the embed is part of the public interface leaks a detail about the type's
-implementation in a way that makes the type inflexible to change.
-
-Parts of the abstract list implementation are intentended to surface on the
-concrete lists, but other methods may be for the lists' indirect use, and
-others just for testing.
 
 Every future version of `ConceteList` is obliged indefinitely to embed `AbstractList`,
 eliminating the possibility of replacing the implementation with an alternative
@@ -1136,9 +1130,6 @@ in a future version.
 
 Embedding an AbstractList *interface*, instead of the struct directly, would
 offer the developer more flexibility to change in the future.
-While this limits the scope of the interface to those that the List wishes to
-proxy, it would be tempting as well for the interface to capture methods that
-only the `ConceteList` will use internally, entraining those in the public API.
 The embedded interface also leaks the implementation detail that the list uses
 an abstract list at all, which is of no concern to the end user and could
 otherwise change in a future version.
