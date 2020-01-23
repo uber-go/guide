@@ -1088,6 +1088,8 @@ type ConceteList struct {
 </td><td>
 
 ```go
+package concretelist
+
 // ConceteList is a list of entities.
 type ConceteList struct {
     list *abstractlist.AbstractList
@@ -1165,6 +1167,8 @@ type ConceteList struct {
 </td><td>
 
 ```go
+package concretelist
+
 // ConceteList is a list of entities.
 type ConceteList struct {
     list *abstractlist.AbstractList
