@@ -1061,12 +1061,12 @@ package abstractlist
 type AbstractList struct {}
 
 // Add adds an entity to the list.
-func (l *List) Add(e Entity) {
+func (l *AbstractList) Add(e Entity) {
     // ...
 }
 
 // Remove removes an entity from the list.
-func (l *List) Remove(e Entity) {
+func (l *AbstractList) Remove(e Entity) {
     // ...
 }
 ```
@@ -1077,10 +1077,10 @@ func (l *List) Remove(e Entity) {
 <tr><td>
 
 ```go
-package list
+package concretelist
 
-// List is a list of entities.
-type List struct {
+// ConceteList is a list of entities.
+type ConceteList struct {
     *abstractlist.AbstractList
 }
 ```
@@ -1088,18 +1088,18 @@ type List struct {
 </td><td>
 
 ```go
-// List is a list of entities.
-type List struct {
+// ConceteList is a list of entities.
+type ConceteList struct {
     list *abstractlist.AbstractList
 }
 
 // Add adds an entity to the list.
-func (l *List) Add(e Entity) {
+func (l *ConceteList) Add(e Entity) {
     return l.list.Add(e)
 }
 
 // Remove removes an entity from the list.
-func (l *List) Remove(e Entity) {
+func (l *ConceteList) Remove(e Entity) {
     return l.list.Remove(e)
 }
 ```
@@ -1128,7 +1128,7 @@ Parts of the abstract list implementation are intentended to surface on the
 concrete lists, but other methods may be for the lists' indirect use, and
 others just for testing.
 
-Every future version of `List` is obliged indefinitely to embed `AbstractList`,
+Every future version of `ConceteList` is obliged indefinitely to embed `AbstractList`,
 eliminating the possibility of replacing the implementation with an alternative
 in a future version.
 
@@ -1136,7 +1136,7 @@ Embedding an AbstractList *interface*, instead of the struct directly, would
 offer the developer more flexibility to change in the future.
 While this limits the scope of the interface to those that the List wishes to
 proxy, it would be tempting as well for the interface to capture methods that
-only the `List` will use internally, entraining those in the public API.
+only the `ConceteList` will use internally, entraining those in the public API.
 The embedded interface also leaks the implementation detail that the list uses
 an abstract list at all, which is of no concern to the end user and could
 otherwise change in a future version.
@@ -1147,6 +1147,8 @@ otherwise change in a future version.
 <tr><td>
 
 ```go
+package concretelist
+
 // AbstractList is a generalized implementation
 // for various kinds of lists of entities.
 type AbstractList interface {
@@ -1154,8 +1156,8 @@ type AbstractList interface {
     Remove(Entity)
 }
 
-// List is a list of entities.
-type List struct {
+// ConceteList is a list of entities.
+type ConceteList struct {
     AbstractList
 }
 ```
@@ -1163,18 +1165,18 @@ type List struct {
 </td><td>
 
 ```go
-// List is a list of entities.
-type List struct {
+// ConceteList is a list of entities.
+type ConceteList struct {
     list *abstractlist.AbstractList
 }
 
 // Add adds an entity to the list.
-func (l *List) Add(e Entity) {
+func (l *ConceteList) Add(e Entity) {
     return l.list.Add(e)
 }
 
 // Remove removes an entity from the list.
-func (l *List) Remove(e Entity) {
+func (l *ConceteList) Remove(e Entity) {
     return l.list.Remove(e)
 }
 ```
