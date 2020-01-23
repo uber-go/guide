@@ -1049,8 +1049,11 @@ Avoid embedding types in public structs.
 These obscure documentation and leak a detail about your implementation that
 may need to change.
 
-Assuming you have implemented a variety of `List` type using a shared
-`AbstractList`.
+Assuming you have implemented a variety of `List` types using a shared
+`AbstractList`, avoid embedding the AbstractList in your concrete list
+implementations.
+Instead, hand-write only the methods your lists will delegate to the abstract
+list.
 
 ```go
 package abstractlist
@@ -1067,8 +1070,6 @@ func (l *List) Remove(e Entity) {
     // ...
 }
 ```
-
-Avoid embedding the AbstractList in your concrete list implementations.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1123,14 +1124,10 @@ It is a convenience that implies monotonous delegate methods.
 That the embed is part of the public interface leaks a detail about the type's
 implementation in a way that makes the type inflexible to change.
 
-For example, using an embedded type for an abstract implementation can harm
-your ability to evolve the concrete type.
-Consider a list type that "inherits" much of its interface from an underlying
-abstract list.
+Parts of the abstract list implementation are intentended to surface on the
+concrete lists, but other methods may be for the lists' indirect use, and
+others just for testing.
 
-The abstract list provides implementations for `Add` and `Remove`, as well as
-possibly a number of other methods useful for testing its particular
-implementation but immaterial to the `List`.
 Every future version of `List` is obliged indefinitely to embed `AbstractList`,
 eliminating the possibility of replacing the implementation with an alternative
 in a future version.
