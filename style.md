@@ -642,6 +642,15 @@ newDay := t.AddDate(0 /* years */, 0, /* months */, 1 /* days */)
 maybeNewDay := t.Add(24 * time.Hour)
 ```
 
+Although this tends to not be a problem in practice, keep in mind that the
+`"time"` package does not support parsing timestamps with leap seconds
+([8728]), nor does it account for leap seconds in calculations ([15190]). If
+you compare two instants of time, the difference will not include the leap
+seconds that may have occurred between those two instants.
+
+  [8728]: https://github.com/golang/go/issues/8728
+  [15190]: https://github.com/golang/go/issues/15190
+
 <!-- TODO: section on String methods for enums -->
 
 ### Error Types
