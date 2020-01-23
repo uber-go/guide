@@ -1056,8 +1056,6 @@ Instead, hand-write only the methods your lists will delegate to the abstract
 list.
 
 ```go
-package abstractlist
-
 type AbstractList struct {}
 
 // Add adds an entity to the list.
@@ -1077,8 +1075,6 @@ func (l *AbstractList) Remove(e Entity) {
 <tr><td>
 
 ```go
-package concretelist
-
 // ConceteList is a list of entities.
 type ConceteList struct {
     *abstractlist.AbstractList
@@ -1088,8 +1084,6 @@ type ConceteList struct {
 </td><td>
 
 ```go
-package concretelist
-
 // ConceteList is a list of entities.
 type ConceteList struct {
     list *abstractlist.AbstractList
@@ -1140,8 +1134,6 @@ otherwise change in a future version.
 <tr><td>
 
 ```go
-package concretelist
-
 // AbstractList is a generalized implementation
 // for various kinds of lists of entities.
 type AbstractList interface {
@@ -1158,11 +1150,9 @@ type ConceteList struct {
 </td><td>
 
 ```go
-package concretelist
-
 // ConceteList is a list of entities.
 type ConceteList struct {
-    list *abstractlist.AbstractList
+    list *AbstractList
 }
 
 // Add adds an entity to the list.
