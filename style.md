@@ -1068,7 +1068,7 @@ Consider a list type that "inherits" much of its interface from an underlying
 abstract list.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Bad</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1079,7 +1079,23 @@ type List struct {
 }
 ```
 
-*also*
+</td></tr>
+</tbody></table>
+
+The abstract list provides implementations for `Add` and `Remove`, as well as
+possibly a number of other methods useful for testing its particular
+implementation but immaterial to the `List`.
+Every future version of `List` is obliged indefinitely to embed `AbstractList`,
+eliminating the possibility of replacing the implementation with an alternative
+in a future version.
+
+Embedding an AbstractList interface would offer the developer more flexibility
+to change in the future.
+
+<table>
+<thead><tr><th>Bad</th></tr></thead>
+<tbody>
+<tr><td>
 
 ```go
 // AbstractList is a generalized implementation
@@ -1095,7 +1111,20 @@ type List struct {
 }
 ```
 
-</td><td>
+</td></tr>
+</tbody></table>
+
+While this limits the scope of the interface to those that the List wishes to
+proxy, it would be tempting as well for the interface to capture methods that
+only the `List` will use internally, entraining those in the public API.
+The embedded interface also leaks the implementation detail that the list uses
+an abstract list at all, which is of no concern to the end user and could
+otherwise change in a future version.
+
+<table>
+<thead><tr><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
 
 ```go
 // List is a list of entities.
@@ -1114,25 +1143,8 @@ func (l *List) Remove(e Entity) {
 }
 ```
 
+</td></tr>
 </tbody></table>
-
-The abstract list provides implementations for `Add` and `Remove`, as well as
-possibly a number of other methods useful for testing its particular
-implementation but immaterial to the `List`.
-Every future version of `List` is obliged indefinitely to embed `AbstractList`,
-eliminating the possibility of replacing the implementation with an alternative
-in a future version.
-
-Embedding an AbstractList interface would offer the developer more flexibility
-to change in the future.
-
-While this limits the scope of the interface to those that the List wishes to
-proxy, it would be tempting as well for the interface to capture methods that
-only the `List` will use internally, entraining those in the public API.
-The embedded interface also leaks the implementation detail that the list uses
-an abstract list at all, which is of no concern to the end user and could
-otherwise change in a future version.
-
 
 Although writing these delegate methods is tedious, it leaves more
 opportunities for change open and also eliminates indirection for discovering
