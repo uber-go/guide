@@ -61,7 +61,7 @@ row before the </tbody></table> line.
   - [Defer to Clean Up](#defer-to-clean-up)
   - [Channel Size is One or None](#channel-size-is-one-or-none)
   - [Start Enums at One](#start-enums-at-one)
-  - [Use time](#use-time)
+  - [Use `"time"` to handle time](#use-time-to-handle-time)
   - [Error Types](#error-types)
   - [Error Wrapping](#error-wrapping)
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
@@ -546,7 +546,7 @@ const (
 // LogToStdout=0, LogToFile=1, LogToRemote=2
 ```
 
-### Use time
+### Use `"time"` to handle time
 
 Time is complicated. Incorrect assumptions often made about time include the
 following.
@@ -560,10 +560,10 @@ following.
 For example, *1* means that adding 24 hours to a time instant will not always
 yield a new calendar day.
 
-Therefore, always use the [`time`] package when dealing with time because it
+Therefore, always use the [`"time"`] package when dealing with time because it
 helps deal with these incorrect assumptions in a safer, more accurate manner.
 
-  [`time`]: https://golang.org/pkg/time/
+  [`"time"`]: https://golang.org/pkg/time/
 
 Use [`time.Duration`] when dealing with periods of time.
 
