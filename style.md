@@ -1049,8 +1049,8 @@ Avoid embedding types in public structs.
 These obscure documentation and leak a detail about your implementation that
 may need to change.
 
-Assuming you have implemented a variety of `List` types using a shared
-`AbstractList`, avoid embedding the AbstractList in your concrete list
+Assuming you have implemented a variety of list types using a shared
+`AbstractList`, avoid embedding the `AbstractList` in your concrete list
 implementations.
 Instead, hand-write only the methods your lists will delegate to the abstract
 list.
