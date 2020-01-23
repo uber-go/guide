@@ -67,6 +67,7 @@ row before the </tbody></table> line.
   - [Don't Panic](#dont-panic)
   - [Use go.uber.org/atomic](#use-gouberorgatomic)
   - [Avoid Mutable Globals](#avoid-mutable-globals)
+  - [Embedding Considered Harmful](#embedding-considered-harmful)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
@@ -1041,6 +1042,101 @@ func TestSigner(t *testing.T) {
 
 </td></tr>
 </tbody></table>
+
+### Embedding considered harmful
+
+To provide a middle ground between inheritance and composition, Go allows for
+types to be [embedded] in structs.
+The type gains the methods of the embedded type.
+These methods delegate to the composite type.
+
+  [embedded]: https://golang.org/doc/effective_go.html#embedding
+
+The struct also gains a field by the same name as the type.
+Consequently, if the embedded type is public, the field is public.
+The embedded type becomes a constraint on the evolution of the container's
+public interface.
+
+An embedded type is rarely necessary.
+It is a convenience that implies monotonous delegate methods.
+That the embed is part of the public interface leaks a detail about the type's
+implementation in a way that makes the type inflexible to change.
+
+For example, using an embedded type for an abstract implementation can harm
+your ability to evolve the concrete type.
+Consider a list type that "inherits" much of its interface from an underlying
+abstract list.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// List is a list of entities.
+type List struct {
+    *abstractlist.AbstractList
+}
+```
+
+*also*
+
+```go
+// AbstractList is a generalized implementation
+// for various kinds of lists of entities.
+type AbstractList interface {
+    Add(Entity)
+    Remove(Entity)
+}
+
+// List is a list of entities.
+type List struct {
+    AbstractList
+}
+```
+
+</td><td>
+
+```go
+// List is a list of entities.
+type List struct {
+    list *abstractlist.AbstractList
+}
+
+// Add adds an entity to the list.
+func (l *List) Add(e Entity) {
+    return l.list.Add(e)
+}
+
+// Remove removes an entity from the list.
+func (l *List) Remove(e Entity) {
+    return l.list.Remove(e)
+}
+```
+
+</tbody></table>
+
+The abstract list provides implementations for `Add` and `Remove`, as well as
+possibly a number of other methods useful for testing its particular
+implementation but immaterial to the `List`.
+Every future version of `List` is obliged indefinitely to embed `AbstractList`,
+eliminating the possibility of replacing the implementation with an alternative
+in a future version.
+
+Embedding an AbstractList interface would offer the developer more flexibility
+to change in the future.
+
+While this limits the scope of the interface to those that the List wishes to
+proxy, it would be tempting as well for the interface to capture methods that
+only the `List` will use internally, entraining those in the public API.
+The embedded interface also leaks the implementation detail that the list uses
+an abstract list at all, which is of no concern to the end user and could
+otherwise change in a future version.
+
+
+Although writing these delegate methods is tedious, it leaves more
+opportunities for change open and also eliminates indirection for discovering
+the full List interface in documentation.
 
 ## Performance
 
