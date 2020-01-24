@@ -1059,12 +1059,12 @@ type AbstractList struct {}
 
 // Add adds an entity to the list.
 func (l *AbstractList) Add(e Entity) {
-    // ...
+  // ...
 }
 
 // Remove removes an entity from the list.
 func (l *AbstractList) Remove(e Entity) {
-    // ...
+  // ...
 }
 ```
 
@@ -1076,7 +1076,7 @@ func (l *AbstractList) Remove(e Entity) {
 ```go
 // ConcreteList is a list of entities.
 type ConcreteList struct {
-    *AbstractList
+  *AbstractList
 }
 ```
 
@@ -1085,17 +1085,17 @@ type ConcreteList struct {
 ```go
 // ConcreteList is a list of entities.
 type ConcreteList struct {
-    list *AbstractList
+  list *AbstractList
 }
 
 // Add adds an entity to the list.
 func (l *ConcreteList) Add(e Entity) {
-    return l.list.Add(e)
+  return l.list.Add(e)
 }
 
 // Remove removes an entity from the list.
 func (l *ConcreteList) Remove(e Entity) {
-    return l.list.Remove(e)
+  return l.list.Remove(e)
 }
 ```
 
@@ -1130,13 +1130,13 @@ leak the detail that the concrete lists use an abstract implementation.
 // AbstractList is a generalized implementation
 // for various kinds of lists of entities.
 type AbstractList interface {
-    Add(Entity)
-    Remove(Entity)
+  Add(Entity)
+  Remove(Entity)
 }
 
 // ConcreteList is a list of entities.
 type ConcreteList struct {
-    AbstractList
+  AbstractList
 }
 ```
 
@@ -1145,17 +1145,17 @@ type ConcreteList struct {
 ```go
 // ConcreteList is a list of entities.
 type ConcreteList struct {
-    list *AbstractList
+  list *AbstractList
 }
 
 // Add adds an entity to the list.
 func (l *ConcreteList) Add(e Entity) {
-    return l.list.Add(e)
+  return l.list.Add(e)
 }
 
 // Remove removes an entity from the list.
 func (l *ConcreteList) Remove(e Entity) {
-    return l.list.Remove(e)
+  return l.list.Remove(e)
 }
 ```
 
