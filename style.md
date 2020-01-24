@@ -1051,8 +1051,8 @@ documentation.
 Assuming you have implemented a variety of list types using a shared
 `AbstractList`, avoid embedding the `AbstractList` in your concrete list
 implementations.
-Instead, hand-write only the methods to your concrete list that they will
-delegate to the abstract list.
+Instead, hand-write only the methods to your concrete list that will delegate
+to the abstract list.
 
 ```go
 type AbstractList struct {}
