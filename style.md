@@ -67,7 +67,7 @@ row before the </tbody></table> line.
   - [Don't Panic](#dont-panic)
   - [Use go.uber.org/atomic](#use-gouberorgatomic)
   - [Avoid Mutable Globals](#avoid-mutable-globals)
-  - [Embedding Considered Harmful](#embedding-considered-harmful)
+  - [Avoid Embedding Types in Public Structs](#avoid-embedding-types-in-public-structs)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
@@ -1043,17 +1043,16 @@ func TestSigner(t *testing.T) {
 </td></tr>
 </tbody></table>
 
-### Embedding considered harmful
+### Avoid Embedding Types in Public Structs
 
-Avoid embedding types in public structs.
-These obscure documentation and leak a detail about your implementation that
-may need to change.
+These leak implementation details, inhibit type evolution, and obscure
+documentation.
 
 Assuming you have implemented a variety of list types using a shared
 `AbstractList`, avoid embedding the `AbstractList` in your concrete list
 implementations.
-Instead, hand-write only the methods your lists will delegate to the abstract
-list.
+Instead, hand-write only the methods to your concrete list that they will
+delegate to the abstract list.
 
 ```go
 type AbstractList struct {}
@@ -1075,27 +1074,27 @@ func (l *AbstractList) Remove(e Entity) {
 <tr><td>
 
 ```go
-// ConceteList is a list of entities.
-type ConceteList struct {
-    *abstractlist.AbstractList
+// ConcreteList is a list of entities.
+type ConcreteList struct {
+    *AbstractList
 }
 ```
 
 </td><td>
 
 ```go
-// ConceteList is a list of entities.
-type ConceteList struct {
-    list *abstractlist.AbstractList
+// ConcreteList is a list of entities.
+type ConcreteList struct {
+    list *AbstractList
 }
 
 // Add adds an entity to the list.
-func (l *ConceteList) Add(e Entity) {
+func (l *ConcreteList) Add(e Entity) {
     return l.list.Add(e)
 }
 
 // Remove removes an entity from the list.
-func (l *ConceteList) Remove(e Entity) {
+func (l *ConcreteList) Remove(e Entity) {
     return l.list.Remove(e)
 }
 ```
@@ -1103,30 +1102,24 @@ func (l *ConceteList) Remove(e Entity) {
 </td></tr>
 </tbody></table>
 
-To provide a middle ground between inheritance and composition, Go allows for
-types to be [embedded] in structs.
-The type gains the methods of the embedded type.
-These methods delegate to the composite type.
+Go allows [type embedding] as a compromise between inheritance and composition.
+The outer type gets implicit copies of the embedded type's methods.
+These methods, by default, delegate to the same method of the embedded
+instance.
 
-  [embedded]: https://golang.org/doc/effective_go.html#embedding
+  [type embedding]: https://golang.org/doc/effective_go.html#embedding
 
 The struct also gains a field by the same name as the type.
-Consequently, if the embedded type is public, the field is public.
-The embedded type becomes a constraint on the evolution of the container's
-public interface.
+So, if the embedded type is public, the field is public.
+To maintain backward compatibility, every future version of the outer type must
+keep the embedded type.
 
 An embedded type is rarely necessary.
-It is a convenience that implies monotonous delegate methods.
+It is a convenience that helps you avoid writing tedious delegate methods.
 
-Every future version of `ConceteList` is obliged indefinitely to embed `AbstractList`,
-eliminating the possibility of replacing the implementation with an alternative
-in a future version.
-
-Embedding an AbstractList *interface*, instead of the struct directly, would
-offer the developer more flexibility to change in the future.
-The embedded interface also leaks the implementation detail that the list uses
-an abstract list at all, which is of no concern to the end user and could
-otherwise change in a future version.
+Even embedding a compatible AbstractList *interface*, instead of the struct,
+would offer the developer more flexibility to change in the future, but still
+leak the detail that the concrete lists use an abstract implementation.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1141,8 +1134,8 @@ type AbstractList interface {
     Remove(Entity)
 }
 
-// ConceteList is a list of entities.
-type ConceteList struct {
+// ConcreteList is a list of entities.
+type ConcreteList struct {
     AbstractList
 }
 ```
@@ -1150,18 +1143,18 @@ type ConceteList struct {
 </td><td>
 
 ```go
-// ConceteList is a list of entities.
-type ConceteList struct {
+// ConcreteList is a list of entities.
+type ConcreteList struct {
     list *AbstractList
 }
 
 // Add adds an entity to the list.
-func (l *ConceteList) Add(e Entity) {
+func (l *ConcreteList) Add(e Entity) {
     return l.list.Add(e)
 }
 
 // Remove removes an entity from the list.
-func (l *ConceteList) Remove(e Entity) {
+func (l *ConcreteList) Remove(e Entity) {
     return l.list.Remove(e)
 }
 ```
@@ -1169,9 +1162,9 @@ func (l *ConceteList) Remove(e Entity) {
 </td></tr>
 </tbody></table>
 
-Although writing these delegate methods is tedious, it leaves more
-opportunities for change open and also eliminates indirection for discovering
-the full List interface in documentation.
+Although writing these delegate methods is tedious, it hides an implementation
+detail, leaves more opportunities for change, and also eliminates indirection
+for discovering the full List interface in documentation.
 
 ## Performance
 
