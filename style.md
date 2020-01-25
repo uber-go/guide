@@ -1045,8 +1045,8 @@ func TestSigner(t *testing.T) {
 
 ### Avoid Embedding Types in Public Structs
 
-These leak implementation details, inhibit type evolution, and obscure
-documentation.
+These embedded types leak implementation details, inhibit type evolution, and
+obscure documentation.
 
 Assuming you have implemented a variety of list types using a shared
 `AbstractList`, avoid embedding the `AbstractList` in your concrete list
@@ -1162,9 +1162,19 @@ func (l *ConcreteList) Remove(e Entity) {
 </td></tr>
 </tbody></table>
 
-Although writing these delegate methods is tedious, it hides an implementation
-detail, leaves more opportunities for change, and also eliminates indirection
-for discovering the full List interface in documentation.
+Either with an embedded struct or an embedded interface, the embedded type
+places limits on the evolution of the type.
+
+- Adding methods to an embedded interface is a breaking change.
+- Removing methods from an embedded struct is a breaking change.
+- Removing the embedded type is a breaking change.
+- Replacing the embedded type, even with an alternative that satisfies the same
+  interface, is a breaking change.
+
+Although writing these delegate methods is tedious, the additional effort hides
+an implementation detail, leaves more opportunities for change, and also
+eliminates indirection for discovering the full List interface in
+documentation.
 
 ## Performance
 
