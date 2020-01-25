@@ -1,3 +1,7 @@
+# 2020-01-25
+
+- Add guidance against embedding types in public structs.
+
 # 2019-12-17
 
 - Functional Options: Recommend struct implementations of `Option` interface
