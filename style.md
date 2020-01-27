@@ -565,6 +565,33 @@ helps deal with these incorrect assumptions in a safer, more accurate manner.
 
   [`"time"`]: https://golang.org/pkg/time/
 
+Use [`time.Time`] when dealing with instants of time, and the methods on
+`time.Time` when comparing, adding, or subtracting time.
+
+  [`time.Time`]: https://golang.org/pkg/time/#Time
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+func isActive(now, start, stop int) bool {
+  return start <= now && now < stop
+}
+```
+
+</td><td>
+
+```go
+func isActive(now, start, stop time.Time) bool {
+  return (start.Before(now) || start.Equal(now)) && now.Before(stop)
+}
+```
+
+</td></tr>
+</tbody></table>
+
 Use [`time.Duration`] when dealing with periods of time.
 
   [`time.Duration`]: https://golang.org/pkg/time/#Duration
@@ -596,33 +623,6 @@ func poll(delay time.Duration) {
 }
 
 poll(10*time.Second)
-```
-
-</td></tr>
-</tbody></table>
-
-Use [`time.Time`] when dealing with instants of time, and the methods on
-`time.Time` when comparing, adding, or subtracting time.
-
-  [`time.Time`]: https://golang.org/pkg/time/#Time
-
-<table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
-<tbody>
-<tr><td>
-
-```go
-func isActive(now, start, stop int) bool {
-  return start <= now && now < stop
-}
-```
-
-</td><td>
-
-```go
-func isActive(now, start, stop time.Time) bool {
-  return (start.Before(now) || start.Equal(now)) && now.Before(stop)
-}
 ```
 
 </td></tr>
