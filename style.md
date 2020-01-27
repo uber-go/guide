@@ -642,6 +642,56 @@ newDay := t.AddDate(0 /* years */, 0, /* months */, 1 /* days */)
 maybeNewDay := t.Add(24 * time.Hour)
 ```
 
+Use `time.Duration` and `time.Time` in interactions with external systems when
+possible. For example:
+
+- Command-line flags: [`flag`] supports `time.Duration`
+- JSON: [`encoding/json`] supports `time.Time`
+- SQL: [`database/sql`] supports `time.Time`
+- YAML: [`gopkg.in/yaml.v2`] supports `time.Time` and `time.Duration`
+
+  [`encoding/json`]: https://golang.org/pkg/encoding/json/
+  [`gopkg.in/yaml.v2`]: https://godoc.org/gopkg.in/yaml.v2
+  [`database/sql`]: https://golang.org/pkg/database/sql/
+  [`flag`]: https://golang.org/pkg/flag/
+
+When it is not possible to use `time.Duration` in these interactions, use
+`int` or `float64` and include the unit in the name of the field.
+
+For example, since `encoding/json` does not support `time.Duration`, the unit
+is included in the name of the field.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// {"interval": 2}
+type Config struct {
+  Interval int
+}
+```
+
+</td><td>
+
+```go
+// {"intervalMillis": 2000}
+type Config struct {
+  IntervalMillis int
+}
+```
+
+</td></tr>
+</tbody></table>
+
+When it is not possible to use `time.Time` in these interactions, unless an
+alternative is agreed upon, use `string` and format timestamps as defined in
+[RFC 3339]. This format is used by default by [`Time.UnmarshalText`].
+
+  [RFC 3339]: https://tools.ietf.org/html/rfc3339
+  [`Time.UnmarshalText`]: https://golang.org/pkg/time/#Time.UnmarshalText
+
 Although this tends to not be a problem in practice, keep in mind that the
 `"time"` package does not support parsing timestamps with leap seconds
 ([8728]), nor does it account for leap seconds in calculations ([15190]). If
