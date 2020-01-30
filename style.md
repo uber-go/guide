@@ -701,9 +701,11 @@ type Config struct {
 
 When it is not possible to use `time.Time` in these interactions, unless an
 alternative is agreed upon, use `string` and format timestamps as defined in
-[RFC 3339]. This format is used by default by [`Time.UnmarshalText`].
+[RFC 3339]. This format is used by default by [`Time.UnmarshalText`] and is
+available for use in `Time.Format` and `time.Parse` via [`time.RFC3339`].
 
   [`Time.UnmarshalText`]: https://golang.org/pkg/time/#Time.UnmarshalText
+  [`time.RFC3339`]: https://golang.org/pkg/time/#RFC3339
 
 Although this tends to not be a problem in practice, keep in mind that the
 `"time"` package does not support parsing timestamps with leap seconds
