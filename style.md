@@ -683,7 +683,7 @@ is included in the name of the field.
 ```go
 // {"interval": 2}
 type Config struct {
-  Interval int
+  Interval int `json:"interval"`
 }
 ```
 
@@ -692,7 +692,7 @@ type Config struct {
 ```go
 // {"intervalMillis": 2000}
 type Config struct {
-  IntervalMillis int
+  IntervalMillis int `json:"intervalMillis"`
 }
 ```
 
