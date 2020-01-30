@@ -565,6 +565,8 @@ helps deal with these incorrect assumptions in a safer, more accurate manner.
 
   [`"time"`]: https://golang.org/pkg/time/
 
+#### Use `time.Time` for instants of time
+
 Use [`time.Time`] when dealing with instants of time, and the methods on
 `time.Time` when comparing, adding, or subtracting time.
 
@@ -591,6 +593,8 @@ func isActive(now, start, stop time.Time) bool {
 
 </td></tr>
 </tbody></table>
+
+#### Use `time.Duration` for periods of time
 
 Use [`time.Duration`] when dealing with periods of time.
 
@@ -641,6 +645,8 @@ use [`Time.Add`].
 newDay := t.AddDate(0 /* years */, 0, /* months */, 1 /* days */)
 maybeNewDay := t.Add(24 * time.Hour)
 ```
+
+#### Use `time.Time` and `time.Duration` with external systems
 
 Use `time.Duration` and `time.Time` in interactions with external systems when
 possible. For example:
