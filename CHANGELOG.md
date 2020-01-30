@@ -1,6 +1,10 @@
-# 2020-01-23
+# 2020-01-30
 
 - Recommend using the `time` package when dealing with time.
+
+# 2020-01-25
+
+- Add guidance against embedding types in public structs.
 
 # 2019-12-17
 
