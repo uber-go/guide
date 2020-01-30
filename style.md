@@ -652,15 +652,22 @@ maybeNewDay := t.Add(24 * time.Hour)
 Use `time.Duration` and `time.Time` in interactions with external systems when
 possible. For example:
 
-- Command-line flags: [`flag`] supports `time.Duration`
-- JSON: [`encoding/json`] supports `time.Time`
-- SQL: [`database/sql`] supports `time.Time`
-- YAML: [`gopkg.in/yaml.v2`] supports `time.Time` and `time.Duration`
+- Command-line flags: [`flag`] supports `time.Duration` via
+  [`time.ParseDuration`]
+- JSON: [`encoding/json`] supports encoding `time.Time` as an [RFC 3339]
+  string via its [`UnmarshalJSON` method]
+- SQL: [`database/sql`] supports converting `DATETIME` or `TIMESTAMP` columns
+  into `time.Time` and back if the underlying driver supports it
+- YAML: [`gopkg.in/yaml.v2`] supports `time.Time` as an [RFC 3339] string, and
+  `time.Duration` via [`time.ParseDuration`].
 
-  [`encoding/json`]: https://golang.org/pkg/encoding/json/
-  [`gopkg.in/yaml.v2`]: https://godoc.org/gopkg.in/yaml.v2
-  [`database/sql`]: https://golang.org/pkg/database/sql/
   [`flag`]: https://golang.org/pkg/flag/
+  [`time.ParseDuration`]: https://golang.org/pkg/time/#ParseDuration
+  [`encoding/json`]: https://golang.org/pkg/encoding/json/
+  [RFC 3339]: https://tools.ietf.org/html/rfc3339
+  [`UnmarshalJSON` method]: https://golang.org/pkg/time/#Time.UnmarshalJSON
+  [`database/sql`]: https://golang.org/pkg/database/sql/
+  [`gopkg.in/yaml.v2`]: https://godoc.org/gopkg.in/yaml.v2
 
 When it is not possible to use `time.Duration` in these interactions, use
 `int` or `float64` and include the unit in the name of the field.
@@ -696,7 +703,6 @@ When it is not possible to use `time.Time` in these interactions, unless an
 alternative is agreed upon, use `string` and format timestamps as defined in
 [RFC 3339]. This format is used by default by [`Time.UnmarshalText`].
 
-  [RFC 3339]: https://tools.ietf.org/html/rfc3339
   [`Time.UnmarshalText`]: https://golang.org/pkg/time/#Time.UnmarshalText
 
 Although this tends to not be a problem in practice, keep in mind that the
