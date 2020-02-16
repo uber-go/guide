@@ -55,6 +55,7 @@ row before the </tbody></table> line.
 - [Introduction](#introduction)
 - [Guidelines](#guidelines)
   - [Pointers to Interfaces](#pointers-to-interfaces)
+  - [Verify Interface Compliance](#verify-interface-compliance)
   - [Receivers and Interfaces](#receivers-and-interfaces)
   - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
   - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
@@ -150,6 +151,65 @@ An interface is two fields:
 
 If you want interface methods to modify the underlying data, you must use a
 pointer.
+
+### Verify Interface Compliance
+
+For types that are known or required to implement specific interfaces, add
+checks to verify interface compliance at compile time.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+type Handler struct{ /* ... */ }
+
+
+
+func (h *Handler) ServeHTTP(
+  w http.ResponseWriter,
+  r *http.Request,
+) {
+  ...
+}
+```
+
+</td><td>
+
+```go
+type Handler struct{ /* ... */ }
+
+var _ http.Handler = (*Handler)(nil)
+
+func (h *Handler) ServeHTTP(
+  w http.ResponseWriter,
+  r *http.Request,
+) {
+  // ...
+}
+```
+
+</td></tr>
+</tbody></table>
+
+The statement `var _ http.Handler = (*Handler)(nil)` will fail to compile if
+`*Handler` ever stops matching the `http.Handler` interface.
+
+Note that the interface was implemented on the pointer type `*Handler` above,
+which meant use of `(*Handler)(nil)` on the right side of `=`. If the
+interface was implemented on the value type, the right side would use the zero
+value of that type.
+
+```go
+type Age int
+
+var _ fmt.Stringer = Age(0)
+
+func (a Age) String() string {
+  // ...
+}
+```
 
 ### Receivers and Interfaces
 

@@ -1,3 +1,7 @@
+# 2020-02-16
+
+- Add guidance on verifying interface compliance with compile-time checks.
+
 # 2020-01-30
 
 - Recommend using the `time` package when dealing with time.
