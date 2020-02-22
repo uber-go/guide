@@ -200,10 +200,9 @@ func (h *Handler) ServeHTTP(
 The statement `var _ http.Handler = (*Handler)(nil)` will fail to compile if
 `*Handler` ever stops matching the `http.Handler` interface.
 
-Note that the interface was implemented on the pointer type `*Handler` above,
-which meant use of `(*Handler)(nil)` on the right side of `=`. If the
-interface was implemented on the value type, the right side would use the zero
-value of that type.
+The right hand side of the assignment should be the zero value of the asserted
+type. This is `nil` for pointer types (like `*Handler`), slices, and maps, and
+an empty struct for struct types.
 
 ```go
 type Age int
