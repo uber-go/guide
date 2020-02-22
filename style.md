@@ -163,7 +163,9 @@ checks to verify interface compliance at compile time.
 <tr><td>
 
 ```go
-type Handler struct{ /* ... */ }
+type Handler struct {
+  // ...
+}
 
 
 
@@ -178,7 +180,9 @@ func (h *Handler) ServeHTTP(
 </td><td>
 
 ```go
-type Handler struct{ /* ... */ }
+type Handler struct {
+  // ...
+}
 
 var _ http.Handler = (*Handler)(nil)
 
