@@ -205,11 +205,17 @@ type. This is `nil` for pointer types (like `*Handler`), slices, and maps, and
 an empty struct for struct types.
 
 ```go
-type Age int
+type LogHandler struct {
+  h   http.Handler
+  log *zap.Logger
+}
 
-var _ fmt.Stringer = Age(0)
+var _ http.Handler = LogHandler{}
 
-func (a Age) String() string {
+func (h LogHandler) ServeHTTP(
+  w http.ResponseWriter,
+  r *http.Request,
+) {
   // ...
 }
 ```
