@@ -154,8 +154,13 @@ pointer.
 
 ### Verify Interface Compliance
 
-For types that are known or required to implement specific interfaces, add
-checks to verify interface compliance at compile time.
+Verify interface compliance at compile time where appropriate. This includes:
+
+- Exported types that are required to implement specific interfaces as part of
+  their API contract
+- Exported or unexported types that are part of a collection of types
+  implementing the same interface
+- Other cases where violating an interface would break users
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
