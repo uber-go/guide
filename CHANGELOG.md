@@ -1,4 +1,4 @@
-# 2020-02-16
+# 2020-02-24
 
 - Add guidance on verifying interface compliance with compile-time checks.
 
