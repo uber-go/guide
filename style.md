@@ -51,9 +51,7 @@ row before the </tbody></table> line.
 # Методические рекомендации по написанию Go кода от Uber
 
 ## Дисклеймер
-Гайд находится в процессе перевода и доработки. Для более полного и глубокого понимания рекомендуется читать параллельно с английской версией.
-
-Также вы можете направлять свои пожелания / исправления в issues.
+Для более полного и глубокого понимания рекомендуется читать параллельно с английской версией.
 
 ## Содержание
 
@@ -74,12 +72,12 @@ row before the </tbody></table> line.
     - [Типизация ошибок](#%d0%a2%d0%b8%d0%bf%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d1%8f-%d0%be%d1%88%d0%b8%d0%b1%d0%be%d0%ba)
     - [Error Wrapping](#error-wrapping)
     - [Handle Type Assertion Failures](#handle-type-assertion-failures)
-    - [Don't Panic](#dont-panic)
+    - [Не паниковать](#%d0%9d%d0%b5-%d0%bf%d0%b0%d0%bd%d0%b8%d0%ba%d0%be%d0%b2%d0%b0%d1%82%d1%8c)
     - [Use go.uber.org/atomic](#use-gouberorgatomic)
   - [Производительность](#%d0%9f%d1%80%d0%be%d0%b8%d0%b7%d0%b2%d0%be%d0%b4%d0%b8%d1%82%d0%b5%d0%bb%d1%8c%d0%bd%d0%be%d1%81%d1%82%d1%8c)
-    - [Предпочитайте strconv вместо fmt](#%d0%9f%d1%80%d0%b5%d0%b4%d0%bf%d0%be%d1%87%d0%b8%d1%82%d0%b0%d0%b9%d1%82%d0%b5-strconv-%d0%b2%d0%bc%d0%b5%d1%81%d1%82%d0%be-fmt)
+    - [Используйте strconv вместо fmt](#%d0%98%d1%81%d0%bf%d0%be%d0%bb%d1%8c%d0%b7%d1%83%d0%b9%d1%82%d0%b5-strconv-%d0%b2%d0%bc%d0%b5%d1%81%d1%82%d0%be-fmt)
     - [Избегайте приведения string-to-byte](#%d0%98%d0%b7%d0%b1%d0%b5%d0%b3%d0%b0%d0%b9%d1%82%d0%b5-%d0%bf%d1%80%d0%b8%d0%b2%d0%b5%d0%b4%d0%b5%d0%bd%d0%b8%d1%8f-string-to-byte)
-    - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+    - [Старайтесь определять Capacity для мапов](#%d0%a1%d1%82%d0%b0%d1%80%d0%b0%d0%b9%d1%82%d0%b5%d1%81%d1%8c-%d0%be%d0%bf%d1%80%d0%b5%d0%b4%d0%b5%d0%bb%d1%8f%d1%82%d1%8c-capacity-%d0%b4%d0%bb%d1%8f-%d0%bc%d0%b0%d0%bf%d0%be%d0%b2)
   - [Style](#style)
     - [Be Consistent](#be-consistent)
     - [Группируйте похожие объявления](#%d0%93%d1%80%d1%83%d0%bf%d0%bf%d0%b8%d1%80%d1%83%d0%b9%d1%82%d0%b5-%d0%bf%d0%be%d1%85%d0%be%d0%b6%d0%b8%d0%b5-%d0%be%d0%b1%d1%8a%d1%8f%d0%b2%d0%bb%d0%b5%d0%bd%d0%b8%d1%8f)
@@ -109,9 +107,9 @@ row before the </tbody></table> line.
 
 ## Введение
 
-Стили - это соглашения, определяющие качество нашего код. Термин стиль является не слишком полным, так как данное соглашение описывает гораздо больше, чем просто форматирование исходного кода, c которым прекрасно справляется gofmt.
+Стили - это соглашения, определяющие качество нашего код. Термин стиль является не слишком полным, так как данное соглашение описывает гораздо больше, чем просто форматирование исходного кода программы, c которым и так прекрасно справляется gofmt.
 
-Целью данного руководства является упрощение понимания, того как как нужно, а как нельзя писать код на Go в Uber. Эти правила существуют для того, чтобы сохранить контроль над кодовой базой прокета и при этом позволить программистам эффективно использовать возможности языка Go.
+Целью данного руководства является упрощение понимания, того как как можно и нужно, а как нельзя писать код на Go в Uber. Эти правила необходимы для того, чтобы сохранить контроль над кодовой базой прокета и при этом позволить программистам эффективно использовать возможности языка Go.
 
 Данное руководство было создано [Прашантом Варанаси] и [Саймоном Ньютоном] как способ помочь коллегам начать использовать Go. С течением времени в него были внесены изменения на основе обратной связи от читателей.
 
@@ -800,16 +798,14 @@ if !ok {
 <!-- TODO: There are a few situations where the single assignment form is
 fine. -->
 
-### Don't Panic
+### Не паниковать
 
-Code running in production must avoid panics. Panics are a major source of
-[cascading failures]. If an error occurs, the function must return an error and
-allow the caller to decide how to handle it.
+Код, запущенный в продакшене должен избегать паник. Паники являются главным источником [cascading failures]. Если вызываемая функция закончилась ошибкой, ее необходимо вернуть выше и позволить вызывающей функции решить, как ее обработать.
 
   [cascading failures]: https://en.wikipedia.org/wiki/Cascading_failure
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -855,10 +851,9 @@ func main() {
 </td></tr>
 </tbody></table>
 
-Panic/recover is not an error handling strategy. A program must panic only when
-something irrecoverable happens such as a nil dereference. An exception to this is
-program initialization: bad things at program startup that should abort the
-program may cause panic.
+Panic/recover не подходит в качестве механизма обработки ошибок. Программа должна
+паниковать только в безвыходных ситуациях, например разыменование структуры в nil.
+Исключением является инициализация программы: ошибки на старте могут прервать ее выполнение, вызвав панику.
 
 ```go
 var _statusTemplate = template.Must(template.New("name").Parse("_statusHTML"))
@@ -959,9 +954,9 @@ func (f *foo) isRunning() bool {
 
 Performance-specific guidelines apply only to the hot path.
 
-### Предпочитайте strconv вместо fmt
+### Используйте strconv вместо fmt
 
-При конвертации типов к/из строки, `strconv` быстрее, чем `fmt`.
+При конвертации типов в/из строки, `strconv` быстрее, чем `fmt`.
 
 <table>
 <thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
@@ -1039,23 +1034,19 @@ BenchmarkGood-4  500000000   3.25 ns/op
 </td></tr>
 </tbody></table>
 
-### Prefer Specifying Map Capacity Hints
+### Старайтесь определять Capacity для мапов
 
-Where possible, provide capacity hints when initializing
-maps with `make()`.
+Где возможно, старайтесь объявлять значение capacity при инициализации
+мап при помощи `make()`.
 
 ```go
 make(map[T1]T2, hint)
 ```
 
-Providing a capacity hint to `make()` tries to right-size the
-map at initialization time, which reduces the need for growing
-the map and allocations as elements are added to the map. Note
-that the capacity hint is not guaranteed for maps, so adding
-elements may still allocate even if a capacity hint is provided.
+Задание capacity во время вызова `make()` выделяет память для заранее известного количества элементов, что уменьшает количество операций выделения памяти во время записи значений в мапу. Помните, что capacity для мап не гарантирует того, что присваивание элементов в мапу не будет выделять под них дополнительную память.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1083,13 +1074,11 @@ for _, f := range files {
 </td></tr>
 <tr><td>
 
-`m` is created without a size hint; there may be more
-allocations at assignment time.
+`m` создается без объявления capacity; возможно дополнительное выделение памяти во время присвоения значений.
 
 </td><td>
 
-`m` is created with a size hint; there may be fewer
-allocations at assignment time.
+`m` создается с объявлением capacity; возможно меньшее или отсутствие операций выделения памяти во время присвоения значений.
 
 </td></tr>
 </tbody></table>
