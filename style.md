@@ -1188,8 +1188,8 @@ allocations at assignment time.
 In a program that makes HTTP requests, it's important to close the body request. If not,
 your application will stack memory consume, resulting in a memory leak problem.
 
-Another good practice you must do, it's read the data body even the data is not important,
-it avoid memory leak in http requests.
+Another good practice you must do, is to read the data body even if the data is not important,
+it avoids memory leak in http requests.
 
 read more: 
 - [Avoiding memory leak in golang](https://hackernoon.com/avoiding-memory-leak-in-golang-api-1843ef45fca8)
