@@ -102,6 +102,7 @@ row before the </tbody></table> line.
 - [Patterns](#patterns)
   - [Test Tables](#test-tables)
   - [Functional Options](#functional-options)
+- [Linting](#linting)
 
 ## Introduction
 
@@ -3192,3 +3193,67 @@ See also,
 
 <!-- TODO: replace this with parameter structs and functional options, when to
 use one vs other -->
+
+## Linting
+
+We recommend [golangci-lint] as the go-to linting tool for Go code, largely due
+to its performance in larger codebases and ability to configure and use many
+canonical linters at once. This repo has an example [.golangci.yml] config file
+with recommended linters and settings.
+
+  [golangci-lint]: https://github.com/golangci/golangci-lint
+  [.golangci.yml]: https://github.com/uber-go/guide/blob/master/.golangci.yml
+
+### Linters
+
+More importantly than any "blessed" set of linters, lint consistently across a
+codebase.
+
+We recommend enabling the following linters as part of `golangci-lint`, because
+we feel that they help to catch the most common issues and also establish a high
+bar for code quality:
+
+- [deadcode] to detect dead code
+- [dogsled] to detect blank-assignment identifiers
+- [errcheck] to ensure that errors are handled
+- [exhaustive] to ensure that enum-style `switch` statements exhaust all cases
+- [goconst] to find `const` candidates
+- [gocyclo] to detect high cyclomatic complexity
+- [goimports] to format code and manage imports
+- [golint] to point out common style mistakes
+- [gosimple] to simplify code where possible
+- [govet] to analyze code for common mistakes
+- [ineffassign] to detect unused assignments
+- [lll] to detect particularly long lines
+- [misspell] to find misspelled words
+- [staticcheck] to do various static analysis checks
+- [structcheck] to detect unused struct fields]
+- [typecheck] to type-check code prior to compilation
+- [unconvert] to detect unnecessary type conversions
+- [unparam] to detect unused function parameters
+- [unused] to detect unused constants, variables, functions, and types
+- [varcheck] to find unused globals and constants
+
+`golangci-lint` has [various other linters] available for use as well.
+
+  [deadcode]: https://github.com/remyoudompheng/go-misc/tree/master/deadcode
+  [dogsled]: https://github.com/alexkohler/dogsled
+  [errcheck]: https://github.com/kisielk/errcheck
+  [exhaustive]: https://github.com/nishanths/exhaustive
+  [goconst]: https://github.com/jgautheron/goconst
+  [gocyclo]: https://github.com/alecthomas/gocyclo
+  [goimports]: https://godoc.org/golang.org/x/tools/cmd/goimports
+  [golint]: https://github.com/golang/lint
+  [gosimple]: https://github.com/dominikh/go-tools/tree/master/simple
+  [govet]: https://golang.org/cmd/vet/
+  [ineffassign]: https://github.com/gordonklaus/ineffassign
+  [lll]: https://github.com/walle/lll
+  [misspell]: https://github.com/client9/misspell
+  [staticcheck]: https://staticcheck.io/
+  [structcheck]: https://github.com/opennota/check
+  [typecheck]: https://github.com/golangci/golangci-lint/blob/master/pkg/golinters/typecheck.go
+  [unconvert]: https://github.com/mdempsky/unconvert
+  [unparam]: https://github.com/mvdan/unparam
+  [unused]: https://github.com/dominikh/go-tools/tree/master/unused
+  [varcheck]: https://github.com/opennota/check
+  [various other linters]: https://golangci-lint.run/usage/linters/
