@@ -1,3 +1,9 @@
+# 2020-06-10
+
+- Add guidance on avoiding `init()`.
+- Add guidance to avoid using built-in names.
+- Add reminder that nil slices are not always the same as empty slices.
+
 # 2020-02-24
 
 - Add guidance on verifying interface compliance with compile-time checks.
