@@ -1518,18 +1518,18 @@ other cases of shadowing.
 
 ### Avoid `init()`
 
-Avoid `init()` where possible. At a minimum, all code within `init()` should:
+Avoid `init()` where possible. When `init()` is unavoidable or desirable, code
+should attempt to:
 
 1. Be completely deterministic, regardless of program environment or invocation.
-2. Be completely self-contained within the program.
-3. Not depend on side-effects of other `init()` functions.
-4. Be able to run in any order. While `init()` ordering is well-known, code can
-   change, and thus `init()` functions that rely on specific sequencing make
-   code brittle and error-prone.
-5. Not access or manipulate global or environment state, such as machine
+2. Avoid depending on the ordering or side-effects of other `init()` functions.
+   While `init()` ordering is well-known, code can change, and thus
+   relationships between `init()` functions can make code brittle and
+   error-prone.
+3. Avoid accessing or manipulating global or environment state, such as machine
    information, environment variables, working directory, program
    arguments/inputs, etc.
-6. Not perform I/O, including both filesystem, network, and system calls.
+4. Avoid I/O, including both filesystem, network, and system calls.
 
 Code that cannot satisfy these requirements likely belongs as a helper to be
 called as part of `main()` (or elsewhere in a program's lifecycle), or be
