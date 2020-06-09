@@ -1562,6 +1562,16 @@ func init() {
 var _defaultFoo = Foo{
     // ...
 }
+
+// or, better, for testability:
+
+var _defaultFoo = defaultFoo()
+
+func defaultFoo() Foo {
+    return Foo{
+        // ...
+    }
+}
 ```
 
 </td></tr>
@@ -1617,7 +1627,6 @@ Considering the above, some situations in which `init()` may be preferable or
 necessary might include:
 
 - Complex expressions that cannot be represented as single assignments.
-- Seeding or constructing default helpers or state, such as `math/rand.Seed`.
 - Pluggable hooks, such as `database/sql` dialects, encoding type registries, etc.
 - Optimizations to [Google Cloud Functions] and other forms of deterministic
   precomputation.
