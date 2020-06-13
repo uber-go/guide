@@ -76,6 +76,7 @@ row before the </tbody></table> line.
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
   - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+  - [Prefer Specifying Slice Capacity for Appending](#prefer-specifying-slice-capacity-for-appending)
 - [Style](#style)
   - [Be Consistent](#be-consistent)
   - [Group Similar Declarations](#group-similar-declarations)
@@ -1769,6 +1770,51 @@ allocations at assignment time.
 
 `m` is created with a size hint; there may be fewer
 allocations at assignment time.
+
+</td></tr>
+</tbody></table>
+
+### Prefer Specifying Slice Capacity for Appending
+
+Where possible, provide a capacity value to `make()` when initializing a slice for appending.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+for n := 0; n < b.N; n++ {
+  data := make([]int, 0)
+  for k := 0; k < size; k++{
+    data = append(data, k)
+  }
+}
+```
+
+</td><td>
+
+```go
+for n := 0; n < b.N; n++ {
+  data := make([]int, 0, size)
+  for k := 0; k < size; k++{
+    data = append(data, k)
+  }
+}
+```
+
+</td></tr>
+<tr><td>
+
+```
+BenchmarkBad-4    100000000    2.48s
+```
+
+</td><td>
+
+```
+BenchmarkGood-4   100000000    0.21s
+```
 
 </td></tr>
 </tbody></table>
