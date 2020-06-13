@@ -1185,7 +1185,7 @@ allocations at assignment time.
 
 ### Prefer Specifying Slice Capacity for Appending
 
-Where possible, provide capacity value when initializing a slice for appending with `make()`.
+Where possible, provide a capacity value to `make()` when initializing a slice for appending.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
