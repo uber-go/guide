@@ -231,6 +231,9 @@ func (h LogHandler) ServeHTTP(
 ### Receivers and Interfaces
 
 Methods with value receivers can be called on pointers as well as values.
+Methods with pointer receivers can only be called on pointers or [addressable values].
+
+  [addressable values]: https://golang.org/ref/spec#Method_values
 
 For example,
 
