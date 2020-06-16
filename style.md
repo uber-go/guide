@@ -1726,7 +1726,7 @@ BenchmarkGood-4  500000000   3.25 ns/op
 ### Prefer Specifying Container Capacity
 
 Specify container capacity where possible in order to allocate memory for the
-container up front.  This minimizes subsequent allocations (by copying and
+container up front. This minimizes subsequent allocations (by copying and
 resizing of the container) as elements are added.
 
 #### Specifying Map Capacity Hints
@@ -1799,8 +1799,8 @@ make([]T, length, capacity)
 Unlike maps, slice capacity is not a hint: the compiler will allocate enough
 memory for the capacity of the slice as provided to `make()`, which means that
 subsequent `append()` operations will incur zero allocations (until the length
-of the slice matches the capacity, which will require a resize to hold
-additional elements).
+of the slice matches the capacity, after which any appends will require a resize
+to hold additional elements).
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
