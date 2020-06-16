@@ -1743,9 +1743,9 @@ map at initialization time, which reduces the need for growing
 the map and allocations as elements are added to the map.
 
 Note that, unlike slices, map capacity hints do not guarantee complete,
-preemptive allocation, but are used to approximate the number of hashmap
-buckets required. Consequently, means that map allocations may still occur when
-adding elements to the map, even up to the specified capacity.
+preemptive allocation, but are used to approximate the number of hashmap buckets
+required. Consequently, allocations may still occur when adding elements to the
+map, even up to the specified capacity.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
