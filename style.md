@@ -76,7 +76,7 @@ row before the </tbody></table> line.
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
   - [Prefer Specifying Container Capacity](#prefer-specifying-container-capacity)
-      - [Specifying Map Capacity](#specifying-map-capacity)
+      - [Specifying Map Capacity Hints](#specifying-map-capacity-hints)
       - [Specifying Slice Capacity](#specifying-slice-capacity)
 - [Style](#style)
   - [Be Consistent](#be-consistent)
@@ -1725,11 +1725,11 @@ BenchmarkGood-4  500000000   3.25 ns/op
 
 ### Prefer Specifying Container Capacity
 
-Specify container capacity where possible, as the compiler will allocate all
-required memory for that capacity up front rather than potentially allocating
-it in chunks as the container grows.
+Specify container capacity where possible in order to allocate memory for the
+container up front.  This minimizes subsequent allocations (by copying and
+resizing of the container) as elements are added.
 
-#### Specifying Map Capacity
+#### Specifying Map Capacity Hints
 
 Where possible, provide capacity hints when initializing
 maps with `make()`.
@@ -1743,12 +1743,9 @@ map at initialization time, which reduces the need for growing
 the map and allocations as elements are added to the map.
 
 Note that, unlike slices, map capacity hints do not guarantee complete,
-preemptive allocation: preallocation only occurs if the specified capacity
-indicates that additional hashmap buckets will need to be allocated internally.
-This means that map allocations may still occur when adding elements up to the
-specified capacity to the map. See [makemap()] for more information.
-
-  [makemap()]: https://golang.org/src/runtime/map.go
+preemptive allocation, but are used to approximate the number of hashmap
+buckets required. Consequently, means that map allocations may still occur when
+adding elements to the map, even up to the specified capacity.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1796,13 +1793,14 @@ Where possible, provide capacity hints when initializing slices with `make()`,
 particularly when appending.
 
 ```go
-make([]T, length, hint)
+make([]T, length, capacity)
 ```
 
 Unlike maps, slice capacity is not a hint: the compiler will allocate enough
 memory for the capacity of the slice as provided to `make()`, which means that
-subsequent `append()` operations will incur zero allocations (until the capacity
-of the slice needs to be expanded to hold the appended element).
+subsequent `append()` operations will incur zero allocations (until the length
+of the slice matches the capacity, which will require a resize to hold
+additional elements).
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
