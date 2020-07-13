@@ -2915,7 +2915,7 @@ Declaration and initialization are visually distinct.
 
 Where possible, provide capacity hints when initializing
 maps with `make()`. See
-[Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+[Specifying Map Capacity Hints](#specifying-map-capacity-hints)
 for more information.
 
 On the other hand, if the map holds a fixed list of elements,
