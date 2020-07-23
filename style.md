@@ -146,7 +146,26 @@ An interface is two fields:
   the data stored is a value, then a pointer to the value is stored.
 
 If you want interface methods to modify the underlying data, you must use a
-pointer.
+pointer of object in assignment statement.
+
+```go
+type F interface {
+  f()
+}
+
+type S1 struct{}
+
+func (s S1) f() {}
+
+type S2 struct{}
+
+func (s *S2) f() {}
+
+// f1.f() can't modify the underlying data
+// f2.f() can modify the underlying data
+var f1 F:= S1{}
+var f2 F:= &S2{}
+```
 
 ### Receivers and Interfaces
 
