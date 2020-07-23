@@ -55,21 +55,29 @@ row before the </tbody></table> line.
 - [Introduction](#introduction)
 - [Guidelines](#guidelines)
   - [Pointers to Interfaces](#pointers-to-interfaces)
+  - [Verify Interface Compliance](#verify-interface-compliance)
   - [Receivers and Interfaces](#receivers-and-interfaces)
   - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
   - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
   - [Defer to Clean Up](#defer-to-clean-up)
   - [Channel Size is One or None](#channel-size-is-one-or-none)
   - [Start Enums at One](#start-enums-at-one)
+  - [Use `"time"` to handle time](#use-time-to-handle-time)
   - [Error Types](#error-types)
   - [Error Wrapping](#error-wrapping)
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
   - [Don't Panic](#dont-panic)
   - [Use go.uber.org/atomic](#use-gouberorgatomic)
+  - [Avoid Mutable Globals](#avoid-mutable-globals)
+  - [Avoid Embedding Types in Public Structs](#avoid-embedding-types-in-public-structs)
+  - [Avoid Using Built-In Names](#avoid-using-built-in-names)
+  - [Avoid `init()`](#avoid-init)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
-  - [Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+  - [Prefer Specifying Container Capacity](#prefer-specifying-container-capacity)
+      - [Specifying Map Capacity Hints](#specifying-map-capacity-hints)
+      - [Specifying Slice Capacity](#specifying-slice-capacity)
 - [Style](#style)
   - [Be Consistent](#be-consistent)
   - [Group Similar Declarations](#group-similar-declarations)
@@ -167,9 +175,85 @@ var f1 F:= S1{}
 var f2 F:= &S2{}
 ```
 
+### Verify Interface Compliance
+
+Verify interface compliance at compile time where appropriate. This includes:
+
+- Exported types that are required to implement specific interfaces as part of
+  their API contract
+- Exported or unexported types that are part of a collection of types
+  implementing the same interface
+- Other cases where violating an interface would break users
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+type Handler struct {
+  // ...
+}
+
+
+
+func (h *Handler) ServeHTTP(
+  w http.ResponseWriter,
+  r *http.Request,
+) {
+  ...
+}
+```
+
+</td><td>
+
+```go
+type Handler struct {
+  // ...
+}
+
+var _ http.Handler = (*Handler)(nil)
+
+func (h *Handler) ServeHTTP(
+  w http.ResponseWriter,
+  r *http.Request,
+) {
+  // ...
+}
+```
+
+</td></tr>
+</tbody></table>
+
+The statement `var _ http.Handler = (*Handler)(nil)` will fail to compile if
+`*Handler` ever stops matching the `http.Handler` interface.
+
+The right hand side of the assignment should be the zero value of the asserted
+type. This is `nil` for pointer types (like `*Handler`), slices, and maps, and
+an empty struct for struct types.
+
+```go
+type LogHandler struct {
+  h   http.Handler
+  log *zap.Logger
+}
+
+var _ http.Handler = LogHandler{}
+
+func (h LogHandler) ServeHTTP(
+  w http.ResponseWriter,
+  r *http.Request,
+) {
+  // ...
+}
+```
+
 ### Receivers and Interfaces
 
 Methods with value receivers can be called on pointers as well as values.
+Methods with pointer receivers can only be called on pointers or [addressable values].
+
+  [addressable values]: https://golang.org/ref/spec#Method_values
 
 For example,
 
@@ -563,6 +647,175 @@ const (
 // LogToStdout=0, LogToFile=1, LogToRemote=2
 ```
 
+### Use `"time"` to handle time
+
+Time is complicated. Incorrect assumptions often made about time include the
+following.
+
+1. A day has 24 hours
+2. An hour has 60 minutes
+3. A week has 7 days
+4. A year has 365 days
+5. [And a lot more](https://infiniteundo.com/post/25326999628/falsehoods-programmers-believe-about-time)
+
+For example, *1* means that adding 24 hours to a time instant will not always
+yield a new calendar day.
+
+Therefore, always use the [`"time"`] package when dealing with time because it
+helps deal with these incorrect assumptions in a safer, more accurate manner.
+
+  [`"time"`]: https://golang.org/pkg/time/
+
+#### Use `time.Time` for instants of time
+
+Use [`time.Time`] when dealing with instants of time, and the methods on
+`time.Time` when comparing, adding, or subtracting time.
+
+  [`time.Time`]: https://golang.org/pkg/time/#Time
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+func isActive(now, start, stop int) bool {
+  return start <= now && now < stop
+}
+```
+
+</td><td>
+
+```go
+func isActive(now, start, stop time.Time) bool {
+  return (start.Before(now) || start.Equal(now)) && now.Before(stop)
+}
+```
+
+</td></tr>
+</tbody></table>
+
+#### Use `time.Duration` for periods of time
+
+Use [`time.Duration`] when dealing with periods of time.
+
+  [`time.Duration`]: https://golang.org/pkg/time/#Duration
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+func poll(delay int) {
+  for {
+    // ...
+    time.Sleep(time.Duration(delay) * time.Millisecond)
+  }
+}
+
+poll(10) // was it seconds or milliseconds?
+```
+
+</td><td>
+
+```go
+func poll(delay time.Duration) {
+  for {
+    // ...
+    time.Sleep(delay)
+  }
+}
+
+poll(10*time.Second)
+```
+
+</td></tr>
+</tbody></table>
+
+Going back to the example of adding 24 hours to a time instant, the method we
+use to add time depends on intent. If we want the same time of the day, but on
+the next calendar day, we should use [`Time.AddDate`]. However, if we want an
+instant of time guaranteed to be 24 hours after the previous time, we should
+use [`Time.Add`].
+
+  [`Time.AddDate`]: https://golang.org/pkg/time/#Time.AddDate
+  [`Time.Add`]: https://golang.org/pkg/time/#Time.Add
+
+```go
+newDay := t.AddDate(0 /* years */, 0, /* months */, 1 /* days */)
+maybeNewDay := t.Add(24 * time.Hour)
+```
+
+#### Use `time.Time` and `time.Duration` with external systems
+
+Use `time.Duration` and `time.Time` in interactions with external systems when
+possible. For example:
+
+- Command-line flags: [`flag`] supports `time.Duration` via
+  [`time.ParseDuration`]
+- JSON: [`encoding/json`] supports encoding `time.Time` as an [RFC 3339]
+  string via its [`UnmarshalJSON` method]
+- SQL: [`database/sql`] supports converting `DATETIME` or `TIMESTAMP` columns
+  into `time.Time` and back if the underlying driver supports it
+- YAML: [`gopkg.in/yaml.v2`] supports `time.Time` as an [RFC 3339] string, and
+  `time.Duration` via [`time.ParseDuration`].
+
+  [`flag`]: https://golang.org/pkg/flag/
+  [`time.ParseDuration`]: https://golang.org/pkg/time/#ParseDuration
+  [`encoding/json`]: https://golang.org/pkg/encoding/json/
+  [RFC 3339]: https://tools.ietf.org/html/rfc3339
+  [`UnmarshalJSON` method]: https://golang.org/pkg/time/#Time.UnmarshalJSON
+  [`database/sql`]: https://golang.org/pkg/database/sql/
+  [`gopkg.in/yaml.v2`]: https://godoc.org/gopkg.in/yaml.v2
+
+When it is not possible to use `time.Duration` in these interactions, use
+`int` or `float64` and include the unit in the name of the field.
+
+For example, since `encoding/json` does not support `time.Duration`, the unit
+is included in the name of the field.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// {"interval": 2}
+type Config struct {
+  Interval int `json:"interval"`
+}
+```
+
+</td><td>
+
+```go
+// {"intervalMillis": 2000}
+type Config struct {
+  IntervalMillis int `json:"intervalMillis"`
+}
+```
+
+</td></tr>
+</tbody></table>
+
+When it is not possible to use `time.Time` in these interactions, unless an
+alternative is agreed upon, use `string` and format timestamps as defined in
+[RFC 3339]. This format is used by default by [`Time.UnmarshalText`] and is
+available for use in `Time.Format` and `time.Parse` via [`time.RFC3339`].
+
+  [`Time.UnmarshalText`]: https://golang.org/pkg/time/#Time.UnmarshalText
+  [`time.RFC3339`]: https://golang.org/pkg/time/#RFC3339
+
+Although this tends to not be a problem in practice, keep in mind that the
+`"time"` package does not support parsing timestamps with leap seconds
+([8728]), nor does it account for leap seconds in calculations ([15190]). If
+you compare two instants of time, the difference will not include the leap
+seconds that may have occurred between those two instants.
+
+  [8728]: https://github.com/golang/go/issues/8728
+  [15190]: https://github.com/golang/go/issues/15190
+
 <!-- TODO: section on String methods for enums -->
 
 ### Error Types
@@ -656,7 +909,7 @@ func open(file string) error {
 }
 
 func use() {
-  if err := open(); err != nil {
+  if err := open("testfile.txt"); err != nil {
     if strings.Contains(err.Error(), "not found") {
       // handle
     } else {
@@ -682,7 +935,7 @@ func open(file string) error {
 }
 
 func use() {
-  if err := open(); err != nil {
+  if err := open("testfile.txt"); err != nil {
     if _, ok := err.(errNotFound); ok {
       // handle
     } else {
@@ -984,6 +1237,426 @@ func (f *foo) isRunning() bool {
 </td></tr>
 </tbody></table>
 
+### Avoid Mutable Globals
+
+Avoid mutating global variables, instead opting for dependency injection.
+This applies to function pointers as well as other kinds of values.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// sign.go
+
+var _timeNow = time.Now
+
+func sign(msg string) string {
+  now := _timeNow()
+  return signWithTime(msg, now)
+}
+```
+
+</td><td>
+
+```go
+// sign.go
+
+type signer struct {
+  now func() time.Time
+}
+
+func newSigner() *signer {
+  return &signer{
+    now: time.Now,
+  }
+}
+
+func (s *signer) Sign(msg string) string {
+  now := s.now()
+  return signWithTime(msg, now)
+}
+```
+</td></tr>
+<tr><td>
+
+```go
+// sign_test.go
+
+func TestSign(t *testing.T) {
+  oldTimeNow := _timeNow
+  _timeNow = func() time.Time {
+    return someFixedTime
+  }
+  defer func() { _timeNow = oldTimeNow }()
+
+  assert.Equal(t, want, sign(give))
+}
+```
+
+</td><td>
+
+```go
+// sign_test.go
+
+func TestSigner(t *testing.T) {
+  s := newSigner()
+  s.now = func() time.Time {
+    return someFixedTime
+  }
+
+  assert.Equal(t, want, s.Sign(give))
+}
+```
+
+</td></tr>
+</tbody></table>
+
+### Avoid Embedding Types in Public Structs
+
+These embedded types leak implementation details, inhibit type evolution, and
+obscure documentation.
+
+Assuming you have implemented a variety of list types using a shared
+`AbstractList`, avoid embedding the `AbstractList` in your concrete list
+implementations.
+Instead, hand-write only the methods to your concrete list that will delegate
+to the abstract list.
+
+```go
+type AbstractList struct {}
+
+// Add adds an entity to the list.
+func (l *AbstractList) Add(e Entity) {
+  // ...
+}
+
+// Remove removes an entity from the list.
+func (l *AbstractList) Remove(e Entity) {
+  // ...
+}
+```
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// ConcreteList is a list of entities.
+type ConcreteList struct {
+  *AbstractList
+}
+```
+
+</td><td>
+
+```go
+// ConcreteList is a list of entities.
+type ConcreteList struct {
+  list *AbstractList
+}
+
+// Add adds an entity to the list.
+func (l *ConcreteList) Add(e Entity) {
+  return l.list.Add(e)
+}
+
+// Remove removes an entity from the list.
+func (l *ConcreteList) Remove(e Entity) {
+  return l.list.Remove(e)
+}
+```
+
+</td></tr>
+</tbody></table>
+
+Go allows [type embedding] as a compromise between inheritance and composition.
+The outer type gets implicit copies of the embedded type's methods.
+These methods, by default, delegate to the same method of the embedded
+instance.
+
+  [type embedding]: https://golang.org/doc/effective_go.html#embedding
+
+The struct also gains a field by the same name as the type.
+So, if the embedded type is public, the field is public.
+To maintain backward compatibility, every future version of the outer type must
+keep the embedded type.
+
+An embedded type is rarely necessary.
+It is a convenience that helps you avoid writing tedious delegate methods.
+
+Even embedding a compatible AbstractList *interface*, instead of the struct,
+would offer the developer more flexibility to change in the future, but still
+leak the detail that the concrete lists use an abstract implementation.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+// AbstractList is a generalized implementation
+// for various kinds of lists of entities.
+type AbstractList interface {
+  Add(Entity)
+  Remove(Entity)
+}
+
+// ConcreteList is a list of entities.
+type ConcreteList struct {
+  AbstractList
+}
+```
+
+</td><td>
+
+```go
+// ConcreteList is a list of entities.
+type ConcreteList struct {
+  list *AbstractList
+}
+
+// Add adds an entity to the list.
+func (l *ConcreteList) Add(e Entity) {
+  return l.list.Add(e)
+}
+
+// Remove removes an entity from the list.
+func (l *ConcreteList) Remove(e Entity) {
+  return l.list.Remove(e)
+}
+```
+
+</td></tr>
+</tbody></table>
+
+Either with an embedded struct or an embedded interface, the embedded type
+places limits on the evolution of the type.
+
+- Adding methods to an embedded interface is a breaking change.
+- Removing methods from an embedded struct is a breaking change.
+- Removing the embedded type is a breaking change.
+- Replacing the embedded type, even with an alternative that satisfies the same
+  interface, is a breaking change.
+
+Although writing these delegate methods is tedious, the additional effort hides
+an implementation detail, leaves more opportunities for change, and also
+eliminates indirection for discovering the full List interface in
+documentation.
+
+### Avoid Using Built-In Names
+
+The Go [language specification] outlines several built-in,
+[predeclared identifiers] that should not be used as names within Go programs.
+
+Depending on context, reusing these identifiers as names will either shadow
+the original within the current lexical scope (and any nested scopes) or make
+affected code confusing. In the best case, the compiler will complain; in the
+worst case, such code may introduce latent, hard-to-grep bugs.
+
+  [language specification]: https://golang.org/ref/spec
+  [predeclared identifiers]: https://golang.org/ref/spec#Predeclared_identifiers
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+var error string
+// `error` shadows the builtin
+
+// or
+
+func handleErrorMessage(error string) {
+    // `error` shadows the builtin
+}
+```
+
+</td><td>
+
+```go
+var errorMessage string
+// `error` refers to the builtin
+
+// or
+
+func handleErrorMessage(msg string) {
+    // `error` refers to the builtin
+}
+```
+
+</td></tr>
+<tr><td>
+
+```go
+type Foo struct {
+    // While these fields technically don't
+    // constitute shadowing, grepping for
+    // `error` or `string` strings is now
+    // ambiguous.
+    error  error
+    string string
+}
+
+func (f Foo) Error() error {
+    // `error` and `f.error` are
+    // visually similar
+    return f.error
+}
+
+func (f Foo) String() string {
+    // `string` and `f.string` are
+    // visually similar
+    return f.string
+}
+```
+
+</td><td>
+
+```go
+type Foo struct {
+    // `error` and `string` strings are
+    // now unambiguous.
+    err error
+    str string
+}
+
+func (f Foo) Error() error {
+    return f.err
+}
+
+func (f Foo) String() string {
+    return f.str
+}
+```
+</td></tr>
+</tbody></table>
+
+
+Note that the compiler will not generate errors when using predeclared
+identifiers, but tools such as `go vet` should correctly point out these and
+other cases of shadowing.
+
+### Avoid `init()`
+
+Avoid `init()` where possible. When `init()` is unavoidable or desirable, code
+should attempt to:
+
+1. Be completely deterministic, regardless of program environment or invocation.
+2. Avoid depending on the ordering or side-effects of other `init()` functions.
+   While `init()` ordering is well-known, code can change, and thus
+   relationships between `init()` functions can make code brittle and
+   error-prone.
+3. Avoid accessing or manipulating global or environment state, such as machine
+   information, environment variables, working directory, program
+   arguments/inputs, etc.
+4. Avoid I/O, including both filesystem, network, and system calls.
+
+Code that cannot satisfy these requirements likely belongs as a helper to be
+called as part of `main()` (or elsewhere in a program's lifecycle), or be
+written as part of `main()` itself. In particular, libraries that are intended
+to be used by other programs should take special care to be completely
+deterministic and not perform "init magic".
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+type Foo struct {
+    // ...
+}
+
+var _defaultFoo Foo
+
+func init() {
+    _defaultFoo = Foo{
+        // ...
+    }
+}
+```
+
+</td><td>
+
+```go
+var _defaultFoo = Foo{
+    // ...
+}
+
+// or, better, for testability:
+
+var _defaultFoo = defaultFoo()
+
+func defaultFoo() Foo {
+    return Foo{
+        // ...
+    }
+}
+```
+
+</td></tr>
+<tr><td>
+
+```go
+type Config struct {
+    // ...
+}
+
+var _config Config
+
+func init() {
+    // Bad: based on current directory
+    cwd, _ := os.Getwd()
+
+    // Bad: I/O
+    raw, _ := ioutil.ReadFile(
+        path.Join(cwd, "config", "config.yaml"),
+    )
+
+    yaml.Unmarshal(raw, &_config)
+}
+```
+
+</td><td>
+
+```go
+type Config struct {
+    // ...
+}
+
+func loadConfig() Config {
+    cwd, err := os.Getwd()
+    // handle err
+
+    raw, err := ioutil.ReadFile(
+        path.Join(cwd, "config", "config.yaml"),
+    )
+    // handle err
+
+    var config Config
+    yaml.Unmarshal(raw, &config)
+
+    return config
+}
+```
+
+</td></tr>
+</tbody></table>
+
+Considering the above, some situations in which `init()` may be preferable or
+necessary might include:
+
+- Complex expressions that cannot be represented as single assignments.
+- Pluggable hooks, such as `database/sql` dialects, encoding type registries, etc.
+- Optimizations to [Google Cloud Functions] and other forms of deterministic
+  precomputation.
+
+  [Google Cloud Functions]: https://cloud.google.com/functions/docs/bestpractices/tips#use_global_variables_to_reuse_objects_in_future_invocations
+
 ## Performance
 
 Performance-specific guidelines apply only to the hot path.
@@ -1069,7 +1742,13 @@ BenchmarkGood-4  500000000   3.25 ns/op
 </td></tr>
 </tbody></table>
 
-### Prefer Specifying Map Capacity Hints
+### Prefer Specifying Container Capacity
+
+Specify container capacity where possible in order to allocate memory for the
+container up front. This minimizes subsequent allocations (by copying and
+resizing of the container) as elements are added.
+
+#### Specifying Map Capacity Hints
 
 Where possible, provide capacity hints when initializing
 maps with `make()`.
@@ -1080,9 +1759,12 @@ make(map[T1]T2, hint)
 
 Providing a capacity hint to `make()` tries to right-size the
 map at initialization time, which reduces the need for growing
-the map and allocations as elements are added to the map. Note
-that the capacity hint is not guaranteed for maps, so adding
-elements may still allocate even if a capacity hint is provided.
+the map and allocations as elements are added to the map.
+
+Note that, unlike slices, map capacity hints do not guarantee complete,
+preemptive allocation, but are used to approximate the number of hashmap buckets
+required. Consequently, allocations may still occur when adding elements to the
+map, even up to the specified capacity.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1124,6 +1806,62 @@ allocations at assignment time.
 </td></tr>
 </tbody></table>
 
+#### Specifying Slice Capacity
+
+Where possible, provide capacity hints when initializing slices with `make()`,
+particularly when appending.
+
+```go
+make([]T, length, capacity)
+```
+
+Unlike maps, slice capacity is not a hint: the compiler will allocate enough
+memory for the capacity of the slice as provided to `make()`, which means that
+subsequent `append()` operations will incur zero allocations (until the length
+of the slice matches the capacity, after which any appends will require a resize
+to hold additional elements).
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+for n := 0; n < b.N; n++ {
+  data := make([]int, 0)
+  for k := 0; k < size; k++{
+    data = append(data, k)
+  }
+}
+```
+
+</td><td>
+
+```go
+for n := 0; n < b.N; n++ {
+  data := make([]int, 0, size)
+  for k := 0; k < size; k++{
+    data = append(data, k)
+  }
+}
+```
+
+</td></tr>
+<tr><td>
+
+```
+BenchmarkBad-4    100000000    2.48s
+```
+
+</td><td>
+
+```
+BenchmarkGood-4   100000000    0.21s
+```
+
+</td></tr>
+</tbody></table>
+
 ## Style
 
 ### Be Consistent
@@ -1143,7 +1881,7 @@ all of which can directly contribute to lower velocity, painful code reviews,
 and bugs.
 
 When applying these guidelines to a codebase, it is recommended that changes
-are made at a package (or larger) level: application at at a sub-package level
+are made at a package (or larger) level: application at a sub-package level
 violates the above concern by introducing multiple styles into the same code.
 
 ### Group Similar Declarations
@@ -1654,6 +2392,132 @@ type Client struct {
 </td></tr>
 </tbody></table>
 
+Embedding should provide tangible benefit, like adding or augmenting
+functionality in a semantically-appropriate way. It should do this with zero
+adverse user-facing effects (see also: [Avoid Embedding Types in Public Structs]).
+
+  [Avoid Embedding Types in Public Structs]: #avoid-embedding-types-in-public-structs
+
+Embedding **should not**:
+
+- Be purely cosmetic or convenience-oriented.
+- Make outer types more difficult to construct or use.
+- Affect outer types' zero values. If the outer type has a useful zero value, it
+  should still have a useful zero value after embedding the inner type.
+- Expose unrelated functions or fields from the outer type as a side-effect of
+  embedding the inner type.
+- Expose unexported types.
+- Affect outer types' copy semantics.
+- Change the outer type's API or type semantics.
+- Embed a non-canonical form of the inner type.
+- Expose implementation details of the outer type.
+- Allow users to observe or control type internals.
+- Change the general behavior of inner functions through wrapping in a way that
+  would reasonably surprise users.
+
+Simply put, embed consciously and intentionally. A good litmus test is, "would
+all of these exported inner methods/fields be added directly to the outer type";
+if the answer is "some" or "no", don't embed the inner type - use a field
+instead.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+type A struct {
+    // Bad: A.Lock() and A.Unlock() are
+    //      now available, provide no
+    //      functional benefit, and allow
+    //      users to control details about
+    //      the internals of A.
+    sync.Mutex
+}
+```
+
+</td><td>
+
+```go
+type countingWriteCloser struct {
+    // Good: Write() is provided at this
+    //       outer layer for a specific
+    //       purpose, and delegates work
+    //       to the inner type's Write().
+    io.WriteCloser
+
+    count int
+}
+
+func (w *countingWriteCloser) Write(bs []byte) (int, error) {
+    w.count += len(bs)
+    return w.WriteCloser.Write(bs)
+}
+```
+
+</td></tr>
+<tr><td>
+
+```go
+type Book struct {
+    // Bad: pointer changes zero value usefulness
+    io.ReadWriter
+
+    // other fields
+}
+
+// later
+
+var b Book
+b.Read(...)  // panic: nil pointer
+b.String()   // panic: nil pointer
+b.Write(...) // panic: nil pointer
+```
+
+</td><td>
+
+```go
+type Book struct {
+    // Good: has useful zero value
+    bytes.Buffer
+
+    // other fields
+}
+
+// later
+
+var b Book
+b.Read(...)  // ok
+b.String()   // ok
+b.Write(...) // ok
+```
+
+</td></tr>
+<tr><td>
+
+```go
+type Client struct {
+    sync.Mutex
+    sync.WaitGroup
+    bytes.Buffer
+    url.URL
+}
+```
+
+</td><td>
+
+```go
+type Client struct {
+    mtx sync.Mutex
+    wg  sync.WaitGroup
+    buf bytes.Buffer
+    url url.URL
+}
+```
+
+</td></tr>
+</tbody></table>
+
 ### Use Field Names to Initialize Structs
 
 You should almost always specify field names when initializing structs. This is
@@ -1720,7 +2584,7 @@ s := "foo"
 </tbody></table>
 
 However, there are cases where the default value is clearer when the `var`
-keyword is use. [Declaring Empty Slices], for example.
+keyword is used. [Declaring Empty Slices], for example.
 
   [Declaring Empty Slices]: https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices
 
@@ -1848,6 +2712,10 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
+Remember that, while it is a valid slice, a nil slice is not equivalent to an
+allocated slice of length 0 - one is nil and the other is not - and the two may
+be treated differently in different situations (such as serialization).
+
 ### Reduce Scope of Variables
 
 Where possible, reduce scope of variables. Do not reduce the scope if it
@@ -1959,7 +2827,7 @@ const (
 type Status int
 
 const (
-  StatusReady = iota + 1
+  StatusReady Status = iota + 1
   StatusDone
   // Maybe we will have a StatusInProgress in the future.
 )
@@ -2066,7 +2934,7 @@ Declaration and initialization are visually distinct.
 
 Where possible, provide capacity hints when initializing
 maps with `make()`. See
-[Prefer Specifying Map Capacity Hints](#prefer-specifying-map-capacity-hints)
+[Specifying Map Capacity Hints](#specifying-map-capacity-hints)
 for more information.
 
 On the other hand, if the map holds a fixed list of elements,
@@ -2134,13 +3002,13 @@ fmt.Printf(msg, 1, 2)
 When you declare a `Printf`-style function, make sure that `go vet` can detect
 it and check the format string.
 
-This means that you should use pre-defined `Printf`-style function
+This means that you should use predefined `Printf`-style function
 names if possible. `go vet` will check these by default. See [Printf family]
 for more information.
 
   [Printf family]: https://golang.org/cmd/vet/#hdr-Printf_family
 
-If using the pre-defined names is not an option, end the name you choose with
+If using the predefined names is not an option, end the name you choose with
 f: `Wrapf`, not `Wrap`. `go vet` can be asked to check specific `Printf`-style
 names but they must end with f.
 
@@ -2275,62 +3143,116 @@ more arguments on those functions.
 ```go
 // package db
 
-func Connect(
+func Open(
   addr string,
-  timeout time.Duration,
-  caching bool,
+  cache bool,
+  logger *zap.Logger
 ) (*Connection, error) {
   // ...
 }
-
-// Timeout and caching must always be provided,
-// even if the user wants to use the default.
-
-db.Connect(addr, db.DefaultTimeout, db.DefaultCaching)
-db.Connect(addr, newTimeout, db.DefaultCaching)
-db.Connect(addr, db.DefaultTimeout, false /* caching */)
-db.Connect(addr, newTimeout, false /* caching */)
 ```
 
 </td><td>
 
 ```go
-type options struct {
-  timeout time.Duration
-  caching bool
+// package db
+
+type Option interface {
+  // ...
 }
 
-// Option overrides behavior of Connect.
+func WithCache(c bool) Option {
+  // ...
+}
+
+func WithLogger(log *zap.Logger) Option {
+  // ...
+}
+
+// Open creates a connection.
+func Open(
+  addr string,
+  opts ...Option,
+) (*Connection, error) {
+  // ...
+}
+```
+
+</td></tr>
+<tr><td>
+
+The cache and logger parameters must always be provided, even if the user
+wants to use the default.
+
+```go
+db.Open(addr, db.DefaultCache, zap.NewNop())
+db.Open(addr, db.DefaultCache, log)
+db.Open(addr, false /* cache */, zap.NewNop())
+db.Open(addr, false /* cache */, log)
+```
+
+</td><td>
+
+Options are provided only if needed.
+
+```go
+db.Open(addr)
+db.Open(addr, db.WithLogger(log))
+db.Open(addr, db.WithCache(false))
+db.Open(
+  addr,
+  db.WithCache(false),
+  db.WithLogger(log),
+)
+```
+
+</td></tr>
+</tbody></table>
+
+Our suggested way of implementing this pattern is with an `Option` interface
+that holds an unexported method, recording options on an unexported `options`
+struct.
+
+```go
+type options struct {
+  cache  bool
+  logger *zap.Logger
+}
+
 type Option interface {
   apply(*options)
 }
 
-type optionFunc func(*options)
+type cacheOption bool
 
-func (f optionFunc) apply(o *options) {
-  f(o)
+func (c cacheOption) apply(opts *options) {
+  opts.cache = bool(c)
 }
 
-func WithTimeout(t time.Duration) Option {
-  return optionFunc(func(o *options) {
-    o.timeout = t
-  })
+func WithCache(c bool) Option {
+  return cacheOption(c)
 }
 
-func WithCaching(cache bool) Option {
-  return optionFunc(func(o *options) {
-    o.caching = cache
-  })
+type loggerOption struct {
+  Log *zap.Logger
 }
 
-// Connect creates a connection.
-func Connect(
+func (l loggerOption) apply(opts *options) {
+  opts.logger = l.Log
+}
+
+func WithLogger(log *zap.Logger) Option {
+  return loggerOption{Log: log}
+}
+
+// Open creates a connection.
+func Open(
   addr string,
   opts ...Option,
 ) (*Connection, error) {
   options := options{
-    timeout: defaultTimeout,
-    caching: defaultCaching,
+    cache:  defaultCache,
+    logger: zap.NewNop(),
   }
 
   for _, o := range opts {
@@ -2339,21 +3261,15 @@ func Connect(
 
   // ...
 }
-
-// Options must be provided only if needed.
-
-db.Connect(addr)
-db.Connect(addr, db.WithTimeout(newTimeout))
-db.Connect(addr, db.WithCaching(false))
-db.Connect(
-  addr,
-  db.WithCaching(false),
-  db.WithTimeout(newTimeout),
-)
 ```
 
-</td></tr>
-</tbody></table>
+Note that there's a method of implementing this pattern with closures but we
+believe that the pattern above provides more flexibility for authors and is
+easier to debug and test for users. In particular, it allows options to be
+compared against each other in tests and mocks, versus closures where this is
+impossible. Further, it lets options implement other interfaces, including
+`fmt.Stringer` which allows for user-readable string representations of the
+options.
 
 See also,
 
