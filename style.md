@@ -2083,6 +2083,14 @@ import (
 )
 ```
 
+It is good for long name of package in some cases.
+
+```go
+import (
+  jww "github.com/spf13/jwalterweatherman"
+)
+```
+
 In all other scenarios, import aliases should be avoided unless there is a
 direct conflict between imports.
 
