@@ -21,13 +21,6 @@ linters:
     - govet
     - staticcheck
 
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-  govet:
-    check-shadowing: true
-
 issues:
   exclude-use-default: false
   max-issues-per-linter: 0
