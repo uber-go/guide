@@ -1077,40 +1077,33 @@ allow the caller to decide how to handle it.
 <tr><td>
 
 ```go
-func foo(bar string) {
-  if len(bar) == 0 {
-    panic("bar must not be empty")
+func run(args []string) {
+  if len(args) == 0 {
+    panic("an argument is required")
   }
   // ...
 }
 
 func main() {
-  if len(os.Args) != 2 {
-    fmt.Println("USAGE: foo <bar>")
-    os.Exit(1)
-  }
-  foo(os.Args[1])
+  run(os.Args[1:])
 }
 ```
 
 </td><td>
 
 ```go
-func foo(bar string) error {
-  if len(bar) == 0 {
-    return errors.New("bar must not be empty")
+func run(args []string) error {
+  if len(args) == 0 {
+    return errors.New("an argument is required")
   }
   // ...
   return nil
 }
 
 func main() {
-  if len(os.Args) != 2 {
-    fmt.Println("USAGE: foo <bar>")
+  if err := run(os.Args[1:]); err != nil {
+    fmt.Fprintln(os.Stderr, err)
     os.Exit(1)
-  }
-  if err := foo(os.Args[1]); err != nil {
-    panic(err)
   }
 }
 ```
