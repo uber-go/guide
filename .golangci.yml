@@ -15,49 +15,20 @@ output:
 
 linters:
   enable:
-    - deadcode
-    - dogsled
     - errcheck
-    - exhaustive
-    - goconst
-    - gocyclo
     - goimports
     - golint
-    - gosimple
     - govet
-    - ineffassign
-    - lll
-    - misspell
     - staticcheck
-    - structcheck
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - varcheck
 
 linters-settings:
-  dogsled:
-    max-blank-identifiers: 2
   errcheck:
     check-type-assertions: true
     check-blank: true
-  exhaustive:
-    default-signifies-exhaustive: false
-  gocyclo:
-    min-complexity: 10
   govet:
     check-shadowing: true
-  lll:
-    line-length: 100
-  misspell:
-    locale: US
 
 issues:
-  exclude-rules:
-    - linters:
-        - lll
-      source: "^//go:generate "
   exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
