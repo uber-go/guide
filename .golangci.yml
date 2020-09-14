@@ -3,15 +3,7 @@
 
 run:
   timeout: 5m
-  issues-exit-code: 1
-  tests: true
-  skip-dirs-use-default: true
   modules-download-mode: readonly
-
-output:
-  format: colored-line-number
-  print-issued-lines: true
-  print-linter-name: true
 
 linters:
   enable:
@@ -25,5 +17,3 @@ issues:
   exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
-  new: false
-  new-from-rev: HEAD~
