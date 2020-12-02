@@ -1321,7 +1321,7 @@ func (l *AbstractList) Remove(e Entity) {
 ```go
 // ConcreteList is a list of entities.
 type ConcreteList struct {
-  AbstractList
+  *AbstractList
 }
 ```
 
@@ -1330,7 +1330,7 @@ type ConcreteList struct {
 ```go
 // ConcreteList is a list of entities.
 type ConcreteList struct {
-  list AbstractList
+  list *AbstractList
 }
 
 // Add adds an entity to the list.
