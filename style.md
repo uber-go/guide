@@ -1335,12 +1335,12 @@ type ConcreteList struct {
 
 // Add adds an entity to the list.
 func (l *ConcreteList) Add(e Entity) {
-  return l.list.Add(e)
+  l.list.Add(e)
 }
 
 // Remove removes an entity from the list.
 func (l *ConcreteList) Remove(e Entity) {
-  return l.list.Remove(e)
+  l.list.Remove(e)
 }
 ```
 
@@ -1390,17 +1390,17 @@ type ConcreteList struct {
 ```go
 // ConcreteList is a list of entities.
 type ConcreteList struct {
-  list *AbstractList
+  list AbstractList
 }
 
 // Add adds an entity to the list.
 func (l *ConcreteList) Add(e Entity) {
-  return l.list.Add(e)
+  l.list.Add(e)
 }
 
 // Remove removes an entity from the list.
 func (l *ConcreteList) Remove(e Entity) {
-  return l.list.Remove(e)
+  l.list.Remove(e)
 }
 ```
 
