@@ -3246,6 +3246,98 @@ impossible. Further, it lets options implement other interfaces, including
 `fmt.Stringer` which allows for user-readable string representations of the
 options.
 
+In other way, we make a little different, change the argument to it-self. It
+will runs recursively. The advantage is you can use it in export way between
+different packages without fixed argument.
+
+```go
+// option.go
+type Option interface {
+  Apply(Option) Option
+}
+
+// options is the internal struct which implements Option.
+type options struct {
+  username string
+  password string
+
+  f func(*options)
+}
+
+
+func (opts *options) Apply(opt Option) Option {
+  opts.f(opt.(*options))
+  return opt
+}
+
+//
+// Help functions
+//
+
+// Username returns an Option which provides a username.
+func Username(username string) Option {
+  return &options{
+    f: func(o *options) {
+      o.username = username
+    },
+  }
+}
+
+// Password returns an Option which provides a password.
+func Password(password string) Option {
+  return &options{
+    f: func(o *options) {
+        o.password = password
+    },
+  }
+}
+
+// sender.go
+type Sender interface {
+  // Send sends message which is the main processor
+  // requires io.Reader include message body and
+  // several args which implements Option.
+  Send(io.Reader, ...Option) error
+}
+
+// Srv implements Sender.
+type Srv struct {
+  opts options
+}
+
+// Send sends message.
+func (s *Srv) Send(message io.Reader, opt ...Option) (err error) {
+  opts := new(options)
+  *opts = *s.opts
+
+  var roll Option
+  roll = opts
+  for _, o := range opt {
+    roll = o.Apply(roll)
+  }
+  
+  // sending message ...
+  return
+}
+
+// NewSender returns Sender.
+func NewSender(addr string, opt ...Option) Sender {
+  opts := new(options)
+  
+  var roll Option
+  roll = opts
+  for _, o := range opt {
+    roll = o.Apply(roll)
+  }
+
+  return &Srv{
+    opts: opts,
+  }
+}
+```
+
+There is a project implements on this way. Please take a look at [firewheel](https://github.com/LiangXianSen/firewheel)
+
 See also,
 
 - [Self-referential functions and the design of options]
