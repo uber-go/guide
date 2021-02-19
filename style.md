@@ -725,7 +725,7 @@ use [`Time.Add`].
   [`Time.Add`]: https://golang.org/pkg/time/#Time.Add
 
 ```go
-newDay := t.AddDate(0 /* years */, 0, /* months */, 1 /* days */)
+newDay := t.AddDate(0 /* years */, 0 /* months */, 1 /* days */)
 maybeNewDay := t.Add(24 * time.Hour)
 ```
 
