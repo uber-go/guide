@@ -98,7 +98,7 @@ row before the </tbody></table> line.
   - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
   - [Initializing Structs](#initializing-structs)
       - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
-  - [Initializing Struct References](#initializing-struct-references)
+      - [Initializing Struct References](#initializing-struct-references)
   - [Initializing Maps](#initializing-maps)
   - [Format Strings outside Printf](#format-strings-outside-printf)
   - [Naming Printf-style Functions](#naming-printf-style-functions)
@@ -2837,7 +2837,7 @@ tests := []struct{
 }
 ```
 
-### Initializing Struct References
+#### Initializing Struct References
 
 Use `&T{}` instead of `new(T)` when initializing struct references so that it
 is consistent with the struct initialization.
