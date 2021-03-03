@@ -91,13 +91,13 @@ row before the </tbody></table> line.
   - [Top-level Variable Declarations](#top-level-variable-declarations)
   - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
   - [Embedding in Structs](#embedding-in-structs)
-  - [Initializing Structs](#initializing-structs)
-      - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
   - [Local Variable Declarations](#local-variable-declarations)
   - [nil is a valid slice](#nil-is-a-valid-slice)
   - [Reduce Scope of Variables](#reduce-scope-of-variables)
   - [Avoid Naked Parameters](#avoid-naked-parameters)
   - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
+  - [Initializing Structs](#initializing-structs)
+      - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
   - [Initializing Struct References](#initializing-struct-references)
   - [Initializing Maps](#initializing-maps)
   - [Format Strings outside Printf](#format-strings-outside-printf)
@@ -2494,50 +2494,6 @@ type Client struct {
 </td></tr>
 </tbody></table>
 
-### Initializing Structs
-
-#### Use Field Names to Initialize Structs
-
-You should almost always specify field names when initializing structs. This is
-now enforced by [`go vet`].
-
-  [`go vet`]: https://golang.org/cmd/vet/
-
-<table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
-<tbody>
-<tr><td>
-
-```go
-k := User{"John", "Doe", true}
-```
-
-</td><td>
-
-```go
-k := User{
-    FirstName: "John",
-    LastName: "Doe",
-    Admin: true,
-}
-```
-
-</td></tr>
-</tbody></table>
-
-Exception: Field names *may* be omitted in test tables when there are 3 or
-fewer fields.
-
-```go
-tests := []struct{
-  op Operation
-  want string
-}{
-  {Add, "add"},
-  {Subtract, "subtract"},
-}
-```
-
 ### Local Variable Declarations
 
 Short variable declarations (`:=`) should be used if a variable is being set to
@@ -2836,6 +2792,50 @@ wantError := `unknown error:"test"`
 
 </td></tr>
 </tbody></table>
+
+### Initializing Structs
+
+#### Use Field Names to Initialize Structs
+
+You should almost always specify field names when initializing structs. This is
+now enforced by [`go vet`].
+
+  [`go vet`]: https://golang.org/cmd/vet/
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+k := User{"John", "Doe", true}
+```
+
+</td><td>
+
+```go
+k := User{
+    FirstName: "John",
+    LastName: "Doe",
+    Admin: true,
+}
+```
+
+</td></tr>
+</tbody></table>
+
+Exception: Field names *may* be omitted in test tables when there are 3 or
+fewer fields.
+
+```go
+tests := []struct{
+  op Operation
+  want string
+}{
+  {Add, "add"},
+  {Subtract, "subtract"},
+}
+```
 
 ### Initializing Struct References
 
