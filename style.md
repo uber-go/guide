@@ -99,6 +99,7 @@ row before the </tbody></table> line.
   - [Initializing Structs](#initializing-structs)
       - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
       - [Omit Zero Value Fields in Structs](#omit-zero-value-fields-in-structs)
+      - [Use `var` for Zero Value Structs](#use-var-for-zero-value-structs)
       - [Initializing Struct References](#initializing-struct-references)
   - [Initializing Maps](#initializing-maps)
   - [Format Strings outside Printf](#format-strings-outside-printf)
@@ -2885,6 +2886,35 @@ tests := []struct{
   // ...
 }
 ```
+
+#### Use `var` for Zero Value Structs
+
+When all the fields of a struct are omitted in a declaration, use the `var`
+form to declare the struct.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+user := User{}
+```
+
+</td><td>
+
+```go
+var user User
+```
+
+</td></tr>
+</tbody></table>
+
+This differentiates zero valued structs from those with non-zero fields
+similar to the distinction created for [map initialization], and matches how
+we prefer to [declare empty slices][Declaring Empty Slices].
+
+  [map initialization]: #initializing-maps
 
 #### Initializing Struct References
 
