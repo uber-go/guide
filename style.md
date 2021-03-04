@@ -73,6 +73,7 @@ row before the </tbody></table> line.
   - [Avoid Using Built-In Names](#avoid-using-built-in-names)
   - [Avoid `init()`](#avoid-init)
   - [Exit in Main](#exit-in-main)
+    - [Exit Once](#exit-once)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
@@ -1713,6 +1714,84 @@ Rationale: Programs with multiple functions that exit present a few issues:
 - Skipped cleanup: When a function exits the program, it skips function calls
   enqueued with `defer` statements. This adds risk of skipping important
   cleanup tasks.
+
+#### Exit Once
+
+If possible, prefer to call `os.Exit` or `log.Fatal` **at most once** in your
+`main()`. If there are multiple error scenarios that halt program execution,
+put that logic under a separate function and return errors from it.
+
+This has th effect of shortening your `main()` function and putting all key
+business logic into a separate, testable function.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+package main
+
+func main() {
+  args := os.Args[1:]
+  if len(args) != 1 {
+    log.Fatal("missing file")
+  }
+  name := args[0]
+
+  f, err := os.Open(name)
+  if err != nil {
+    log.Fatal(err)
+  }
+  defer f.Close()
+
+  // If we call log.Fatal after this line,
+  // f.Close will not be called.
+
+  b, err := ioutil.ReadAll(f)
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  // ...
+}
+```
+
+</td><td>
+
+```go
+package main
+
+func main() {
+  if err := run(); err != nil {
+    log.Fatal(err)
+  }
+}
+
+func run() error {
+  args := os.Args[1:]
+  if len(args) != 1 {
+    return errors.New("missing file")
+  }
+  name := args[0]
+
+  f, err := os.Open(name)
+  if err != nil {
+    return err
+  }
+  defer f.Close()
+
+  b, err := ioutil.ReadAll(f)
+  if err != nil {
+    return err
+  }
+
+  // ...
+}
+```
+
+</td></tr>
+</tbody></table>
 
 ## Performance
 

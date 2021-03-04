@@ -1,6 +1,6 @@
 # 2021-04-19
 
-- Programs should exit only in `main()`.
+- Programs should exit only in `main()`, preferably at most once.
 
 # 2021-03-15
 
