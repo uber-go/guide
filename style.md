@@ -129,7 +129,7 @@ of these are general guidelines for Go, while others extend upon external
 resources:
 
 1. [Effective Go](https://golang.org/doc/effective_go.html)
-2. [The Go common mistakes guide](https://github.com/golang/go/wiki/CodeReviewComments)
+2. [The Go common mistakes guide](https://github.com/golang/go/wiki/CommonMistakes)
 
 All code should be error-free when run through `golint` and `go vet`. We
 recommend setting up your editor to:
