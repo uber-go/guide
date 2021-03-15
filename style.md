@@ -869,7 +869,7 @@ func Open() error {
 // package bar
 
 if err := foo.Open(); err != nil {
-  if err == foo.ErrCouldNotOpen {
+  if errors.Is(err, foo.ErrCouldNotOpen) {
     // handle
   } else {
     panic("unknown error")
