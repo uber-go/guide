@@ -1,4 +1,4 @@
-# 2021-03-04
+# 2021-03-15
 
 - Add guidance on omitting zero-value fields during struct initialization.
 - Add guidance on `Foo{}` versus `var` form for initialization of empty
