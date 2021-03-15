@@ -91,13 +91,16 @@ row before the </tbody></table> line.
   - [Top-level Variable Declarations](#top-level-variable-declarations)
   - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
   - [Embedding in Structs](#embedding-in-structs)
-  - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
   - [Local Variable Declarations](#local-variable-declarations)
   - [nil is a valid slice](#nil-is-a-valid-slice)
   - [Reduce Scope of Variables](#reduce-scope-of-variables)
   - [Avoid Naked Parameters](#avoid-naked-parameters)
   - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
-  - [Initializing Struct References](#initializing-struct-references)
+  - [Initializing Structs](#initializing-structs)
+      - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
+      - [Omit Zero Value Fields in Structs](#omit-zero-value-fields-in-structs)
+      - [Use `var` for Zero Value Structs](#use-var-for-zero-value-structs)
+      - [Initializing Struct References](#initializing-struct-references)
   - [Initializing Maps](#initializing-maps)
   - [Format Strings outside Printf](#format-strings-outside-printf)
   - [Naming Printf-style Functions](#naming-printf-style-functions)
@@ -2494,48 +2497,6 @@ type Client struct {
 </td></tr>
 </tbody></table>
 
-### Use Field Names to Initialize Structs
-
-You should almost always specify field names when initializing structs. This is
-now enforced by [`go vet`].
-
-  [`go vet`]: https://golang.org/cmd/vet/
-
-<table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
-<tbody>
-<tr><td>
-
-```go
-k := User{"John", "Doe", true}
-```
-
-</td><td>
-
-```go
-k := User{
-    FirstName: "John",
-    LastName: "Doe",
-    Admin: true,
-}
-```
-
-</td></tr>
-</tbody></table>
-
-Exception: Field names *may* be omitted in test tables when there are 3 or
-fewer fields.
-
-```go
-tests := []struct{
-  op Operation
-  want string
-}{
-  {Add, "add"},
-  {Subtract, "subtract"},
-}
-```
-
 ### Local Variable Declarations
 
 Short variable declarations (`:=`) should be used if a variable is being set to
@@ -2835,7 +2796,129 @@ wantError := `unknown error:"test"`
 </td></tr>
 </tbody></table>
 
-### Initializing Struct References
+### Initializing Structs
+
+#### Use Field Names to Initialize Structs
+
+You should almost always specify field names when initializing structs. This is
+now enforced by [`go vet`].
+
+  [`go vet`]: https://golang.org/cmd/vet/
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+k := User{"John", "Doe", true}
+```
+
+</td><td>
+
+```go
+k := User{
+    FirstName: "John",
+    LastName: "Doe",
+    Admin: true,
+}
+```
+
+</td></tr>
+</tbody></table>
+
+Exception: Field names *may* be omitted in test tables when there are 3 or
+fewer fields.
+
+```go
+tests := []struct{
+  op Operation
+  want string
+}{
+  {Add, "add"},
+  {Subtract, "subtract"},
+}
+```
+
+#### Omit Zero Value Fields in Structs
+
+When initializing structs with field names, omit fields that have zero values
+unless they provide meaningful context. Otherwise, let Go set these to zero
+values automatically.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+user := User{
+  FirstName: "John",
+  LastName: "Doe",
+  MiddleName: "",
+  Admin: false,
+}
+```
+
+</td><td>
+
+```go
+user := User{
+  FirstName: "John",
+  LastName: "Doe",
+}
+```
+
+</td></tr>
+</tbody></table>
+
+This helps reduce noise for readers by omitting values that are default in
+that context. Only meaningful values are specified.
+
+Include zero values where field names provide meaningful context. For example,
+test cases in [Test Tables](#test-tables) can benefit from names of fields
+even when they are zero-valued.
+
+```go
+tests := []struct{
+  give string
+  want int
+}{
+  {give: "0", want: 0},
+  // ...
+}
+```
+
+#### Use `var` for Zero Value Structs
+
+When all the fields of a struct are omitted in a declaration, use the `var`
+form to declare the struct.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+user := User{}
+```
+
+</td><td>
+
+```go
+var user User
+```
+
+</td></tr>
+</tbody></table>
+
+This differentiates zero valued structs from those with non-zero fields
+similar to the distinction created for [map initialization], and matches how
+we prefer to [declare empty slices][Declaring Empty Slices].
+
+  [map initialization]: #initializing-maps
+
+#### Initializing Struct References
 
 Use `&T{}` instead of `new(T)` when initializing struct references so that it
 is consistent with the struct initialization.

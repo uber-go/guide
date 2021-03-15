@@ -1,3 +1,11 @@
+# 2021-03-15
+
+- Add guidance on omitting zero-value fields during struct initialization.
+- Add guidance on `Foo{}` versus `var` form for initialization of empty
+  structs.
+- Add new section for Initializing Structs, moving relevant guidances into
+  subsections of it.
+
 # 2020-06-10
 
 - Add guidance on avoiding `init()`.
