@@ -1000,7 +1000,7 @@ percolates up through the stack:
 s, err := store.New()
 if err != nil {
     return fmt.Errorf(
-        "failed to create new store: %s", err)
+        "failed to create new store: %v", err)
 }
 ```
 
@@ -1010,7 +1010,7 @@ if err != nil {
 s, err := store.New()
 if err != nil {
     return fmt.Errorf(
-        "new store: %s", err)
+        "new store: %v", err)
 }
 ```
 
