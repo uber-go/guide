@@ -1948,7 +1948,7 @@ const (
   Add Operation = iota + 1
   Subtract
   Multiply
-  ENV_VAR = "MY_ENV"
+  EnvVar = "MY_ENV"
 )
 ```
 
@@ -1963,7 +1963,7 @@ const (
   Multiply
 )
 
-const ENV_VAR = "MY_ENV"
+const EnvVar = "MY_ENV"
 ```
 
 </td></tr>
