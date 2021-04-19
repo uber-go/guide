@@ -72,6 +72,8 @@ row before the </tbody></table> line.
   - [Avoid Embedding Types in Public Structs](#avoid-embedding-types-in-public-structs)
   - [Avoid Using Built-In Names](#avoid-using-built-in-names)
   - [Avoid `init()`](#avoid-init)
+  - [Exit in Main](#exit-in-main)
+    - [Exit Once](#exit-once)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
@@ -1635,6 +1637,161 @@ necessary might include:
   precomputation.
 
   [Google Cloud Functions]: https://cloud.google.com/functions/docs/bestpractices/tips#use_global_variables_to_reuse_objects_in_future_invocations
+
+### Exit in Main
+
+Go programs use [`os.Exit`] or [`log.Fatal*`] to exit immediately. (Panicking
+is not a good way to exit programs, please [don't panic](#dont-panic).)
+
+  [`os.Exit`]: https://golang.org/pkg/os/#Exit
+  [`log.Fatal*`]: https://golang.org/pkg/log/#Fatal
+
+Call one of `os.Exit` or `log.Fatal*` **only in `main()`**. All other
+functions should return errors to signal failure.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+func main() {
+  body := readFile(path)
+  fmt.Println(body)
+}
+
+func readFile(path string) string {
+  f, err := os.Open(path)
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  b, err := ioutil.ReadAll(f)
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  return string(b)
+}
+```
+
+</td><td>
+
+```go
+func main() {
+  body, err := readFile(path)
+  if err != nil {
+    log.Fatal(err)
+  }
+  fmt.Println(body)
+}
+
+func readFile(path string) (string, error) {
+  f, err := os.Open(path)
+  if err != nil {
+    return "", err
+  }
+
+  b, err := ioutil.ReadAll(f)
+  if err != nil {
+    return "", err
+  }
+
+  return string(b), nil
+}
+```
+
+</td></tr>
+</tbody></table>
+
+Rationale: Programs with multiple functions that exit present a few issues:
+
+- Non-obvious control flow: Any function can exit the program so it becomes
+  difficult to reason about the control flow.
+- Difficult to test: A function that exits the program will also exit the test
+  calling it. This makes the function difficult to test and introduces risk of
+  skipping other tests that have not yet been run by `go test`.
+- Skipped cleanup: When a function exits the program, it skips function calls
+  enqueued with `defer` statements. This adds risk of skipping important
+  cleanup tasks.
+
+#### Exit Once
+
+If possible, prefer to call `os.Exit` or `log.Fatal` **at most once** in your
+`main()`. If there are multiple error scenarios that halt program execution,
+put that logic under a separate function and return errors from it.
+
+This has th effect of shortening your `main()` function and putting all key
+business logic into a separate, testable function.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+package main
+
+func main() {
+  args := os.Args[1:]
+  if len(args) != 1 {
+    log.Fatal("missing file")
+  }
+  name := args[0]
+
+  f, err := os.Open(name)
+  if err != nil {
+    log.Fatal(err)
+  }
+  defer f.Close()
+
+  // If we call log.Fatal after this line,
+  // f.Close will not be called.
+
+  b, err := ioutil.ReadAll(f)
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  // ...
+}
+```
+
+</td><td>
+
+```go
+package main
+
+func main() {
+  if err := run(); err != nil {
+    log.Fatal(err)
+  }
+}
+
+func run() error {
+  args := os.Args[1:]
+  if len(args) != 1 {
+    return errors.New("missing file")
+  }
+  name := args[0]
+
+  f, err := os.Open(name)
+  if err != nil {
+    return err
+  }
+  defer f.Close()
+
+  b, err := ioutil.ReadAll(f)
+  if err != nil {
+    return err
+  }
+
+  // ...
+}
+```
+
+</td></tr>
+</tbody></table>
 
 ## Performance
 
