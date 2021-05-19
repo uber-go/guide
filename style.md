@@ -1721,7 +1721,7 @@ If possible, prefer to call `os.Exit` or `log.Fatal` **at most once** in your
 `main()`. If there are multiple error scenarios that halt program execution,
 put that logic under a separate function and return errors from it.
 
-This has th effect of shortening your `main()` function and putting all key
+This has the effect of shortening your `main()` function and putting all key
 business logic into a separate, testable function.
 
 <table>
