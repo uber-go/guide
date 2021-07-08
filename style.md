@@ -332,29 +332,28 @@ mu.Lock()
 </td></tr>
 </tbody></table>
 
-If you use a struct by pointer, then the mutex can be a non-pointer field.
-
-Unexported structs that use a mutex to protect fields of the struct may embed
-the mutex.
+If you use a struct by pointer, then the mutex should be a non-pointer field on
+it. Do not embed the mutex on the struct, even if the struct is not exported.
 
 <table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
 <tbody>
 <tr><td>
 
 ```go
-type smap struct {
-  sync.Mutex // only for unexported types
+type SMap struct {
+  sync.Mutex
 
   data map[string]string
 }
 
-func newSMap() *smap {
-  return &smap{
+func NewSMap() *SMap {
+  return &SMap{
     data: make(map[string]string),
   }
 }
 
-func (m *smap) Get(k string) string {
+func (m *SMap) Get(k string) string {
   m.Lock()
   defer m.Unlock()
 
@@ -387,12 +386,17 @@ func (m *SMap) Get(k string) string {
 
 </td></tr>
 
-</tr>
-<tr>
-<td>Embed for private types or types that need to implement the Mutex interface.</td>
-<td>For exported types, use a private field.</td>
-</tr>
+<tr><td>
 
+The `Mutex` field, and the `Lock` and `Unlock` methods are unintentionally part
+of the exported API of `SMap`.
+
+</td><td>
+
+The mutex and its methods are implementation details of `SMap` hidden from its
+callers.
+
+</td></tr>
 </tbody></table>
 
 ### Copy Slices and Maps at Boundaries
