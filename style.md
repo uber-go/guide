@@ -81,6 +81,7 @@ row before the </tbody></table> line.
       - [Specifying Map Capacity Hints](#specifying-map-capacity-hints)
       - [Specifying Slice Capacity](#specifying-slice-capacity)
 - [Style](#style)
+  - [Avoid overly long lines](#avoid-overly-long-lines)
   - [Be Consistent](#be-consistent)
   - [Group Similar Declarations](#group-similar-declarations)
   - [Import Group Ordering](#import-group-ordering)
@@ -2003,6 +2004,16 @@ BenchmarkGood-4   100000000    0.21s
 </tbody></table>
 
 ## Style
+
+### Avoid overly long lines
+
+Avoid lines of code that require readers to scroll horizontally
+or turn their heads too much.
+
+We recommend a soft line length limit of **99 characters**.
+Authors should aim to wrap lines before hitting this limit,
+but it is not a hard limit.
+Code is allowed to exceed this limit.
 
 ### Be Consistent
 

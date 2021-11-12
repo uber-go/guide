@@ -1,3 +1,7 @@
+# 2021-11-12
+
+- Add soft line length limit of 99 characters.
+
 # 2021-04-19
 
 - Programs should exit only in `main()`, preferably at most once.
