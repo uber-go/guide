@@ -956,15 +956,15 @@ There are three main options for propagating errors if a call fails:
 
 - Return the original error if there is no additional context to add and you
   want to maintain the original error type.
-- Add context using [`"pkg/errors".Wrap`] so that the error message provides
-  more context and [`"pkg/errors".Cause`] can be used to extract the original
-  error.
-- Use [`fmt.Errorf`] if the callers do not need to detect or handle that
-  specific error case.
+- Add context using `fmt.Errorf` with a `%w` verb if you want callers to
+  be able to match against or extract the original error.
+  If you do this, note that this is now part of your public API.
+- Add context with `fmt.Errorf` with a `%v` verb if callers should not match
+  that error separately.
 
-It is recommended to add context where possible so that instead of a vague
-error such as "connection refused", you get more useful errors such as
-"call service foo: connection refused".
+We recommend adding context where possible so that
+instead of a vague error such as "connection refused",
+you get more useful errors such as "call service foo: connection refused".
 
 When adding context to returned errors, keep the context succinct by avoiding
 phrases like "failed to", which state the obvious and pile up as the error
@@ -979,7 +979,7 @@ percolates up through the stack:
 s, err := store.New()
 if err != nil {
     return fmt.Errorf(
-        "failed to create new store: %v", err)
+        "failed to create new store: %w", err)
 }
 ```
 
@@ -989,7 +989,7 @@ if err != nil {
 s, err := store.New()
 if err != nil {
     return fmt.Errorf(
-        "new store: %v", err)
+        "new store: %w", err)
 }
 ```
 
