@@ -813,29 +813,37 @@ seconds that may have occurred between those two instants.
 
 ### Error Types
 
-There are various options for declaring errors:
 
-- [`errors.New`] for errors with simple static strings
-- [`fmt.Errorf`] for formatted error strings
-- Custom types that implement an `Error()` method
-- Wrapped errors using [`"pkg/errors".Wrap`]
+There are few options for declaring errors.
+Consider the following before picking the option best suited for your use case.
 
-When returning errors, consider the following to determine the best choice:
+- Does the caller need to match the error so that they can handle it?
+  If yes, we must support the [`errors.Is`] and [`errors.As`] functions
+  by exporting an error variable or type.
+- Is the error message a static string,
+  or is it a dynamic string that requires contextual information?
+  For the former, we can use [`errors.New`], but for the latter we must
+  use [`fmt.Errorf`] or a custom error type.
+- Are we propagating a new error returned by a downstream function?
+  If so, see the [section on error wrapping](#error-wrapping).
 
-- Is this a simple error that needs no extra information? If so, [`errors.New`]
-  should suffice.
-- Do the clients need to detect and handle this error? If so, you should use a
-  custom type, and implement the `Error()` method.
-- Are you propagating an error returned by a downstream function? If so, check
-  the [section on error wrapping](#error-wrapping).
-- Otherwise, [`fmt.Errorf`] is okay.
+[`errors.Is`]: https://golang.org/pkg/errors/#Is
+[`errors.As`]: https://golang.org/pkg/errors/#As
 
-  [`errors.New`]: https://golang.org/pkg/errors/#New
-  [`fmt.Errorf`]: https://golang.org/pkg/fmt/#Errorf
-  [`"pkg/errors".Wrap`]: https://godoc.org/github.com/pkg/errors#Wrap
+| Error matching? | Error Message | Guidance                     |
+|-----------------|---------------|------------------------------|
+| No              | static        | [`errors.New`]               |
+| No              | dynamic       | [`fmt.Errorf`]               |
+| Yes             | static        | variable with [`errors.New`] |
+| Yes             | dynamic       | custom `error` type          |
 
-If the client needs to detect the error, and you have created a simple error
-using [`errors.New`], use a var for the error.
+[`errors.New`]: https://golang.org/pkg/errors/#New
+[`fmt.Errorf`]: https://golang.org/pkg/fmt/#Errorf
+
+For example,
+use [`errors.New`] for an error with a static string.
+Export this error as a variable to support matching it with `errors.Is`
+if the caller needs to match and handle this error.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -887,12 +895,12 @@ if err := foo.Open(); err != nil {
 </td></tr>
 </tbody></table>
 
-If you have an error that clients may need to detect, and you would like to add
-more information to it (e.g., it is not a static string), then you should use a
-custom type.
+For an error with a dynamic string,
+use [`fmt.Errorf`] if the caller does not need to match it,
+and a custom `error` if the caller does need to match it.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>No error matching</th><th>Error matching</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -903,11 +911,8 @@ func open(file string) error {
 
 func use() {
   if err := open("testfile.txt"); err != nil {
-    if strings.Contains(err.Error(), "not found") {
-      // handle
-    } else {
-      panic("unknown error")
-    }
+    // Can't handle the "not found" case.
+    panic("unknown error")
   }
 }
 ```
@@ -915,22 +920,23 @@ func use() {
 </td><td>
 
 ```go
-type errNotFound struct {
-  file string
+type NotFoundError struct {
+  File string
 }
 
-func (e errNotFound) Error() string {
-  return fmt.Sprintf("file %q not found", e.file)
+func (e NotFoundError) Error() string {
+  return fmt.Sprintf("file %q not found", e.File)
 }
 
 func open(file string) error {
-  return errNotFound{file: file}
+  return NotFoundError{File: file}
 }
 
 func use() {
   if err := open("testfile.txt"); err != nil {
-    if _, ok := err.(errNotFound); ok {
-      // handle
+    var notFound NotFoundError
+    if errors.As(err, &notFound) {
+      // handle NotFoundError
     } else {
       panic("unknown error")
     }
@@ -941,42 +947,8 @@ func use() {
 </td></tr>
 </tbody></table>
 
-Be careful with exporting custom error types directly since they become part of
-the public API of the package. It is preferable to expose matcher functions to
-check the error instead.
-
-```go
-// package foo
-
-type errNotFound struct {
-  file string
-}
-
-func (e errNotFound) Error() string {
-  return fmt.Sprintf("file %q not found", e.file)
-}
-
-func IsNotFoundError(err error) bool {
-  _, ok := err.(errNotFound)
-  return ok
-}
-
-func Open(file string) error {
-  return errNotFound{file: file}
-}
-
-// package bar
-
-if err := foo.Open("foo"); err != nil {
-  if foo.IsNotFoundError(err) {
-    // handle
-  } else {
-    panic("unknown error")
-  }
-}
-```
-
-<!-- TODO: Exposing the information to callers with accessor functions. -->
+Be careful with exporting error variables or types.
+These will become part of the public API of your package.
 
 ### Error Wrapping
 
