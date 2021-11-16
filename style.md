@@ -63,8 +63,9 @@ row before the </tbody></table> line.
   - [Channel Size is One or None](#channel-size-is-one-or-none)
   - [Start Enums at One](#start-enums-at-one)
   - [Use `"time"` to handle time](#use-time-to-handle-time)
-  - [Error Types](#error-types)
-  - [Error Wrapping](#error-wrapping)
+  - [Errors](#errors)
+    - [Error Types](#error-types)
+    - [Error Wrapping](#error-wrapping)
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
   - [Don't Panic](#dont-panic)
   - [Use go.uber.org/atomic](#use-gouberorgatomic)
@@ -811,8 +812,9 @@ seconds that may have occurred between those two instants.
 
 <!-- TODO: section on String methods for enums -->
 
-### Error Types
+### Errors
 
+#### Error Types
 
 There are few options for declaring errors.
 Consider the following before picking the option best suited for your use case.
@@ -950,7 +952,7 @@ func use() {
 Be careful with exporting error variables or types.
 These will become part of the public API of your package.
 
-### Error Wrapping
+#### Error Wrapping
 
 There are three main options for propagating errors if a call fails:
 
