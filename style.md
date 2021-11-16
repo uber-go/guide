@@ -66,6 +66,7 @@ row before the </tbody></table> line.
   - [Errors](#errors)
     - [Error Types](#error-types)
     - [Error Wrapping](#error-wrapping)
+    - [Error naming](#error-naming)
   - [Handle Type Assertion Failures](#handle-type-assertion-failures)
   - [Don't Panic](#dont-panic)
   - [Use go.uber.org/atomic](#use-gouberorgatomic)
@@ -1017,6 +1018,32 @@ See also [Don't just check errors, handle them gracefully].
 
   [`"pkg/errors".Cause`]: https://godoc.org/github.com/pkg/errors#Cause
   [Don't just check errors, handle them gracefully]: https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully
+
+#### Error naming
+
+For error values stored as global variables,
+use the prefix `Err` or `err` depending on whether they're exported.
+This guidance supersedes the [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_).
+
+```go
+var (
+  errNotFound = errors.New("not found")
+  ErrBrokenLink = errors.New("link is broken")
+  ErrCouldNotOpen = errors.New("could not open")
+)
+```
+
+For custom error types, use the suffix `Error` instead.
+
+```go
+type NotFoundError struct {
+  File string
+}
+
+func (e NotFoundError) Error() string {
+  return fmt.Sprintf("file %q not found", e.File)
+}
+```
 
 ### Handle Type Assertion Failures
 
@@ -2485,6 +2512,9 @@ const (
 
 </td></tr>
 </tbody></table>
+
+**Exception**: Unexported error values may use the prefix `err` without the underscore.
+See [Error naming](#error-naming).
 
 ### Embedding in Structs
 
