@@ -1,3 +1,8 @@
+# 2021-11-16
+
+- Add guidance on use of `%w` vs `%v` with `fmt.Errorf`, and where to use
+  `errors.New` or custom error types.
+
 # 2021-11-12
 
 - Add soft line length limit of 99 characters.
