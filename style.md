@@ -821,7 +821,7 @@ There are few options for declaring errors.
 Consider the following before picking the option best suited for your use case.
 
 - Does the caller need to match the error so that they can handle it?
-  If yes, we must support the [`errors.Is`] and [`errors.As`] functions
+  If yes, we must support the [`errors.Is`] or [`errors.As`] functions
   by declaring a top-level error variable or a custom type.
 - Is the error message a static string,
   or is it a dynamic string that requires contextual information?
