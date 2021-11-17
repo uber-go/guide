@@ -926,19 +926,19 @@ type NotFoundError struct {
   File string
 }
 
-func (e NotFoundError) Error() string {
+func (e *NotFoundError) Error() string {
   return fmt.Sprintf("file %q not found", e.File)
 }
 
 func Open(file string) error {
-  return NotFoundError{File: file}
+  return &NotFoundError{File: file}
 }
 
 
 // package bar
 
 if err := foo.Open("testfile.txt"); err != nil {
-  var notFound NotFoundError
+  var notFound *NotFoundError
   if errors.As(err, &notFound) {
     // handle the error
   } else {
@@ -1054,7 +1054,7 @@ type NotFoundError struct {
   File string
 }
 
-func (e NotFoundError) Error() string {
+func (e *NotFoundError) Error() string {
   return fmt.Sprintf("file %q not found", e.File)
 }
 
@@ -1067,7 +1067,7 @@ type resolveError struct {
   Path string
 }
 
-func (e resolveError) Error() string {
+func (e *resolveError) Error() string {
   return fmt.Sprintf("resolve %q", e.Path)
 }
 ```
