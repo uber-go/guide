@@ -821,7 +821,7 @@ There are few options for declaring errors.
 Consider the following before picking the option best suited for your use case.
 
 - Does the caller need to match the error so that they can handle it?
-  If yes, we must support the [`errors.Is`] and [`errors.As`] functions
+  If yes, we must support the [`errors.Is`] or [`errors.As`] functions
   by declaring a top-level error variable or a custom type.
 - Is the error message a static string,
   or is it a dynamic string that requires contextual information?
@@ -926,19 +926,19 @@ type NotFoundError struct {
   File string
 }
 
-func (e NotFoundError) Error() string {
+func (e *NotFoundError) Error() string {
   return fmt.Sprintf("file %q not found", e.File)
 }
 
 func Open(file string) error {
-  return NotFoundError{File: file}
+  return &NotFoundError{File: file}
 }
 
 
 // package bar
 
 if err := foo.Open("testfile.txt"); err != nil {
-  var notFound NotFoundError
+  var notFound *NotFoundError
   if errors.As(err, &notFound) {
     // handle the error
   } else {
@@ -957,17 +957,32 @@ they will become part of the public API of the package.
 
 There are three main options for propagating errors if a call fails:
 
-- Return the original error if there is no additional context to add and you
-  want to maintain the original error type.
-- Add context using `fmt.Errorf` with a `%w` verb if you want callers to
-  be able to match against or extract the original error.
-  If you do this, note that this is now part of your public API.
-- Add context with `fmt.Errorf` with a `%v` verb if callers should not match
-  that error separately.
+- return the original error as-is
+- add context with `fmt.Errorf` and the `%w` verb
+- add context with `fmt.Errorf` and the `%v` verb
 
-We recommend adding context where possible so that
-instead of a vague error such as "connection refused",
+Return the original error as-is if there is no additional context to add.
+This maintains the original error type and message.
+This is well suited for cases when the underlying error message
+has sufficient information to track down where it came from.
+
+Otherwise, add context to the error message where possible
+so that instead of a vague error such as "connection refused",
 you get more useful errors such as "call service foo: connection refused".
+
+Use `fmt.Errorf` to add context to your errors,
+picking between the `%w` or `%v` verbs
+based on whether the caller should be able to
+match and extract the underlying cause.
+
+- Use `%w` if the caller should have access to the underlying error.
+  This is a good default for most wrapped errors,
+  but be aware that callers may begin to rely on this behavior.
+  So for cases where the wrapped error is a known `var` or type,
+  document and test it as part of your function's contract.
+- Use `%v` to obfuscate the underlying error.
+  Callers will be unable to match it,
+  but you can switch to `%w` in the future if needed.
 
 When adding context to returned errors, keep the context succinct by avoiding
 phrases like "failed to", which state the obvious and pile up as the error
@@ -1054,7 +1069,7 @@ type NotFoundError struct {
   File string
 }
 
-func (e NotFoundError) Error() string {
+func (e *NotFoundError) Error() string {
   return fmt.Sprintf("file %q not found", e.File)
 }
 
@@ -1067,7 +1082,7 @@ type resolveError struct {
   Path string
 }
 
-func (e resolveError) Error() string {
+func (e *resolveError) Error() string {
   return fmt.Sprintf("resolve %q", e.Path)
 }
 ```
