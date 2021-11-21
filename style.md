@@ -1011,7 +1011,7 @@ if err != nil {
 }
 ```
 
-<tr><td>
+</td></tr><tr><td>
 
 ```
 failed to x: failed to y: failed to create new store: the error
@@ -1561,6 +1561,7 @@ func (f Foo) String() string {
     return f.str
 }
 ```
+
 </td></tr>
 </tbody></table>
 
@@ -1910,7 +1911,7 @@ for i := 0; i < b.N; i++ {
 }
 ```
 
-</tr>
+</td></tr>
 <tr><td>
 
 ```
