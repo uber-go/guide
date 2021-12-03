@@ -509,8 +509,7 @@ snapshot := stats.Snapshot()
 
 ### Defer to Clean Up
 
-Use defer to clean up resources 
-files and locks.
+Use defer to clean up resources files and locks.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
