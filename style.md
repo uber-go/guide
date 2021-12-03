@@ -2561,7 +2561,7 @@ See [Error Naming](#error-naming).
 
 ### Embedding in Structs
 
-Embedded types (such as mutexes) should be at the top of the field list of a
+Embedded types should be at the top of the field list of a
 struct, and there must be an empty line separating embedded fields from regular
 fields.
 
@@ -2593,6 +2593,7 @@ type Client struct {
 Embedding should provide tangible benefit, like adding or augmenting
 functionality in a semantically-appropriate way. It should do this with zero
 adverse user-facing effects (see also: [Avoid Embedding Types in Public Structs]).
+Generally, mutexes should not be embedded unless they are an integral part of the embedding type's API.
 
   [Avoid Embedding Types in Public Structs]: #avoid-embedding-types-in-public-structs
 
