@@ -2195,11 +2195,11 @@ inside of functions.
 
 ```go
 func f() string {
-  var red = color.New(0xff0000)
-  var green = color.New(0x00ff00)
-  var blue = color.New(0x0000ff)
+  red := color.New(0xff0000)
+  green := color.New(0x00ff00)
+  blue := color.New(0x0000ff)
 
-  ...
+  // ...
 }
 ```
 
@@ -2213,7 +2213,45 @@ func f() string {
     blue  = color.New(0x0000ff)
   )
 
-  ...
+  // ...
+}
+```
+
+</td></tr>
+</tbody></table>
+
+Exception: Variable declarations, particularly inside functions, should be
+grouped together if declared adjacent to other variables. Do this for variables
+declared together even if they are unrelated.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+func (c *client) request() {
+  caller := c.name
+  format := "json"
+  timeout := 5*time.Second
+  var err error
+
+  // ...
+}
+```
+
+</td><td>
+
+```go
+func (c *client) request() {
+  var (
+    caller  = c.name
+    format  = "json"
+    timeout = 5*time.Second
+    err error
+  )
+  
+  // ...
 }
 ```
 
