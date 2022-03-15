@@ -2250,7 +2250,7 @@ func (c *client) request() {
     timeout = 5*time.Second
     err error
   )
-  
+
   // ...
 }
 ```
@@ -3440,6 +3440,32 @@ tests := []struct{
 
 for _, tt := range tests {
   // ...
+}
+```
+
+Parallel tests, like some specialized loops (e.g. where goroutines are created
+as part of the loop body), must take care to explicitly assign loop variables
+within the loop's scope to ensure that they hold the expected values:
+
+```go
+tests := []struct{
+  give string
+  // ...
+}{
+  // ...
+}
+
+for _, tt := range tests {
+  // We must use a table variable that is scoped to this loop iteration because
+  // we're using t.Parallel() below. If we don't ensure that loop variables have
+  // the correct scope for parallel tests, most or all tests will receive
+  // unexpected values for tt.
+  tt := tt
+
+  t.Run(tt.give, func(t *testing.T) {
+    t.Parallel()
+    // ...
+  })
 }
 ```
 
