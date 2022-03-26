@@ -48,105 +48,189 @@ row before the </tbody></table> line.
 
 -->
 
-# Методические рекомендации по написанию Go кода от Uber
+# Uber Go Style Guide
 
 ## Дисклеймер
-Для более полного и глубокого понимания рекомендуется читать параллельно с английской версией.
+Для более глубокого понимания рекомендуется читать параллельно с английской версией.
 
 ## Содержание
 
-- [Методические рекомендации по написанию Go кода от Uber](#%d0%9c%d0%b5%d1%82%d0%be%d0%b4%d0%b8%d1%87%d0%b5%d1%81%d0%ba%d0%b8%d0%b5-%d1%80%d0%b5%d0%ba%d0%be%d0%bc%d0%b5%d0%bd%d0%b4%d0%b0%d1%86%d0%b8%d0%b8-%d0%bf%d0%be-%d0%bd%d0%b0%d0%bf%d0%b8%d1%81%d0%b0%d0%bd%d0%b8%d1%8e-go-%d0%ba%d0%be%d0%b4%d0%b0-%d0%be%d1%82-uber)
-  - [Дисклеймер](#%d0%94%d0%b8%d1%81%d0%ba%d0%bb%d0%b5%d0%b9%d0%bc%d0%b5%d1%80)
-  - [Содержание](#%d0%a1%d0%be%d0%b4%d0%b5%d1%80%d0%b6%d0%b0%d0%bd%d0%b8%d0%b5)
-  - [Введение](#%d0%92%d0%b2%d0%b5%d0%b4%d0%b5%d0%bd%d0%b8%d0%b5)
-  - [Методические указания](#%d0%9c%d0%b5%d1%82%d0%be%d0%b4%d0%b8%d1%87%d0%b5%d1%81%d0%ba%d0%b8%d0%b5-%d1%83%d0%ba%d0%b0%d0%b7%d0%b0%d0%bd%d0%b8%d1%8f)
-    - [Указатели на интерфейсы](#%d0%a3%d0%ba%d0%b0%d0%b7%d0%b0%d1%82%d0%b5%d0%bb%d0%b8-%d0%bd%d0%b0-%d0%b8%d0%bd%d1%82%d0%b5%d1%80%d1%84%d0%b5%d0%b9%d1%81%d1%8b)
-    - [Получатели и интерфейсы](#%d0%9f%d0%be%d0%bb%d1%83%d1%87%d0%b0%d1%82%d0%b5%d0%bb%d0%b8-%d0%b8-%d0%b8%d0%bd%d1%82%d0%b5%d1%80%d1%84%d0%b5%d0%b9%d1%81%d1%8b)
-    - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
-    - [Копирование срезов и мапов на границах](#%d0%9a%d0%be%d0%bf%d0%b8%d1%80%d0%be%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d1%81%d1%80%d0%b5%d0%b7%d0%be%d0%b2-%d0%b8-%d0%bc%d0%b0%d0%bf%d0%be%d0%b2-%d0%bd%d0%b0-%d0%b3%d1%80%d0%b0%d0%bd%d0%b8%d1%86%d0%b0%d1%85)
-      - [Получение срезов и мапов](#%d0%9f%d0%be%d0%bb%d1%83%d1%87%d0%b5%d0%bd%d0%b8%d0%b5-%d1%81%d1%80%d0%b5%d0%b7%d0%be%d0%b2-%d0%b8-%d0%bc%d0%b0%d0%bf%d0%be%d0%b2)
-      - [Возврат слайсов или мап](#%d0%92%d0%be%d0%b7%d0%b2%d1%80%d0%b0%d1%82-%d1%81%d0%bb%d0%b0%d0%b9%d1%81%d0%be%d0%b2-%d0%b8%d0%bb%d0%b8-%d0%bc%d0%b0%d0%bf)
-    - [Используйте Defer для освобождения ресурсов](#%d0%98%d1%81%d0%bf%d0%be%d0%bb%d1%8c%d0%b7%d1%83%d0%b9%d1%82%d0%b5-defer-%d0%b4%d0%bb%d1%8f-%d0%be%d1%81%d0%b2%d0%be%d0%b1%d0%be%d0%b6%d0%b4%d0%b5%d0%bd%d0%b8%d1%8f-%d1%80%d0%b5%d1%81%d1%83%d1%80%d1%81%d0%be%d0%b2)
-    - [Channel Size is One or None](#channel-size-is-one-or-none)
-    - [Начинайте перечисления (Enums) с единицы](#%d0%9d%d0%b0%d1%87%d0%b8%d0%bd%d0%b0%d0%b9%d1%82%d0%b5-%d0%bf%d0%b5%d1%80%d0%b5%d1%87%d0%b8%d1%81%d0%bb%d0%b5%d0%bd%d0%b8%d1%8f-enums-%d1%81-%d0%b5%d0%b4%d0%b8%d0%bd%d0%b8%d1%86%d1%8b)
-    - [Типизация ошибок](#%d0%a2%d0%b8%d0%bf%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d1%8f-%d0%be%d1%88%d0%b8%d0%b1%d0%be%d0%ba)
+- [Предисловие](#Предисловие)
+- [Гайдлайны](#Гайдлайны)
+  - [Указатели на интерфейсы](#Указатели-на-интерфейсы)
+  - [Проверка соответствия интерфейса](#проверка-соответствия-интерфейса)
+  - [Получатели и Интерфейсы](#получатели-и-интерфейсы)
+  - [Мьютексы с нулевыми значениями допустимы](#мьютексы-с-нулевыми-значениями-допустимы)
+  - [Копирование слайсов и мап на границах](#копирование-слайсов-и-мап-на-границах)
+  - [Отложенный вызов функции для высвобождения ресурсов](#отложенный-вызов-функции-для-высвобождения-ресурсов)
+  - [Channel Size is One or None](#channel-size-is-one-or-none)
+  - [Start Enums at One](#start-enums-at-one)
+  - [Use `"time"` to handle time](#use-time-to-handle-time)
+  - [Errors](#errors)
+    - [Error Types](#error-types)
     - [Error Wrapping](#error-wrapping)
-    - [Handle Type Assertion Failures](#handle-type-assertion-failures)
-    - [Не паниковать](#%d0%9d%d0%b5-%d0%bf%d0%b0%d0%bd%d0%b8%d0%ba%d0%be%d0%b2%d0%b0%d1%82%d1%8c)
-    - [Use go.uber.org/atomic](#use-gouberorgatomic)
-  - [Производительность](#%d0%9f%d1%80%d0%be%d0%b8%d0%b7%d0%b2%d0%be%d0%b4%d0%b8%d1%82%d0%b5%d0%bb%d1%8c%d0%bd%d0%be%d1%81%d1%82%d1%8c)
-    - [Используйте strconv вместо fmt](#%d0%98%d1%81%d0%bf%d0%be%d0%bb%d1%8c%d0%b7%d1%83%d0%b9%d1%82%d0%b5-strconv-%d0%b2%d0%bc%d0%b5%d1%81%d1%82%d0%be-fmt)
-    - [Избегайте приведения string-to-byte](#%d0%98%d0%b7%d0%b1%d0%b5%d0%b3%d0%b0%d0%b9%d1%82%d0%b5-%d0%bf%d1%80%d0%b8%d0%b2%d0%b5%d0%b4%d0%b5%d0%bd%d0%b8%d1%8f-string-to-byte)
-    - [Старайтесь определять Capacity для мапов](#%d0%a1%d1%82%d0%b0%d1%80%d0%b0%d0%b9%d1%82%d0%b5%d1%81%d1%8c-%d0%be%d0%bf%d1%80%d0%b5%d0%b4%d0%b5%d0%bb%d1%8f%d1%82%d1%8c-capacity-%d0%b4%d0%bb%d1%8f-%d0%bc%d0%b0%d0%bf%d0%be%d0%b2)
-  - [Style](#style)
-    - [Be Consistent](#be-consistent)
-    - [Группируйте похожие объявления](#%d0%93%d1%80%d1%83%d0%bf%d0%bf%d0%b8%d1%80%d1%83%d0%b9%d1%82%d0%b5-%d0%bf%d0%be%d1%85%d0%be%d0%b6%d0%b8%d0%b5-%d0%be%d0%b1%d1%8a%d1%8f%d0%b2%d0%bb%d0%b5%d0%bd%d0%b8%d1%8f)
-    - [Порядок импорта пакетов](#%d0%9f%d0%be%d1%80%d1%8f%d0%b4%d0%be%d0%ba-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%b0-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
-    - [Названия пакетов](#%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d0%bf%d0%b0%d0%ba%d0%b5%d1%82%d0%be%d0%b2)
-    - [Названия функций](#%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9)
-    - [Псевдонимы импортов](#%d0%9f%d1%81%d0%b5%d0%b2%d0%b4%d0%be%d0%bd%d0%b8%d0%bc%d1%8b-%d0%b8%d0%bc%d0%bf%d0%be%d1%80%d1%82%d0%be%d0%b2)
-    - [Группировка и упорядочивание функций](#%d0%93%d1%80%d1%83%d0%bf%d0%bf%d0%b8%d1%80%d0%be%d0%b2%d0%ba%d0%b0-%d0%b8-%d1%83%d0%bf%d0%be%d1%80%d1%8f%d0%b4%d0%be%d1%87%d0%b8%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9)
-    - [Уменьшение вложенности](#%d0%a3%d0%bc%d0%b5%d0%bd%d1%8c%d1%88%d0%b5%d0%bd%d0%b8%d0%b5-%d0%b2%d0%bb%d0%be%d0%b6%d0%b5%d0%bd%d0%bd%d0%be%d1%81%d1%82%d0%b8)
-    - [Излишние Else](#%d0%98%d0%b7%d0%bb%d0%b8%d1%88%d0%bd%d0%b8%d0%b5-else)
-    - [Объявление верхнеуровневых переменных](#%d0%9e%d0%b1%d1%8a%d1%8f%d0%b2%d0%bb%d0%b5%d0%bd%d0%b8%d0%b5-%d0%b2%d0%b5%d1%80%d1%85%d0%bd%d0%b5%d1%83%d1%80%d0%be%d0%b2%d0%bd%d0%b5%d0%b2%d1%8b%d1%85-%d0%bf%d0%b5%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%bd%d1%8b%d1%85)
-    - [Используйте префикс _ для глобальных неэкспортируемых переменных](#%d0%98%d1%81%d0%bf%d0%be%d0%bb%d1%8c%d0%b7%d1%83%d0%b9%d1%82%d0%b5-%d0%bf%d1%80%d0%b5%d1%84%d0%b8%d0%ba%d1%81--%d0%b4%d0%bb%d1%8f-%d0%b3%d0%bb%d0%be%d0%b1%d0%b0%d0%bb%d1%8c%d0%bd%d1%8b%d1%85-%d0%bd%d0%b5%d1%8d%d0%ba%d1%81%d0%bf%d0%be%d1%80%d1%82%d0%b8%d1%80%d1%83%d0%b5%d0%bc%d1%8b%d1%85-%d0%bf%d0%b5%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%bd%d1%8b%d1%85)
-    - [Встраивание в структуры](#%d0%92%d1%81%d1%82%d1%80%d0%b0%d0%b8%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5-%d0%b2-%d1%81%d1%82%d1%80%d1%83%d0%ba%d1%82%d1%83%d1%80%d1%8b)
-    - [Используйте названия полей при инициализации структур](#%d0%98%d1%81%d0%bf%d0%be%d0%bb%d1%8c%d0%b7%d1%83%d0%b9%d1%82%d0%b5-%d0%bd%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d0%bf%d0%be%d0%bb%d0%b5%d0%b9-%d0%bf%d1%80%d0%b8-%d0%b8%d0%bd%d0%b8%d1%86%d0%b8%d0%b0%d0%bb%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d0%b8-%d1%81%d1%82%d1%80%d1%83%d0%ba%d1%82%d1%83%d1%80)
-    - [Определение локальных переменных](#%d0%9e%d0%bf%d1%80%d0%b5%d0%b4%d0%b5%d0%bb%d0%b5%d0%bd%d0%b8%d0%b5-%d0%bb%d0%be%d0%ba%d0%b0%d0%bb%d1%8c%d0%bd%d1%8b%d1%85-%d0%bf%d0%b5%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%bd%d1%8b%d1%85)
-    - [nil это полноценный срез](#nil-%d1%8d%d1%82%d0%be-%d0%bf%d0%be%d0%bb%d0%bd%d0%be%d1%86%d0%b5%d0%bd%d0%bd%d1%8b%d0%b9-%d1%81%d1%80%d0%b5%d0%b7)
-    - [Уменьшайте область видимости переменных](#%d0%a3%d0%bc%d0%b5%d0%bd%d1%8c%d1%88%d0%b0%d0%b9%d1%82%d0%b5-%d0%be%d0%b1%d0%bb%d0%b0%d1%81%d1%82%d1%8c-%d0%b2%d0%b8%d0%b4%d0%b8%d0%bc%d0%be%d1%81%d1%82%d0%b8-%d0%bf%d0%b5%d1%80%d0%b5%d0%bc%d0%b5%d0%bd%d0%bd%d1%8b%d1%85)
-    - [Избегайте прямых аргументов](#%d0%98%d0%b7%d0%b1%d0%b5%d0%b3%d0%b0%d0%b9%d1%82%d0%b5-%d0%bf%d1%80%d1%8f%d0%bc%d1%8b%d1%85-%d0%b0%d1%80%d0%b3%d1%83%d0%bc%d0%b5%d0%bd%d1%82%d0%be%d0%b2)
-    - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
-    - [Инициализация ссылок на структуры](#%d0%98%d0%bd%d0%b8%d1%86%d0%b8%d0%b0%d0%bb%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d1%8f-%d1%81%d1%81%d1%8b%d0%bb%d0%be%d0%ba-%d0%bd%d0%b0-%d1%81%d1%82%d1%80%d1%83%d0%ba%d1%82%d1%83%d1%80%d1%8b)
-    - [Инициализация мап](#%d0%98%d0%bd%d0%b8%d1%86%d0%b8%d0%b0%d0%bb%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d1%8f-%d0%bc%d0%b0%d0%bf)
-    - [Строки форматирования за Printf](#%d0%a1%d1%82%d1%80%d0%be%d0%ba%d0%b8-%d1%84%d0%be%d1%80%d0%bc%d0%b0%d1%82%d0%b8%d1%80%d0%be%d0%b2%d0%b0%d0%bd%d0%b8%d1%8f-%d0%b7%d0%b0-printf)
-    - [Naming Printf-style Functions](#naming-printf-style-functions)
-  - [Паттерны](#%d0%9f%d0%b0%d1%82%d1%82%d0%b5%d1%80%d0%bd%d1%8b)
-    - [Test Tables](#test-tables)
-    - [Параметры функций (Functional Options)](#%d0%9f%d0%b0%d1%80%d0%b0%d0%bc%d0%b5%d1%82%d1%80%d1%8b-%d1%84%d1%83%d0%bd%d0%ba%d1%86%d0%b8%d0%b9-functional-options)
+    - [Error Naming](#error-naming)
+  - [Handle Type Assertion Failures](#handle-type-assertion-failures)
+  - [Don't Panic](#dont-panic)
+  - [Use go.uber.org/atomic](#use-gouberorgatomic)
+  - [Avoid Mutable Globals](#avoid-mutable-globals)
+  - [Avoid Embedding Types in Public Structs](#avoid-embedding-types-in-public-structs)
+  - [Avoid Using Built-In Names](#avoid-using-built-in-names)
+  - [Avoid `init()`](#avoid-init)
+  - [Exit in Main](#exit-in-main)
+    - [Exit Once](#exit-once)
+- [Performance](#performance)
+  - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
+  - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
+  - [Prefer Specifying Container Capacity](#prefer-specifying-container-capacity)
+      - [Specifying Map Capacity Hints](#specifying-map-capacity-hints)
+      - [Specifying Slice Capacity](#specifying-slice-capacity)
+- [Style](#style)
+  - [Avoid overly long lines](#avoid-overly-long-lines)
+  - [Be Consistent](#be-consistent)
+  - [Group Similar Declarations](#group-similar-declarations)
+  - [Import Group Ordering](#import-group-ordering)
+  - [Package Names](#package-names)
+  - [Function Names](#function-names)
+  - [Import Aliasing](#import-aliasing)
+  - [Function Grouping and Ordering](#function-grouping-and-ordering)
+  - [Reduce Nesting](#reduce-nesting)
+  - [Unnecessary Else](#unnecessary-else)
+  - [Top-level Variable Declarations](#top-level-variable-declarations)
+  - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
+  - [Embedding in Structs](#embedding-in-structs)
+  - [Local Variable Declarations](#local-variable-declarations)
+  - [nil is a valid slice](#nil-is-a-valid-slice)
+  - [Reduce Scope of Variables](#reduce-scope-of-variables)
+  - [Avoid Naked Parameters](#avoid-naked-parameters)
+  - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
+  - [Initializing Structs](#initializing-structs)
+      - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
+      - [Omit Zero Value Fields in Structs](#omit-zero-value-fields-in-structs)
+      - [Use `var` for Zero Value Structs](#use-var-for-zero-value-structs)
+      - [Initializing Struct References](#initializing-struct-references)
+  - [Initializing Maps](#initializing-maps)
+  - [Format Strings outside Printf](#format-strings-outside-printf)
+  - [Naming Printf-style Functions](#naming-printf-style-functions)
+- [Patterns](#patterns)
+  - [Test Tables](#test-tables)
+  - [Functional Options](#functional-options)
+- [Linting](#linting)
 
-## Введение
+## Предисловие
 
-Стили - это соглашения, определяющие качество нашего кода. Термин стиль является не слишком полным, так как данное соглашение описывает гораздо больше, чем просто форматирование исходного кода программы, c которым и так прекрасно справляется gofmt.
+Стили - это соглашения, определяющие качество нашего кода. Термин стиль является не достаточно полным, так как данное соглашение описывает гораздо больше, чем просто форматирование исходного кода программы, c которым и так справляется `gofmt`.
 
-Целью данного руководства является упрощение понимания, того как как можно и нужно, а как нельзя писать код на Go в Uber. Эти правила необходимы для того, чтобы сохранить контроль над кодовой базой проекта и при этом позволить программистам эффективно использовать возможности языка Go.
+Целью данного руководства является упрощение понимания, того как можно и нужно, а как нельзя писать код на Go в Uber. Эти правила необходимы для того, чтобы сохранить контроль над качеством кодовой базой проекта и при этом позволить программистам эффективно использовать возможности языка.
 
-Данное руководство было создано [Прашантом Варанаси] и [Саймоном Ньютоном] как способ помочь коллегам начать использовать Go. С течением времени в него были внесены изменения на основе обратной связи от читателей.
+Данное руководство было создано [Prashant Varanasi] и [Simon Newton] чтобы помочь коллегам начать использовать Go. С течением времени в него были внесены изменения на основе обратной связи читателей.
 
-  [Прашант Варанаси]: https://github.com/prashantv
-  [Саймон Ньютон]: https://github.com/nomis52
+  [Prashant Varanasi]: https://github.com/prashantv
+  [Simon Newton]: https://github.com/nomis52
 
-Данный документ является соглашением, которому мы следуем в Uber. Многое из этого является общими рекомендациями для написания кода на Go, в то время как некоторые вещи были почерпнуты из внешних источников:
+Данный документ является соглашением, которому мы следуем в Uber. Многое из руководства является общими рекомендациями написания кода на Go, в то время как некоторые идеи были почерпнуты из внешних источников:
 
-1. [Эффективный Go](https://golang.org/doc/effective_go.html)
-2. [Руководство по распространенным ошибкам в Go](https://github.com/golang/go/wiki/CodeReviewComments)
+1. [Effective Go](https://golang.org/doc/effective_go.html)
+2. [Go Common Mistakes](https://github.com/golang/go/wiki/CommonMistakes)
+3. [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
 
 Код не должен содержать ошибок при запуске `golint` и `go vet`. Мы рекомендуем настроить ваш редактор на:
 
-- Запуск `goimports` во время сохранения
-- Запуск `golint` и `go vet` для проверки на ошибки
+- Автоматический запуск `goimports` во время сохранения
+- Автоматический запуск `golint` и `go vet` для проверки на ошибки
 
 Информацию по поддержке Go инструментов вашим редактором можно найти здесь:
 <https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins>
 
-## Методические указания
+## Гайдлайны
 
 ### Указатели на интерфейсы
-Вам практически никогда не понадобится указатель на интерфейс. Интерфейсы
-необходимо передавать по значению, в то время как данные интерфейсов могут
-содержать в себе указатель.
+Практически никогда нет необходимости использовать указатель на интерфейс. Интерфейсы необходимо передавать по значению, в то время как данные в интерфейсе могут содержать в себе указатель.
 
-Интерфейс содержит в себе два поля:
+Интерфейс состоит из:
 
-1. Указатель на type-specific информацию. Можете принять это поле как "тип".
+1. Указателя на специфичную для данного типа информацию. Можно думать об этом поле как о типе.
 2. Указатель на данные. Если поле содержит указатель, то он сохраняется напрямую. Если поле содержит значение, то сохраняется указатель на это значение.
 
-Если вы хотите, чтобы интерфейс мог изменять данные, то вам необходимо использовать
-указатель.
+При этом, если вы хотите, чтобы методы интерфейса могли модифицировать содержащиеся в нем значения, необходимо использовать указатель.
 
-### Получатели и интерфейсы
+### Проверка соответствия интерфейса
+
+Рекомендуется проверять соответствие интерфейса во время компиляции, в местах где это необходимо:
+
+- Экспортированные типы, необходимые для реализации определенных интерфейсов в рамках договоренностей API
+- 
+
+- Exported types that are required to implement specific interfaces as part of their API contract
+- Экспортированные или неэкспортированные типы, являющиеся частью коллекции типов, реализующих один и тот же интерфейс
+- Другие случаи, когда нарушение интерфейса может сбить с толку
+
+<table>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+type Handler struct {
+  // ...
+}
+
+
+
+func (h *Handler) ServeHTTP(
+  w http.ResponseWriter,
+  r *http.Request,
+) {
+  ...
+}
+```
+
+</td><td>
+
+```go
+type Handler struct {
+  // ...
+}
+
+var _ http.Handler = (*Handler)(nil)
+
+func (h *Handler) ServeHTTP(
+  w http.ResponseWriter,
+  r *http.Request,
+) {
+  // ...
+}
+```
+
+</td></tr>
+</tbody></table>
+
+Присовение `var _ http.Handler = (*Handler)(nil)` не скомпилируется если `*Handler` перестанет имплементировать интерфейс `http.Handler`.
+
+Правая часть присвоения должна быть нулевым значением типа, стоящего слева. Это `nil` для указателя (например `*Handler`), слайсов, мап, и пустых структур для структурных типов.
+
+```go
+type LogHandler struct {
+  h   http.Handler
+  log *zap.Logger
+}
+
+var _ http.Handler = LogHandler{}
+
+func (h LogHandler) ServeHTTP(
+  w http.ResponseWriter,
+  r *http.Request,
+) {
+  // ...
+}
+```
+
+### Получатели и Интерфейсы
 
 Методы с получателями по значению могут также вызываться указателями.
+Методы с получателями по указателю могут быть вызваны только указателями или [адресными значениями].
+
+[адресные значения]: https://golang.org/ref/spec#Method_values
 
 Например,
 
@@ -165,21 +249,20 @@ func (s *S) Write(str string) {
 
 sVals := map[int]S{1: {"A"}}
 
-// You can only call Read using a value
+// Можно вызвать только .Read()
 sVals[1].Read()
 
-// This will not compile:
-//  sVals[1].Write("test")
+// Не скомпилируется:
+// sVals[1].Write("test")
 
 sPtrs := map[int]*S{1: {"A"}}
 
-// You can call both Read and Write using a pointer
+// Использовав указатель можно вызвать .Read() и .Write()
 sPtrs[1].Read()
 sPtrs[1].Write("test")
 ```
 
-Аналогично, интерфейс может быть имплементирован указателем, даже если получатель
-метода передан по указателю.
+Аналогично интерфейс может быть имплементирован указателем, даже если получатель метода передан по значению.
 
 ```go
 type F interface {
@@ -204,21 +287,20 @@ i = s1Val
 i = s1Ptr
 i = s2Ptr
 
-// The following doesn't compile, since s2Val is a value, and there is no value receiver for f.
+// Данный код не скомпилируется, s2Val является значением, нет реализованного получателя по значению метода f.
 //   i = s2Val
 ```
 
-Effective Go has a good write up on [Pointers vs. Values].
+В Effective Go об этом написано более подробно [Pointers vs. Values].
 
-  [Pointers vs. Values]: https://golang.org/doc/effective_go.html#pointers_vs_values
+[Pointers vs. Values]: https://golang.org/doc/effective_go.html#pointers_vs_values
 
-### Zero-value Mutexes are Valid
+### Мьютексы с нулевыми значениями допустимы
 
-The zero-value of `sync.Mutex` and `sync.RWMutex` is valid, so you almost
-never need a pointer to a mutex.
+Нулевые значения `sync.Mutex` и `sync.RWMutex` допустимы, поэтому вам практически никогда не понадобится указатель на мьютекс.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -237,29 +319,29 @@ mu.Lock()
 </td></tr>
 </tbody></table>
 
-If you use a struct by pointer, then the mutex can be a non-pointer field.
+Если используется структура по указателю, мьютекс должен быть полем по значению.
 
-Unexported structs that use a mutex to protect fields of the struct may embed
-the mutex.
+Не используйте эмбеддинг (встраивание) мьютекса в структуре, даже если это неэкспортируемая структура.
 
 <table>
+<thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
 <tbody>
 <tr><td>
 
 ```go
-type smap struct {
-  sync.Mutex // only for unexported types
+type SMap struct {
+  sync.Mutex
 
   data map[string]string
 }
 
-func newSMap() *smap {
-  return &smap{
+func NewSMap() *SMap {
+  return &SMap{
     data: make(map[string]string),
   }
 }
 
-func (m *smap) Get(k string) string {
+func (m *SMap) Get(k string) string {
   m.Lock()
   defer m.Unlock()
 
@@ -292,23 +374,24 @@ func (m *SMap) Get(k string) string {
 
 </td></tr>
 
-</tr>
-<tr>
-<td>Embed for private types or types that need to implement the Mutex interface.</td>
-<td>For exported types, use a private field.</td>
-</tr>
+<tr><td>
 
+Поле `Mutex`, а также методы `Lock` и `Unlock` непреднамеренно становятся частью экспортируемого API структуры `SMap`.
+
+</td><td>
+
+Мьютекс и его методы в `SMap` спрятаны от внешнего вызова.
+
+</td></tr>
 </tbody></table>
 
-### Копирование срезов и мапов на границах
+### Копирование слайсов и мап на границах
 
-Срезы и мапы хранят указатели на содержащиеся в них данные, так что будьте
-осторожны в тех ситуациях, когда вам необходимо их копировать.
+Слайсы и мапы хранят указатели на содержащиеся в них данные, так что будьте осторожны в тех ситуациях, когда вам необходимо их копировать.
 
-#### Получение срезов и мапов
+#### Получение слайсов и мап
 
-Помните, что пользователи в дальнейшем могут изменить мапу или слайс, которую вы получили в качестве
-аргумента. Поэтому при сохранении мапы или слайса необходимо пользоваться `copy()`.
+Необходимо помнить, что значения мапы или слайса, переданной в качестве аргумента, могут быть изменены извне.
 
 <table>
 <thead><tr><th>Плохо</th> <th>Хорошо</th></tr></thead>
@@ -324,7 +407,7 @@ func (d *Driver) SetTrips(trips []Trip) {
 trips := ...
 d1.SetTrips(trips)
 
-// Did you mean to modify d1.trips?
+// Вы собираетесь поменять значение в d1.trips?
 trips[0] = ...
 ```
 
@@ -340,7 +423,7 @@ func (d *Driver) SetTrips(trips []Trip) {
 trips := ...
 d1.SetTrips(trips)
 
-// We can now modify trips[0] without affecting d1.trips.
+// Теперь мы можем поменять значение trips[0] без изменения значения d1.trips.
 trips[0] = ...
 ```
 
@@ -350,9 +433,9 @@ trips[0] = ...
 </tbody>
 </table>
 
-#### Возврат слайсов или мап
+#### Возвращение слайсов или мап
 
-Аналогично, имейте ввиду, что пользователи смогут изменить содержимое возвращаемой внутренней мапы или слайса.
+Аналогично, имейте ввиду, что пользователи смогут изменить содержимое возвращаемой мапы или слайса.
 
 <table>
 <thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
@@ -365,7 +448,7 @@ type Stats struct {
   counters map[string]int
 }
 
-// Snapshot returns the current stats.
+// Snapshot возвращает текущую статистику.
 func (s *Stats) Snapshot() map[string]int {
   s.mu.Lock()
   defer s.mu.Unlock()
@@ -373,8 +456,8 @@ func (s *Stats) Snapshot() map[string]int {
   return s.counters
 }
 
-// snapshot is no longer protected by the mutex, so any
-// access to the snapshot is subject to data races.
+// snapshot более не защищен мьютексом, любой может
+// получить доступ к snapshot, что приведет к гонке.
 snapshot := stats.Snapshot()
 ```
 
@@ -397,16 +480,16 @@ func (s *Stats) Snapshot() map[string]int {
   return result
 }
 
-// Snapshot is now a copy.
+// Теперь snapshot является копией.
 snapshot := stats.Snapshot()
 ```
 
 </td></tr>
 </tbody></table>
 
-### Используйте Defer для освобождения ресурсов
+### Отложенный вызов функции для высвобождения ресурсов
 
-Используйте defer для освобождения ресурсов, таких как файлы и блокировки.
+Используйте `defer` для высвобождения таких ресурсов как файлы или блокировки.
 
 <table>
 <thead><tr><th>Плохо</th><th>Хорошо</th></tr></thead>
@@ -426,7 +509,7 @@ p.Unlock()
 
 return newCount
 
-// легко потерять unlock'и из-за множественного return
+// легко потерять unlock из-за множественного return
 ```
 
 </td><td>
@@ -448,11 +531,7 @@ return p.count
 </td></tr>
 </tbody></table>
 
-Defer has an extremely small overhead and should be avoided only if you can
-prove that your function execution time is in the order of nanoseconds. The
-readability win of using defers is worth the miniscule cost of using them. This
-is especially true for larger methods that have more than simple memory
-accesses, where the other computations are more significant than the `defer`.
+Отложенный вызов функции имеет очень маленький оверхед по ресурсам и его следует избегать только если есть реальное обоснование того, что время выполнения функции не должно превышать порядков в наносекунды. Читаемость кода, получаемая благодаря использованию отложенных вызовов сильно выше накладных расходов. Это особенно заметно в больших методах, где есть больше чем просто чтение из памяти, а остальные вычисления значительно затратнее чем `defer`. 
 
 ### Channel Size is One or None
 
