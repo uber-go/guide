@@ -1,3 +1,7 @@
+# 2022-03-30
+
+- Add guidance on using field tags in marshaled structs.
+
 # 2021-11-16
 
 - Add guidance on use of `%w` vs `%v` with `fmt.Errorf`, and where to use
