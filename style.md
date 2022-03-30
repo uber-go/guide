@@ -1852,26 +1852,26 @@ Any struct field that is marshaled into JSON, YAML, or other formats that suppor
 <tr><td>
 
 ```go
-type T struct {
-  Number int
-  String string
+type Stock struct {
+  Price int
+  Name string
 }
-bytes, err := json.Marshal(T{
-  Number: 137,
-  String: "uber",
+bytes, err := json.Marshal(Stock{
+  Price: 137,
+  Name: "UBER",
 })
 ```
 
 </td><td>
 
 ```go
-type T struct {
-  Number int    `json:"number"`
-  String string `json:"string"`
+type Stock struct {
+  Price int    `json:"price"`
+  Name string `json:"name"` // now it is safer to rename this field from Name to Symbol
 }
-bytes, err := json.Marshal(T{
-  Number: 137,
-  String: "uber",
+bytes, err := json.Marshal(Stock{
+  Price: 137,
+  Name: "UBER",
 })
 ```
 
