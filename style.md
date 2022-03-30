@@ -1844,7 +1844,7 @@ func run() error {
 </tbody></table>
 
 ### Use field tags in marshalled structs
-Any struct field that is marshalled into JSON, YAML or other formats, must have relevant tag.
+Any struct field that is marshaled into JSON, YAML, or other formats that support tag-based field naming should be annotated with the relevant tag.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -1878,10 +1878,10 @@ bytes, err := json.Marshal(T{
 </td></tr>
 </tbody></table>
 
-Rationale: Structure of JSON/YAML, including field names, is a contract.
-In order to make it more explicit, always use field tags to specify the name
-of the field in marshaled data, because otherwise you may change
-the JSON/YAML format if you rename certain fields during some refactoring.
+The structure of JSON, YAML, and other formats, including field names, is a
+contract. In order to make that contract more explicit, field name struct tags
+should be used to ensure that fields names are consistent and do not change
+unexpectedly when changes to the structs fields are made.
 
 ## Performance
 
