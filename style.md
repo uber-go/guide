@@ -1881,10 +1881,12 @@ bytes, err := json.Marshal(Stock{
 </td></tr>
 </tbody></table>
 
-The structure of JSON, YAML, and other formats, including field names, is a
-contract. In order to make that contract more explicit, field name struct tags
-should be used to ensure that fields names are consistent and do not change
-unexpectedly when changes to the structs fields are made.
+Rationale:
+The serialized form of the structure is a contract between different systems.
+Changes to the structure of the serialized form--including field names--break
+this contract. Specifying field names inside tags makes the contract explicit,
+and it guards against accidentally breaking the contract by refactoring or
+renaming fields.
 
 ## Performance
 
