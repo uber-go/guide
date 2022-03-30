@@ -1857,11 +1857,12 @@ should be annotated with the relevant tag.
 ```go
 type Stock struct {
   Price int
-  Name string
+  Name  string
 }
+
 bytes, err := json.Marshal(Stock{
   Price: 137,
-  Name: "UBER",
+  Name:  "UBER",
 })
 ```
 
@@ -1870,11 +1871,13 @@ bytes, err := json.Marshal(Stock{
 ```go
 type Stock struct {
   Price int    `json:"price"`
-  Name string `json:"name"` // now it is safer to rename this field from Name to Symbol
+  Name  string `json:"name"`
+  // Safe to rename Name to Symbol.
 }
+
 bytes, err := json.Marshal(Stock{
   Price: 137,
-  Name: "UBER",
+  Name:  "UBER",
 })
 ```
 
