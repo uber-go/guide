@@ -1,6 +1,6 @@
 # 2022-03-30
 
-- Add guidance on using field tags in marshalled structs.
+- Add guidance on using field tags in marshaled structs.
 
 # 2021-11-16
 
