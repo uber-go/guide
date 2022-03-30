@@ -1845,7 +1845,9 @@ func run() error {
 
 ### Use field tags in marshaled structs
 
-Any struct field that is marshaled into JSON, YAML, or other formats that support tag-based field naming should be annotated with the relevant tag.
+Any struct field that is marshaled into JSON, YAML,
+or other formats that support tag-based field naming
+should be annotated with the relevant tag.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
