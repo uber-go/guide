@@ -76,7 +76,7 @@ row before the </tbody></table> line.
   - [Avoid `init()`](#avoid-init)
   - [Exit in Main](#exit-in-main)
     - [Exit Once](#exit-once)
-  - [Use field tags in marshalled structs](#use-field-tags-in-marshalled-structs)
+  - [Use field tags in marshaled structs](#use-field-tags-in-marshaled-structs)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
@@ -1843,7 +1843,8 @@ func run() error {
 </td></tr>
 </tbody></table>
 
-### Use field tags in marshalled structs
+### Use field tags in marshaled structs
+
 Any struct field that is marshaled into JSON, YAML, or other formats that support tag-based field naming should be annotated with the relevant tag.
 
 <table>
