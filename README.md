@@ -17,5 +17,6 @@ We are aware of the following translations of this guide by the Go community.
 - **Tradução em português** (Portuguese): [lucassscaravelli/uber-go-guide-pt](https://github.com/lucassscaravelli/uber-go-guide-pt)
 - **Tłumaczenie polskie** (Polish): [DamianSkrzypczak/uber-go-guide-pl](https://github.com/DamianSkrzypczak/uber-go-guide-pl)
 - **Русский перевод** (Russian): [sau00/uber-go-guide-ru](https://github.com/sau00/uber-go-guide-ru)
+- **Français** (French): [rm3l/uber-go-style-guide-fr](https://github.com/rm3l/uber-go-style-guide-fr)
 
 If you have a translation, feel free to submit a PR adding it to the list.
