@@ -2598,8 +2598,6 @@ var _e error = F()
 Prefix unexported top-level `var`s and `const`s with `_` to make it clear when
 they are used that they are global symbols.
 
-Exception: Unexported error values, which should be prefixed with `err`.
-
 Rationale: Top-level variables and constants have a package scope. Using a
 generic name makes it easy to accidentally use the wrong value in a different
 file.
