@@ -141,11 +141,11 @@ resources:
 2. [Go Common Mistakes](https://github.com/golang/go/wiki/CommonMistakes)
 3. [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
 
-All code should be error-free when run through `golint` and `go vet`. We
+All code should be error-free when run through `revive` and `go vet`. We
 recommend setting up your editor to:
 
 - Run `goimports` on save
-- Run `golint` and `go vet` to check for errors
+- Run `revive` and `go vet` to check for errors
 
 You can find information in editor support for Go tools here:
 <https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins>
@@ -3686,13 +3686,13 @@ quality without being unnecessarily prescriptive:
 
 - [errcheck] to ensure that errors are handled
 - [goimports] to format code and manage imports
-- [golint] to point out common style mistakes
+- [revive] to point out common style mistakes
 - [govet] to analyze code for common mistakes
 - [staticcheck] to do various static analysis checks
 
   [errcheck]: https://github.com/kisielk/errcheck
   [goimports]: https://godoc.org/golang.org/x/tools/cmd/goimports
-  [golint]: https://github.com/golang/lint
+  [revive]: https://github.com/mgechev/revive
   [govet]: https://golang.org/cmd/vet/
   [staticcheck]: https://staticcheck.io/
 
