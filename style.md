@@ -141,6 +141,9 @@ resources:
 2. [Go Common Mistakes](https://github.com/golang/go/wiki/CommonMistakes)
 3. [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
 
+We aim for the code samples to be accurate for the two most recent minor versions
+of Go [releases](https://go.dev/doc/devel/release).
+
 All code should be error-free when run through `golint` and `go vet`. We
 recommend setting up your editor to:
 
