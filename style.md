@@ -1187,7 +1187,7 @@ test is marked as failed.
 ```go
 // func TestFoo(t *testing.T)
 
-f, err := ioutil.TempFile("", "test")
+f, err := os.CreateTemp("", "test")
 if err != nil {
   panic("failed to set up test")
 }
@@ -1198,7 +1198,7 @@ if err != nil {
 ```go
 // func TestFoo(t *testing.T)
 
-f, err := ioutil.TempFile("", "test")
+f, err := os.CreateTemp("", "test")
 if err != nil {
   t.Fatal("failed to set up test")
 }
@@ -1644,7 +1644,7 @@ func init() {
     cwd, _ := os.Getwd()
 
     // Bad: I/O
-    raw, _ := ioutil.ReadFile(
+    raw, _ := os.ReadFile(
         path.Join(cwd, "config", "config.yaml"),
     )
 
@@ -1663,7 +1663,7 @@ func loadConfig() Config {
     cwd, err := os.Getwd()
     // handle err
 
-    raw, err := ioutil.ReadFile(
+    raw, err := os.ReadFile(
         path.Join(cwd, "config", "config.yaml"),
     )
     // handle err
@@ -1716,7 +1716,7 @@ func readFile(path string) string {
     log.Fatal(err)
   }
 
-  b, err := ioutil.ReadAll(f)
+  b, err := io.ReadAll(f)
   if err != nil {
     log.Fatal(err)
   }
@@ -1742,7 +1742,7 @@ func readFile(path string) (string, error) {
     return "", err
   }
 
-  b, err := ioutil.ReadAll(f)
+  b, err := io.ReadAll(f)
   if err != nil {
     return "", err
   }
@@ -1798,7 +1798,7 @@ func main() {
   // If we call log.Fatal after this line,
   // f.Close will not be called.
 
-  b, err := ioutil.ReadAll(f)
+  b, err := io.ReadAll(f)
   if err != nil {
     log.Fatal(err)
   }
@@ -1831,7 +1831,7 @@ func run() error {
   }
   defer f.Close()
 
-  b, err := ioutil.ReadAll(f)
+  b, err := io.ReadAll(f)
   if err != nil {
     return err
   }
@@ -2008,7 +2008,7 @@ map, even up to the specified capacity.
 ```go
 m := make(map[string]os.FileInfo)
 
-files, _ := ioutil.ReadDir("./files")
+files, _ := os.ReadDir("./files")
 for _, f := range files {
     m[f.Name()] = f
 }
@@ -2018,9 +2018,9 @@ for _, f := range files {
 
 ```go
 
-files, _ := ioutil.ReadDir("./files")
+files, _ := os.ReadDir("./files")
 
-m := make(map[string]os.FileInfo, len(files))
+m := make(map[string]os.DirEntry, len(files))
 for _, f := range files {
     m[f.Name()] = f
 }
@@ -2971,7 +2971,7 @@ conflicts with [Reduce Nesting](#reduce-nesting).
 <tr><td>
 
 ```go
-err := ioutil.WriteFile(name, data, 0644)
+err := os.WriteFile(name, data, 0644)
 if err != nil {
  return err
 }
@@ -2980,7 +2980,7 @@ if err != nil {
 </td><td>
 
 ```go
-if err := ioutil.WriteFile(name, data, 0644); err != nil {
+if err := os.WriteFile(name, data, 0644); err != nil {
  return err
 }
 ```
@@ -2997,7 +2997,7 @@ try to reduce the scope.
 <tr><td>
 
 ```go
-if data, err := ioutil.ReadFile(name); err == nil {
+if data, err := os.ReadFile(name); err == nil {
   err = cfg.Decode(data)
   if err != nil {
     return err
@@ -3013,7 +3013,7 @@ if data, err := ioutil.ReadFile(name); err == nil {
 </td><td>
 
 ```go
-data, err := ioutil.ReadFile(name)
+data, err := os.ReadFile(name)
 if err != nil {
    return err
 }
