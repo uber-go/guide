@@ -1,3 +1,7 @@
+# 2022-10-17
+
+- Add guidance on managing goroutine lifecycles.
+
 # 2022-03-30
 
 - Add guidance on using field tags in marshaled structs.
