@@ -1900,6 +1900,11 @@ renaming fields.
 
 Goroutines are lightweight, but they're not free. They cost memory.
 Leaking goroutines slowly consume more and more memory.
+
+Therefore, do not leak goroutines in production code.
+Use [go.uber.org/goleak](https://pkg.go.dev/go.uber.org/goleak)
+to test for goroutine leaks inside packages that may spawn goroutines.
+
 In general, every goroutine:
 
 - must have a predictable time at which it will stop running; or
