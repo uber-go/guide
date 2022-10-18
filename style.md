@@ -1976,8 +1976,8 @@ There are two popular ways to do this:
 
     ```go
     var wg sync.WaitGroup
-    wg.Add(N)
     for i := 0; i < N; i++ {
+      wg.Add(1)
       go func() {
         defer wg.Done()
         // ...
