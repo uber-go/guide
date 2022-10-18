@@ -1898,8 +1898,8 @@ renaming fields.
 
 ### Don't fire-and-forget goroutines
 
-Goroutines are lightweight, but they're not free.
-Do not leak goroutines in production code.
+Goroutines are lightweight, but they're not free. They cost memory.
+Leaking goroutines slowly consume more and more memory.
 In general, every goroutine:
 
 - must have a predictable time at which it will stop running; or
