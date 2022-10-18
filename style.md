@@ -1898,8 +1898,14 @@ renaming fields.
 
 ### Don't fire-and-forget goroutines
 
-Goroutines are lightweight, but they're not free. They cost memory.
-Leaking goroutines slowly consume more and more memory.
+Goroutines are lightweight, but they're not free:
+at minimum, they cost memory for their stack and CPU to be scheduled.
+While these costs are small for typical uses of goroutines,
+they can cause significant performance issues
+when spawned in large numbers without controlled lifetimes.
+Goroutines with unmanaged lifetimes can also cause other issues
+like preventing unused objects from being garbage collected
+and holding onto resources that are otherwise no longer used.
 
 Therefore, do not leak goroutines in production code.
 Use [go.uber.org/goleak](https://pkg.go.dev/go.uber.org/goleak)
