@@ -1966,8 +1966,9 @@ This goroutine can be stopped with `close(stop)`.
 </td></tr>
 </tbody></table>
 
-Given a means of stopping the goroutine,
-there must be a way to wait for it to stop.
+Given a goroutine with a predictable lifetime,
+or a goroutine that can be stopped with a signal,
+there must be a way to wait for the goroutine to exit.
 There are two popular ways to do this:
 
 - Use a `sync.WaitGroup`.
