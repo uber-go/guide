@@ -1992,7 +1992,7 @@ There are two popular ways to do this:
 
 #### No goroutines in `init()`
 
-`init()` functions should almost never spawn goroutines.
+`init()` functions should not spawn goroutines.
 See also [Avoid init()](#avoid-init).
 
 If a package has need of a background goroutine,
