@@ -78,7 +78,7 @@ row before the </tbody></table> line.
     - [Exit Once](#exit-once)
   - [Use field tags in marshaled structs](#use-field-tags-in-marshaled-structs)
   - [Don't fire-and-forget goroutines](#dont-fire-and-forget-goroutines)
-    - [No goroutines in `init()`](#no-goroutines-in-init )
+    - [No goroutines in `init()`](#no-goroutines-in-init)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
