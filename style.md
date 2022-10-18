@@ -2010,8 +2010,8 @@ See also [Avoid init()](#avoid-init).
 If a package has need of a background goroutine,
 it must expose an object that is responsible for managing a goroutine's
 lifetime.
-The object must provide a Close or Shutdown method that signals shutdown
-to the background goroutine, and waits for it to exit.
+The object must provide a method (`Close`, `Stop`, `Shutdown`, etc)
+that signals the background goroutine to stop, and waits for it to exit.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
