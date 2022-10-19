@@ -1938,8 +1938,11 @@ go func() {
 </td><td>
 
 ```go
-stop := make(chan struct{})
+stop := make(chan struct{}) // tells the goroutine to stop
+done := make(chan struct{}) // tells us that the goroutine exited
 go func() {
+  defer close(done)
+
   ticker := time.NewTicker(delay)
   defer ticker.Stop()
   for {
@@ -1951,6 +1954,10 @@ go func() {
     }
   }
 }()
+
+// Elsewhere...
+close(stop)  // signal the goroutine to stop
+<-done       // and wait for it to exit
 ```
 
 </td></tr>
@@ -1961,7 +1968,8 @@ This will run until the application exits.
 
 </td><td>
 
-This goroutine can be stopped with `close(stop)`.
+This goroutine can be stopped with `close(stop)`,
+and we can wait for it to exit with `<-done`.
 
 </td></tr>
 </tbody></table>
