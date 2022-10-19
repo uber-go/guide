@@ -1939,8 +1939,10 @@ go func() {
 </td><td>
 
 ```go
-stop := make(chan struct{}) // tells the goroutine to stop
-done := make(chan struct{}) // tells us that the goroutine exited
+var (
+  stop = make(chan struct{}) // tells the goroutine to stop
+  done = make(chan struct{}) // tells us that the goroutine exited
+)
 go func() {
   defer close(done)
 
