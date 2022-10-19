@@ -2046,13 +2046,20 @@ func doWork() {
 type Worker struct{ /* ... */ }
 
 func NewWorker(...) *Worker {
-  w := &Worker{/* .. */}
+  w := &Worker{
+    stop: make(chan struct{}),
+    done: make(chan struct{}),
+    // ...
+  }
   go w.doWork()
 }
 
 func (w *Worker) doWork() {
+  defer close(w.done)
   for {
     // ...
+    case <-w.stop:
+      return
   }
 }
 
@@ -2067,7 +2074,7 @@ func (w *Worker) Shutdown() {
 </td></tr>
 <tr><td>
 
-Spawns a background goroutine unconditionally if the user exports this package.
+Spawns a background goroutine unconditionally when the user exports this package.
 The user has no control over the goroutine or a means of stopping it.
 
 </td><td>
@@ -2075,6 +2082,11 @@ The user has no control over the goroutine or a means of stopping it.
 Spawns the worker only if the user requests it.
 Provides a means of shutting down the worker so that the user can free up
 resources used by the worker.
+
+Note that you should use `WaitGroup`s if the worker manages multiple
+goroutines.
+See [Wait for goroutines to exit](#wait-for-goroutines-to-exit).
+
 
 </td></tr>
 </tbody></table>
