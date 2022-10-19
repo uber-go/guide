@@ -78,6 +78,7 @@ row before the </tbody></table> line.
     - [Exit Once](#exit-once)
   - [Use field tags in marshaled structs](#use-field-tags-in-marshaled-structs)
   - [Don't fire-and-forget goroutines](#dont-fire-and-forget-goroutines)
+    - [Wait for goroutines to exit](#wait-for-goroutines-to-exit)
     - [No goroutines in `init()`](#no-goroutines-in-init)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
@@ -1974,8 +1975,9 @@ and we can wait for it to exit with `<-done`.
 </td></tr>
 </tbody></table>
 
-Given a goroutine with a predictable lifetime,
-or a goroutine that can be stopped with a signal,
+#### Wait for goroutines to exit
+
+Given a goroutine spawned by the sytem,
 there must be a way to wait for the goroutine to exit.
 There are two popular ways to do this:
 
