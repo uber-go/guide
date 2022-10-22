@@ -1,5 +1,5 @@
 # Refer to golangci-lint's example config file for more options and information:
-# https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml
+# https://github.com/golangci/golangci-lint/blob/master/.golangci.reference.yml
 
 run:
   timeout: 5m
