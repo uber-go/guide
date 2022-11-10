@@ -1979,7 +1979,7 @@ and we can wait for it to exit with `<-done`.
 
 #### Wait for goroutines to exit
 
-Given a goroutine spawned by the sytem,
+Given a goroutine spawned by the system,
 there must be a way to wait for the goroutine to exit.
 There are two popular ways to do this:
 
