@@ -1950,7 +1950,7 @@ go func() {
   defer ticker.Stop()
   for {
     select {
-    case <-tick.C:
+    case <-ticker.C:
       flush()
     case <-stop:
       return
