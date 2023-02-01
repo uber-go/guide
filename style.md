@@ -48,6 +48,8 @@ row before the </tbody></table> line.
 
 -->
 
+<!-- markdownlint-disable MD033 -->
+
 # Uber Go Style Guide
 
 ## Table of Contents
@@ -84,8 +86,8 @@ row before the </tbody></table> line.
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
   - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
   - [Prefer Specifying Container Capacity](#prefer-specifying-container-capacity)
-      - [Specifying Map Capacity Hints](#specifying-map-capacity-hints)
-      - [Specifying Slice Capacity](#specifying-slice-capacity)
+    - [Specifying Map Capacity Hints](#specifying-map-capacity-hints)
+    - [Specifying Slice Capacity](#specifying-slice-capacity)
 - [Style](#style)
   - [Avoid overly long lines](#avoid-overly-long-lines)
   - [Be Consistent](#be-consistent)
@@ -106,10 +108,10 @@ row before the </tbody></table> line.
   - [Avoid Naked Parameters](#avoid-naked-parameters)
   - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
   - [Initializing Structs](#initializing-structs)
-      - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
-      - [Omit Zero Value Fields in Structs](#omit-zero-value-fields-in-structs)
-      - [Use `var` for Zero Value Structs](#use-var-for-zero-value-structs)
-      - [Initializing Struct References](#initializing-struct-references)
+    - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
+    - [Omit Zero Value Fields in Structs](#omit-zero-value-fields-in-structs)
+    - [Use `var` for Zero Value Structs](#use-var-for-zero-value-structs)
+    - [Initializing Struct References](#initializing-struct-references)
   - [Initializing Maps](#initializing-maps)
   - [Format Strings outside Printf](#format-strings-outside-printf)
   - [Naming Printf-style Functions](#naming-printf-style-functions)
@@ -1020,13 +1022,13 @@ if err != nil {
 
 </td></tr><tr><td>
 
-```
+```plain
 failed to x: failed to y: failed to create new store: the error
 ```
 
 </td><td>
 
-```
+```plain
 x: y: new store: the error
 ```
 
@@ -1038,7 +1040,6 @@ message is an error (e.g. an `err` tag or "Failed" prefix in logs).
 
 See also [Don't just check errors, handle them gracefully].
 
-  [`"pkg/errors".Cause`]: https://godoc.org/github.com/pkg/errors#Cause
   [Don't just check errors, handle them gracefully]: https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully
 
 #### Error Naming
@@ -1314,6 +1315,7 @@ func (s *signer) Sign(msg string) string {
   return signWithTime(msg, now)
 }
 ```
+
 </td></tr>
 <tr><td>
 
@@ -1571,7 +1573,6 @@ func (f Foo) String() string {
 
 </td></tr>
 </tbody></table>
-
 
 Note that the compiler will not generate errors when using predeclared
 identifiers, but tools such as `go vet` should correctly point out these and
@@ -1995,7 +1996,7 @@ There are two popular ways to do this:
         // ...
       }()
     }
-    
+
     // To wait for all to finish:
     wg.Wait()
     ```
@@ -2009,7 +2010,7 @@ There are two popular ways to do this:
       defer close(done)
       // ...
     }()
-    
+
     // To wait for the goroutine to finish:
     <-done
     ```
@@ -2089,7 +2090,6 @@ Note that you should use `WaitGroup`s if the worker manages multiple
 goroutines.
 See [Wait for goroutines to exit](#wait-for-goroutines-to-exit).
 
-
 </td></tr>
 </tbody></table>
 
@@ -2124,13 +2124,13 @@ for i := 0; i < b.N; i++ {
 </td></tr>
 <tr><td>
 
-```
+```plain
 BenchmarkFmtSprint-4    143 ns/op    2 allocs/op
 ```
 
 </td><td>
 
-```
+```plain
 BenchmarkStrconv-4    64.2 ns/op    1 allocs/op
 ```
 
@@ -2165,13 +2165,13 @@ for i := 0; i < b.N; i++ {
 </td></tr>
 <tr><td>
 
-```
+```plain
 BenchmarkBad-4   50000000   22.2 ns/op
 ```
 
 </td><td>
 
-```
+```plain
 BenchmarkGood-4  500000000   3.25 ns/op
 ```
 
@@ -2285,13 +2285,13 @@ for n := 0; n < b.N; n++ {
 </td></tr>
 <tr><td>
 
-```
+```plain
 BenchmarkBad-4    100000000    2.48s
 ```
 
 </td><td>
 
-```
+```plain
 BenchmarkGood-4   100000000    0.21s
 ```
 
@@ -3533,7 +3533,6 @@ m := map[T1]T2{
 </td></tr>
 </tbody></table>
 
-
 The basic rule of thumb is to use map literals when adding a fixed set of
 elements at initialization time, otherwise use `make` (and specify a size hint
 if available).
@@ -3581,7 +3580,7 @@ f: `Wrapf`, not `Wrap`. `go vet` can be asked to check specific `Printf`-style
 names but they must end with f.
 
 ```shell
-$ go vet -printfuncs=wrapf,statusf
+go vet -printfuncs=wrapf,statusf
 ```
 
 See also [go vet: Printf family check].
@@ -3897,7 +3896,6 @@ quality without being unnecessarily prescriptive:
   [golint]: https://github.com/golang/lint
   [govet]: https://golang.org/cmd/vet/
   [staticcheck]: https://staticcheck.io/
-
 
 ### Lint Runners
 
