@@ -3336,8 +3336,7 @@ k := User{
 </td></tr>
 </tbody></table>
 
-Exception: Field names *may* be omitted in 
-when there are 3 or
+Exception: Field names *may* be omitted in test tables when there are 3 or
 fewer fields.
 
 ```go
