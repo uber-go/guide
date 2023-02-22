@@ -3336,7 +3336,8 @@ k := User{
 </td></tr>
 </tbody></table>
 
-Exception: Field names *may* be omitted in test tables when there are 3 or
+Exception: Field names *may* be omitted in 
+when there are 3 or
 fewer fields.
 
 ```go
@@ -3690,6 +3691,10 @@ for _, tt := range tests {
   // ...
 }
 ```
+
+Prefer table-test (structured) style when possible even for a single test case - 
+this style makes the tests easier to extend in the future as the the “arguments under
+test” are clearly specified via `have` and `want`.
 
 Parallel tests, like some specialized loops (for example, those that spawn
 goroutines or capture references as part of the loop body),
