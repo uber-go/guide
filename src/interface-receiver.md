@@ -20,11 +20,13 @@ func (s *S) Write(str string) {
   s.data = str
 }
 
-// We cannot get pointers to value stored in maps.
+// We cannot get pointers to values stored in maps, because they are not
+// addressable values.
 sVals := map[int]S{1: {"A"}}
 
 // We can call Read on values stored in the map because Read
-// has a value receiver.
+// has a value receiver, which does not require the value to
+// be addressable.
 sVals[1].Read()
 
 // We cannot call Write on values stored in the map because Write
@@ -35,7 +37,8 @@ sVals[1].Read()
 
 sPtrs := map[int]*S{1: {"A"}}
 
-// You can call both Read and Write if the map stores pointers.
+// You can call both Read and Write if the map stores pointers,
+// because pointers are intrinsically addressable.
 sPtrs[1].Read()
 sPtrs[1].Write("test")
 ```
