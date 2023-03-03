@@ -2,21 +2,22 @@
 export GOBIN ?= $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/bin
 
 STITCHMD = bin/stitchmd
+STITCHMD_ARGS = -o style.md -preface src/preface.txt src/SUMMARY.md
 
 .PHONY: all
 all: style.md
 
 .PHONY: lint
-lint:
-	@DIFF=$$($(STITCHMD) -o style.md -d src/SUMMARY.md); \
+lint: $(STITCHMD)
+	@DIFF=$$($(STITCHMD) -d $(STITCHMD_ARGS)); \
 	if [[ -n "$$DIFF" ]]; then \
 		echo "style.md is out of date:"; \
 		echo "$$DIFF"; \
 		false; \
 	fi
 
-style.md: $(STITCHMD) $(wildcard src/*.md)
-	$(STITCHMD) -o $@ src/SUMMARY.md
+style.md: $(STITCHMD) $(wildcard src/*)
+	$(STITCHMD) $(STITCHMD_ARGS)
 
 $(STITCHMD): tools/go.mod
 	go install -C tools go.abhg.dev/stitchmd
