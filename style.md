@@ -216,17 +216,22 @@ func (s *S) Write(str string) {
   s.data = str
 }
 
+// We cannot get pointers to value stored in maps.
 sVals := map[int]S{1: {"A"}}
 
-// You can only call Read using a value
+// We can call Read on values stored in the map because Read
+// has a value receiver.
 sVals[1].Read()
 
-// This will not compile:
+// We cannot call Write on values stored in the map because Write
+// has a pointer receiver, and it's not possible to get a pointer
+// to a value stored in a map.
+//
 //  sVals[1].Write("test")
 
 sPtrs := map[int]*S{1: {"A"}}
 
-// You can call both Read and Write using a pointer
+// You can call both Read and Write if the map stores pointers.
 sPtrs[1].Read()
 sPtrs[1].Write("test")
 ```
