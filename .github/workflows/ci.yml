@@ -19,6 +19,7 @@ jobs:
       with:
         go-version: 1.20.x
         cache: true
+        cache-dependency-path: tools/go.sum
 
     - name: Lint
       run: make lint
