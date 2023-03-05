@@ -3313,7 +3313,7 @@ var user User
 
 This differentiates zero valued structs from those with non-zero fields
 similar to the distinction created for [map initialization](#initializing-maps), and matches how
-we prefer to [declare empty slices][Declaring Empty Slices].
+we prefer to [declare empty slices](https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices).
 
 #### Initializing Struct References
 
