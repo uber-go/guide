@@ -1,3 +1,5 @@
+SHELL = /bin/bash
+
 # Setting GOBIN makes 'go install' put the binary in the bin/ directory.
 export GOBIN ?= $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/bin
 
