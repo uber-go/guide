@@ -3,7 +3,7 @@ SHELL = /bin/bash
 # Setting GOBIN makes 'go install' put the binary in the bin/ directory.
 export GOBIN ?= $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/bin
 
-STITCHMD = bin/stitchmd
+STITCHMD = $(GOBIN)/stitchmd
 STITCHMD_ARGS = -o style.md -preface src/preface.txt src/SUMMARY.md
 
 .PHONY: all
