@@ -1020,18 +1020,23 @@ func (e *resolveError) Error() string {
 #### Handle Errors Once
 
 When a function receives an error from a caller,
-it can handle it in a variety of different ways.
+it can handle it in a variety of different ways
+depending on what it knows about the error.
+
 These include, but not are limited to:
 
-- returning the error
-- [wrapping the error](#error-wrapping) and returning that
-- logging the error and returning nil
-- logging the error and returning a different error
-- logging the error and continuing running
-- matching the error with `errors.Is` or `errors.As`
-  and then handling the two error branches differently
+- if the function contract defines specific errors,
+  matching the error with `errors.Is` or `errors.As`
+  and handling the branches differently
+- if the error is recoverable,
+  logging the error and degrading gracefully
+- if the error represents a domain-specific failure condition,
+  returning a well-defined error
+- [wrapping the error](#error-wrapping) and returning it
+- returning the error as-is
 
-In general, a function should handle an error only once.
+Regardless of how the error is handled, generally,
+a function should handle an error only once.
 It should not, for example, log the error and then return it again
 because its callers will likely handle the error too.
 
@@ -1044,8 +1049,8 @@ As demonstrative examples, consider the following cases:
 
 **Bad**: Log the error and return it
 
-Callers will likely handle the error as well--likely logging it before doing so
-causing a lot of noise in the application logs.
+Callers will likely handle the error as well--possibly similarly logging it.
+Doing so causing a lot of noise in the application logs.
 
 </td><td>
 
@@ -1080,17 +1085,17 @@ if err != nil {
 
 **Good**: Log the error and degrade gracefully
 
-If retrieving the value is not strictly necessary,
+If the operation isn't strictly necessary,
 we can provide a degraded but unbroken experience
-by using a fallback value.
+by recovering from it.
 
 </td><td>
 
 ```go
-u, err := getUser(id)
-if err != nil {
-  log.Printf("Could not get user %q: %v", id, err)
-  u = nil
+if err := emitMetrics(); err != nil {
+  // Failure to write metrics should not
+  // break the application.
+  log.Printf("Could not emit metrics: %v", err)
 }
 
 ```
@@ -1100,7 +1105,8 @@ if err != nil {
 
 **Good**: Match the error and degrade gracefully
 
-If it's expected for retrieval to fail in specific cases,
+If the function defines a specific error in its contract,
+and the failure is recoverable,
 match on that error case and degrade gracefully.
 
 For all other cases, wrap the error and return it.
@@ -1110,14 +1116,14 @@ if necessary.
 </td><td>
 
 ```go
-
-u, err := getUser(id)
+tz, err := getUserTimeZone(id)
 if err != nil {
-  if !errors.Is(err, ErrNotFound) {
+  if errors.Is(err, ErrUserNotFound) {
+    // User doesn't exist. Use UTC.
+    tz = time.UTC
+  } else {
     return fmt.Errorf("get user %q: %w", id, err)
   }
-  log.Printf("User %q does not exist", id)
-  u = nil
 }
 ```
 
