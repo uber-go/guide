@@ -16,12 +16,12 @@ These include, but not are limited to:
 - [wrapping the error](error-wrap.md) and returning it
 - returning the error as-is
 
-Regardless of how the error is handled, generally,
-a function should handle an error only once.
-It should not, for example, log the error and then return it again
-because its callers will likely handle the error too.
+Regardless of how the function handles the error,
+it should typically handle each error only once.
+It should not, for example, log the error and then return it,
+because its callers will likely take a similar action as well.
 
-As demonstrative examples, consider the following cases:
+For example, consider the following cases:
 
 <table>
 <thead><tr><th>Description</th><th>Code</th></tr></thead>
