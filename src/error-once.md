@@ -1,6 +1,6 @@
 # Handle Errors Once
 
-When a function receives an error from a caller,
+When a function receives an error from a callee,
 it can handle it in a variety of different ways
 depending on what it knows about the error.
 
