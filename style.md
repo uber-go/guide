@@ -1019,13 +1019,13 @@ func (e *resolveError) Error() string {
 
 #### Handle Errors Once
 
-When a function receives an error from a caller,
+When a caller receives an error from a callee,
 it can handle it in a variety of different ways
 depending on what it knows about the error.
 
 These include, but not are limited to:
 
-- if the function contract defines specific errors,
+- if the callee contract defines specific errors,
   matching the error with `errors.Is` or `errors.As`
   and handling the branches differently
 - if the error is recoverable,
@@ -1035,12 +1035,12 @@ These include, but not are limited to:
 - [wrapping the error](#error-wrapping) and returning it
 - returning the error as-is
 
-Regardless of how the error is handled, generally,
-a function should handle an error only once.
-It should not, for example, log the error and then return it again
-because its callers will likely handle the error too.
+Regardless of how the caller handles the error,
+it should typically handle each error only once.
+The caller should not, for example, log the error and then return it,
+because *its* callers will likely take a similar action as well.
 
-As demonstrative examples, consider the following cases:
+For example, consider the following cases:
 
 <table>
 <thead><tr><th>Description</th><th>Code</th></tr></thead>
@@ -1049,8 +1049,8 @@ As demonstrative examples, consider the following cases:
 
 **Bad**: Log the error and return it
 
-Callers will likely handle the error as well--possibly similarly logging it.
-Doing so causing a lot of noise in the application logs.
+Callers further up the stack will likely take a similar action with the error.
+Doing so causing a lot of noise in the application logs for little value.
 
 </td><td>
 
@@ -1068,8 +1068,9 @@ if err != nil {
 
 **Good**: Wrap the error and return it
 
-Callers will be able to handle the error,
-matching with `errors.Is` or `errors.As` for specific errors.
+Callers further up the stack will handle the error.
+Use of `%w` ensures they can match the error with `errors.Is` or `errors.As`
+if relevant.
 
 </td><td>
 
@@ -1105,13 +1106,12 @@ if err := emitMetrics(); err != nil {
 
 **Good**: Match the error and degrade gracefully
 
-If the function defines a specific error in its contract,
+If the callee defines a specific error in its contract,
 and the failure is recoverable,
 match on that error case and degrade gracefully.
-
 For all other cases, wrap the error and return it.
-Callers will be able to add their own special handling
-if necessary.
+
+Callers further up the stack will handle other errors.
 
 </td><td>
 
