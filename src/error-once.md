@@ -13,8 +13,7 @@ These include, but not are limited to:
   logging the error and degrading gracefully
 - if the error represents a domain-specific failure condition,
   returning a well-defined error
-- [wrapping the error](error-wrap.md) and returning it
-- returning the error as-is
+- returning the error, either [wrapped](error-wrap.md) or verbatim
 
 Regardless of how the caller handles the error,
 it should typically handle each error only once.
