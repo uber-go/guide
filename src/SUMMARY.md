@@ -15,6 +15,7 @@
     - [Error Types](error-type.md)
     - [Error Wrapping](error-wrap.md)
     - [Error Naming](error-name.md)
+    - [Handle Errors Once](error-once.md)
   - [Handle Type Assertion Failures](type-assert.md)
   - [Don't Panic](panic.md)
   - [Use go.uber.org/atomic](atomic.md)
