@@ -18,7 +18,7 @@ These include, but not are limited to:
 Regardless of how the caller handles the error,
 it should typically handle each error only once.
 The caller should not, for example, log the error and then return it,
-because *its* callers will likely take a similar action as well.
+because *its* callers may handle the error as well.
 
 For example, consider the following cases:
 
