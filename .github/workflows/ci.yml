@@ -7,19 +7,34 @@ on:
     branches: [ '*' ]
 
 jobs:
-
-  build:
+  stitchmd:
+    name: Check or update style.md
     runs-on: ubuntu-latest
 
+    # Needed to give the job permission
+    # to push to branches.
+    permissions:
+      contents: write
+
     steps:
-    - uses: actions/checkout@v3
+    - name: Check out repository
+      uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
+    - name: Check or update style.md
+      uses: abhinav/stitchmd-action@v1
       with:
-        go-version: 1.20.x
-        cache: true
-        cache-dependency-path: tools/go.sum
+        # For pull requests, run in 'write' mode so that edits made
+        # directly in the GitHub UI get propagated to style.md
+        # without a local checkout.
+        #
+        # Otherwise, run in 'check' mode to fail CI if style.md is out-of-date.
+        mode: ${{ github.event_name == 'pull_request' && 'write' || 'check' }}
+        summary: src/SUMMARY.md
+        preface: src/preface.txt
+        output: style.md
 
-    - name: Lint
-      run: make lint
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      if: ${{ github.event_name == 'pull_request' }}
+      with:
+        file_pattern: style.md
+        commit_message: 'Auto-update style.md'
