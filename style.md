@@ -3686,6 +3686,10 @@ for _, tt := range tests {
 }
 ```
 
+Prefer table-test (structured) style when possible even for a single test case - 
+this style makes the tests easier to extend in the future as the the “arguments under
+test” are clearly specified via `have` and `want`.
+
 Parallel tests, like some specialized loops (for example, those that spawn
 goroutines or capture references as part of the loop body),
 must take care to explicitly assign loop variables within the loop's scope to
