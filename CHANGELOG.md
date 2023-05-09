@@ -2,6 +2,10 @@
 
 - Test tables: Discourage tables with complex, branching test bodies.
 
+# 2023-04-13
+
+- Errors: Add guidance on handling errors only once.
+
 # 2023-03-03
 
 - Receivers and Interfaces: Clarify subtlety with pointer receivers and values.
