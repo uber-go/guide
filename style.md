@@ -3732,9 +3732,8 @@ it's acceptable to have a single branching pathway for success versus failure ca
 with a table field like `shouldErr` to specify error expectations.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
 <tbody>
-<tr><td>
+<tr><td><strong>Bad</strong></td><td>
 
 ```go
 func TestComplicatedTable(t *testing.T) {
@@ -3783,7 +3782,8 @@ func TestComplicatedTable(t *testing.T) {
 }
 ```
 
-</td><td>
+</td></tr>
+<tr><td><strong>Good</strong></td><td>
 
 ```go
 func TestShouldCallX(t *testing.T) {
@@ -3812,6 +3812,7 @@ func TestShouldCallYAndFail(t *testing.T) {
   assert.EqualError(t, err, "Y failed")
 }
 ```
+
 </td></tr>
 </tbody></table>
 
