@@ -36,7 +36,7 @@ jobs:
         # without a local checkout.
         #
         # Otherwise, run in 'check' mode to fail CI if style.md is out-of-date.
-        mode: ${{ github.event_name == 'pull_request' && 'write' || 'check' }}
+        mode: ${{ github.event_name == 'pull_request_target' && 'write' || 'check' }}
         summary: src/SUMMARY.md
         preface: src/preface.txt
         output: style.md
