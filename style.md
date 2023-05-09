@@ -3738,44 +3738,48 @@ with a table field like `shouldErr` to specify error expectations.
 
 ```go
 func TestComplicatedTable(t *testing.T) {
-	tests := []struct {
-		give          string
-		want          string
-		wantErr       error
-		shouldCallX   bool
-		shouldCallY   bool
-		giveXResponse string
-		giveXErr      error
-		giveYResponse string
-		giveYErr      error
-	}{
-		// ...
-	}
+  tests := []struct {
+    give          string
+    want          string
+    wantErr       error
+    shouldCallX   bool
+    shouldCallY   bool
+    giveXResponse string
+    giveXErr      error
+    giveYResponse string
+    giveYErr      error
+  }{
+    // ...
+  }
 
-	for _, tt := range tests {
-		t.Run(tt.give, func(t *testing.T) {
-			// setup mocks
-			ctrl := gomock.NewController(t)
-			xMock := xmock.NewMockX(ctrl)
-			if tt.shouldCallX {
-				xMock.EXPECT().Call().Return(tt.giveXResponse, tt.giveXErr)
-			}
-			yMock := ymock.NewMockY(ctrl)
-			if tt.shouldCallY {
-				yMock.EXPECT().Call().Return(tt.giveYResponse, tt.giveYErr)
-			}
+  for _, tt := range tests {
+    t.Run(tt.give, func(t *testing.T) {
+      // setup mocks
+      ctrl := gomock.NewController(t)
+      xMock := xmock.NewMockX(ctrl)
+      if tt.shouldCallX {
+        xMock.EXPECT().Call().Return(
+          tt.giveXResponse, tt.giveXErr,
+        )
+      }
+      yMock := ymock.NewMockY(ctrl)
+      if tt.shouldCallY {
+        yMock.EXPECT().Call().Return(
+          tt.giveYResponse, tt.giveYErr,
+        )
+      }
 
-			got, err := DoComplexThing(tt.give, xMock, yMock)
+      got, err := DoComplexThing(tt.give, xMock, yMock)
 
-			// verify results
-			if tt.wantErr != nil {
-				require.EqualError(t, err, tt.wantErr)
-				return
-			}
-			require.NoError(t, err)
-			assert.Equal(t, want, got)
-		})
-	}
+      // verify results
+      if tt.wantErr != nil {
+        require.EqualError(t, err, tt.wantErr)
+        return
+      }
+      require.NoError(t, err)
+      assert.Equal(t, want, got)
+    })
+  }
 }
 ```
 
@@ -3783,29 +3787,29 @@ func TestComplicatedTable(t *testing.T) {
 
 ```go
 func TestShouldCallX(t *testing.T) {
-	// setup mocks
-	ctrl := gomock.NewController(t)
-	xMock := xmock.NewMockX(ctrl)
-	xMock.EXPECT().Call().Return("XResponse", nil)
+  // setup mocks
+  ctrl := gomock.NewController(t)
+  xMock := xmock.NewMockX(ctrl)
+  xMock.EXPECT().Call().Return("XResponse", nil)
 
-	yMock := ymock.NewMockY(ctrl)
+  yMock := ymock.NewMockY(ctrl)
 
-	got, err := DoComplexThing("inputX", xMock, yMock)
+  got, err := DoComplexThing("inputX", xMock, yMock)
 
-	require.NoError(t, err)
-	assert.Equal(t, "want", got)
+  require.NoError(t, err)
+  assert.Equal(t, "want", got)
 }
 
 func TestShouldCallYAndFail(t *testing.T) {
-	// setup mocks
-	ctrl := gomock.NewController(t)
-	xMock := xmock.NewMockX(ctrl)
+  // setup mocks
+  ctrl := gomock.NewController(t)
+  xMock := xmock.NewMockX(ctrl)
 
-	yMock := ymock.NewMockY(ctrl)
-	yMock.EXPECT().Call().Return("YResponse", nil)
+  yMock := ymock.NewMockY(ctrl)
+  yMock.EXPECT().Call().Return("YResponse", nil)
 
-	_, err := DoComplexThing("inputY", xMock, yMock)
-	assert.EqualError(t, err, "Y failed")
+  _, err := DoComplexThing("inputY", xMock, yMock)
+  assert.EqualError(t, err, "Y failed")
 }
 ```
 </td></tr>
