@@ -42,7 +42,7 @@ jobs:
         output: style.md
 
     - uses: stefanzweifel/git-auto-commit-action@v4
-      if: ${{ github.event_name == 'pull_request' }}
+      if: ${{ github.event_name == 'pull_request_target' }}
       with:
         file_pattern: style.md
         commit_message: 'Auto-update style.md'
