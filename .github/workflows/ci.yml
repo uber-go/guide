@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: [ main ]
-  pull_request:
+  pull_request_target:
     branches: [ '*' ]
 
 jobs:
@@ -19,6 +19,14 @@ jobs:
     steps:
     - name: Check out repository
       uses: actions/checkout@v3
+      with:
+        # Check out the pull request repository and branch.
+        # If the PR is made from a fork, this will check out the fork.
+        # This is necessary for git-auto-commit-action to update PRs made by forks.
+        # See 
+        # https://github.com/stefanzweifel/git-auto-commit-action#use-in-forks-from-public-repositories
+        repository: ${{ github.event.pull_request.head.repo.full_name }}
+        ref: ${{ github.head_ref }}
 
     - name: Check or update style.md
       uses: abhinav/stitchmd-action@v1
