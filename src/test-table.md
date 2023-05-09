@@ -108,7 +108,7 @@ for _, tt := range tests {
 
 Table tests can be difficult to read and maintain if the subtests contain conditional
 assertions or other branching logic. Table tests should **NOT** be used whenever
-there needs to be complex or conditional logic inside subtests (i.e. logic inside the `for` loop).
+there needs to be complex or conditional logic inside subtests (i.e. complex logic inside the `for` loop).
 
 Large, complex table tests harm readability and maintainability because test readers may
 have difficulty debugging test failures that occur.
@@ -126,7 +126,6 @@ Some ideals to aim for are:
 In this context, "test depth" means "within a given test, the number of
 successive assertions that require previous assertions to hold" (similar
 to cyclomatic complexity).
-
 Having "shallower" tests means that there are fewer relationships between
 assertions and, more importantly, that those assertions are less likely
 to be conditional by default.
