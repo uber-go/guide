@@ -1,3 +1,7 @@
+# 2023-05-09
+
+- Test tables: Discourage tables with complex, branching test bodies.
+
 # 2023-04-13
 
 - Errors: Add guidance on handling errors only once.
