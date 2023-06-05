@@ -67,6 +67,7 @@
   - [Initializing Maps](#initializing-maps)
   - [Format Strings outside Printf](#format-strings-outside-printf)
   - [Naming Printf-style Functions](#naming-printf-style-functions)
+  - [Format Strings Using `%q`](#format-strings-using-q)
 - [Patterns](#patterns)
   - [Test Tables](#test-tables)
   - [Functional Options](#functional-options)
@@ -3583,6 +3584,45 @@ go vet -printfuncs=wrapf,statusf
 ```
 
 See also [go vet: Printf family check](https://kuzminva.wordpress.com/2017/11/07/go-vet-printf-family-check/).
+
+### Format Strings Using `%q`
+
+Whenever formatting messages that contain a string component via `fmt`, use `%q` instead of `%s`. This will wrap the specified string in quotes, helping it stand out from the rest of the error message. More importantly, if the string is empty, it will provide a more helpful error message.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+fmt.Errrof("file %s not found", filename)
+// Prints the following:
+// file myfile.go not found
+//
+// Or if the string is empty:
+// file not found
+```
+
+</td><td>
+
+```go
+fmt.Errrof("file %q not found", filename)
+// Prints the following:
+// file "myfile.go" not found
+//
+// Or if the string is empty:
+// file "" not found
+```
+
+</td></tr>
+</tbody></table>
+
+This advice applies more generally to other contexts when reporting user-specified data, such as logging invalid usernames:
+
+```go
+log.Printf("User %q does not exist", username)
+// User "no_name" does not exist
+```
 
 ## Patterns
 
