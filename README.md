@@ -19,7 +19,7 @@ We are aware of the following translations of this guide by the Go community.
 - **Tłumaczenie polskie** (Polish): [DamianSkrzypczak/uber-go-guide-pl](https://github.com/DamianSkrzypczak/uber-go-guide-pl)
 - **Русский перевод** (Russian): [sau00/uber-go-guide-ru](https://github.com/sau00/uber-go-guide-ru)
 - **Français** (French): [rm3l/uber-go-style-guide-fr](https://github.com/rm3l/uber-go-style-guide-fr)
-- **Türrkçe** (Turkish): [ksckaan1/uber-go-style-guide-tr](https://github.com/ksckaan1/uber-go-style-guide-tr)
+- **Türkçe** (Turkish): [ksckaan1/uber-go-style-guide-tr](https://github.com/ksckaan1/uber-go-style-guide-tr)
 - **Український переклад** (Ukrainian): [vorobeyme/uber-go-style-guide-uk](https://github.com/vorobeyme/uber-go-style-guide-uk)
 -  **ترجمه فارسی** (Persian): [jamalkaksouri/uber-go-guide-ir](https://github.com/jamalkaksouri/uber-go-guide-ir)
 
