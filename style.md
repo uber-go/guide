@@ -5,137 +5,127 @@
 
 <!-- markdownlint-disable MD033 -->
 
-# Uber Go Style Guide
+# راهنمای سبک برنامه‌نویسی شرکت اوبر (Uber) در گولنگ
 
-- [Introduction](#introduction)
-- [Guidelines](#guidelines)
-  - [Pointers to Interfaces](#pointers-to-interfaces)
-  - [Verify Interface Compliance](#verify-interface-compliance)
-  - [Receivers and Interfaces](#receivers-and-interfaces)
-  - [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid)
-  - [Copy Slices and Maps at Boundaries](#copy-slices-and-maps-at-boundaries)
-  - [Defer to Clean Up](#defer-to-clean-up)
-  - [Channel Size is One or None](#channel-size-is-one-or-none)
-  - [Start Enums at One](#start-enums-at-one)
-  - [Use `"time"` to handle time](#use-time-to-handle-time)
-  - [Errors](#errors)
-    - [Error Types](#error-types)
-    - [Error Wrapping](#error-wrapping)
-    - [Error Naming](#error-naming)
-    - [Handle Errors Once](#handle-errors-once)
-  - [Handle Type Assertion Failures](#handle-type-assertion-failures)
-  - [Don't Panic](#dont-panic)
-  - [Use go.uber.org/atomic](#use-gouberorgatomic)
-  - [Avoid Mutable Globals](#avoid-mutable-globals)
-  - [Avoid Embedding Types in Public Structs](#avoid-embedding-types-in-public-structs)
-  - [Avoid Using Built-In Names](#avoid-using-built-in-names)
-  - [Avoid `init()`](#avoid-init)
-  - [Exit in Main](#exit-in-main)
-    - [Exit Once](#exit-once)
-  - [Use field tags in marshaled structs](#use-field-tags-in-marshaled-structs)
-  - [Don't fire-and-forget goroutines](#dont-fire-and-forget-goroutines)
-    - [Wait for goroutines to exit](#wait-for-goroutines-to-exit)
-    - [No goroutines in `init()`](#no-goroutines-in-init)
-- [Performance](#performance)
-  - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
-  - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
-  - [Prefer Specifying Container Capacity](#prefer-specifying-container-capacity)
-- [Style](#style)
-  - [Avoid overly long lines](#avoid-overly-long-lines)
-  - [Be Consistent](#be-consistent)
-  - [Group Similar Declarations](#group-similar-declarations)
-  - [Import Group Ordering](#import-group-ordering)
-  - [Package Names](#package-names)
-  - [Function Names](#function-names)
-  - [Import Aliasing](#import-aliasing)
-  - [Function Grouping and Ordering](#function-grouping-and-ordering)
-  - [Reduce Nesting](#reduce-nesting)
-  - [Unnecessary Else](#unnecessary-else)
-  - [Top-level Variable Declarations](#top-level-variable-declarations)
-  - [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_)
-  - [Embedding in Structs](#embedding-in-structs)
-  - [Local Variable Declarations](#local-variable-declarations)
-  - [nil is a valid slice](#nil-is-a-valid-slice)
-  - [Reduce Scope of Variables](#reduce-scope-of-variables)
-  - [Avoid Naked Parameters](#avoid-naked-parameters)
-  - [Use Raw String Literals to Avoid Escaping](#use-raw-string-literals-to-avoid-escaping)
-  - [Initializing Structs](#initializing-structs)
-    - [Use Field Names to Initialize Structs](#use-field-names-to-initialize-structs)
-    - [Omit Zero Value Fields in Structs](#omit-zero-value-fields-in-structs)
-    - [Use `var` for Zero Value Structs](#use-var-for-zero-value-structs)
-    - [Initializing Struct References](#initializing-struct-references)
-  - [Initializing Maps](#initializing-maps)
-  - [Format Strings outside Printf](#format-strings-outside-printf)
-  - [Naming Printf-style Functions](#naming-printf-style-functions)
-- [Patterns](#patterns)
-  - [Test Tables](#test-tables)
-  - [Functional Options](#functional-options)
-- [Linting](#linting)
+## [English](https://github.com/uber-go/guide/blob/master/style.md)
 
-## Introduction
+## تغییرات و نسخه
 
-Styles are the conventions that govern our code. The term style is a bit of a
-misnomer, since these conventions cover far more than just source file
-formatting—gofmt handles that for us.
+#### این مخزن به موازات نسخه اصلی آن به صورت بلادرنگ آپدیت خواهد شد. همچنین می‌توانید لیست کامل تغییرات را در فایل [CHANGELOG.md](https://github.com/jamalkaksouri/uber-go-guide-ir/blob/master/CHANGELOG.md) مشاهده کنید.
+## فهرست مطالب
+- [مقدمه](#مقدمه)
+- [راهنماها](#راهنماها)
+  - [ارجاع به رابط‌ها (Pointers to Interfaces)](#ارجاع-به-رابط-ها-pointers-to-interfaces)
+  - [انطباق‌پذیری رابط‌ها](#انطباق-پذیری-رابط-ها)
+  - [گیرنده‌ها و رابط‌ها (Recievers and Interfaces)](#گیرنده-ها-و-رابط-ها-recievers-and-interfaces)
+  - [مقدار صفر (zero-value) Mutexها معتبر هستند](#مقدار-صفر-zero-value-mutexها-معتبر-هستند)
+  - [کپی کردن بخش‌های مشخص از Sliceها و Mapها](#کپی-کردن-بخش-های-مشخص-از-sliceها-و-mapها)
+  - [به تعویق انداختن (Defer) پاکسازی منابع](#به-تعویق-انداختن-defer-پاکسازی-منابع)
+  - [اندازه کانال (Channel) یک یا هیچ است](#اندازه-کانال-channel-یک-یا-هیچ-است)
+  - [ثابت‌های نام‌گذاری شده (Enums) را از یک شماره‌گذاری کنید](#ثابت-های-نام-گذاری-شده-enums-را-از-یک-شماره-گذاری-کنید)
+  - [استفاده از `"Time"` برای مدیریت زمان](#استفاده-از-time-برای-مدیریت-زمان)
+  - [خطاها (Errors)](#خطاها-errors)
+    - [انواع خطاها](#انواع-خطاها)
+    - [بسته‌بندی خطا (Error Wrapping)](#بسته‌بندی-خطا-error-wrapping)
+    - [نام‌گذاری خطا](#نام-گذاری-خطا)
+    - [مدیریت یکباره خطاها](#مدیریت-یکباره-خطاها)
+  - [مدیریت نوع ادعای (Type Assertion) شکست‌ها](#مدیریت-نوع-ادعای-type-assertion-شکست-ها)
+  - [از ایجاد Panic جلوگیری کنید (Don't Panic)](#از-ایجاد-panic-جلوگیری-کنید-dont-panic)
+  - [از پکیج "go.uber.org/atomic" استفاده کنید](#از-پکیج-gouberorgatomic-استفاده-کنید)
+  - [از متغیرهای سراسری تغییرپذیر (Mutable Globals) خودداری کنید](#از-متغیرهای-سراسری-تغییرپذیر-mutable-globals-خودداری-کنید)
+  - [از جاسازی نوع‌ها (Embedding Types) در ساختارهای عمومی خودداری کنید](#از-جاسازی-نوع-ها-embedding-types-در-ساختارهای-عمومی-خودداری-کنید)
+  - [از استفاده از نام‌های داخلی (Buit-In) خودداری کنید](#از-استفاده-از-نام-های-داخلی-buit-in-خودداری-کنید)
+  - [از تابع `()init` استفاده نکنید](#از-تابع-init-استفاده-نکنید)
+  - [خروج فقط در تابع اصلی (Main)](#خروج-فقط-در-تابع-اصلی-main)
+    - [فقط یکبار از یکی از توابع خروج استفاده کنید (Exit Once)](#فقط-یکبار-از-یکی-از-توابع-خروج-استفاده-کنید-exit-once)
+  - [از برچسب‌های فیلد در ساختارهای مارشال شده (marshaled) استفاده کنید](#از-برچسب-های-فیلد-در-ساختارهای-مارشال-شده-marshaled-استفاده-کنید)
+  - [گوروتین‌ها را به حال خودشان (بدون نظارت) رها نکنید](#گوروتین-ها-را-به-حال-خودشان-بدون-نظارت-رها-نکنید)
+    - [منتظر خروج گوروتین‌ها باشید](#منتظر-خروج-گوروتین-ها-باشید)
+    - [از گوروتین‌ها در تابع `()init` استفاده نکنید](#از-تابع-init-استفاده-نکنید)
+- [کارایی (Performance)](#کارایی-performance)
+  - [پکیج `strconv` را به `fmt` ترجیح دهید](#پکیج-strconv-را-به-fmt-ترجیح-دهید)
+  - [از تبدیل رشته به بایت (string-to-byte) خودداری کنید](#از-تبدیل-رشته-به-بایت-string-to-byte-خودداری-کنید)
+  - [ترجیحا ظرفیت کانتینر (container) را مشخص کنید](#ترجیحا-ظرفیت-کانتینر-container-را-مشخص-کنید)
+- [استایل (style)](#استایل-style)
+  - [از خطوط بیش از حد طولانی خودداری کنید](#از-خطوط-بیش-از-حد-طولانی-خودداری-کنید)
+  - [یکپارچگی را رعایت کنید](#یکپارچگی-را-رعایت-کنید)
+  - [تعاریف مشابه را گروه‌بندی کنید](#تعاریف-مشابه-را-گروه-بندی-کنید)
+  - [مرتب‌سازی گروهی واردات (imports)](#مرتب-سازی-گروهی-واردات-imports)
+  - [نام‌گذاری بسته‌ها (Package Names)](#نام-گذاری-بسته-ها-package-names)
+  - [نام‌گذاری توابع (Function Names)](#نام-گذاری-توابع-function-names)
+  - [نام مستعار واردات (Import)](#نام-مستعار-واردات-import)
+  - [گروه‌بندی و مرتب‌سازی توابع](#گروه-بندی-و-مرتب-سازی-توابع)
+  - [تورفتگی (Nesting) را کاهش دهید](#تورفتگی-nesting-را-کاهش-دهید)
+  - [اجتناب از Elseهای غیر ضروری](#اجتناب-از-elseهای-غیر-ضروری)
+  - [تعاریف متغیرهای سطح بالا](#تعاریف-متغیرهای-سطح-بالا)
+  - [از پیشوند `"_"` برای متغیرهای خصوصی (Unexported) استفاده کنید](#از-پیشوند-_-برای-متغیرهای-خصوصی-unexported-استفاده-کنید)
+  - [جاسازی (Embedding) در ساختارها](#embedding-in-structs)
+  - [تعاریف متغیرهای محلی](#تعاریف-متغیرهای-محلی)
+  - [خود `nil` یک برش `slice` معتبر است](#خود-nil-یک-برش-slice-معتبر-است)
+  - [کاهش دامنه (scope) متغیرها](#کاهش-دامنه-scope-متغیرها)
+  - [از پارامترهای بی‌نام(Naked Parameters) خودداری کنید](#از-پارامترهای-بی-نام-naked-parameters-خودداری-کنید)
+  - [استفاده از `Raw String Literals` برای جلوگیری از Escape شدن کاراکترها](#استفاده-از-raw-string-literals-برای-جلوگیری-از-escape-شدن-کاراکترها)
+  - [مقداردهی اولیه ساختارها (structs)](#مقداردهی-اولیه-ساختارها-structs)
+    - [استفاده از نام فیلدها برای مقداردهی اولیه ساختارها](#استفاده-از-نام-فیلدها-برای-مقداردهی-اولیه-ساختارها)
+    - [حذف فیلدهای مقدارصفر (zero value) در ساختارها](#استفاده-از-var-برای-ساختارهای-مقدارصفر-zero-value)
+    - [استفاده از `var` برای ساختارهای مقدارصفر (zero value)](#استفاده-از-var-برای-ساختارهای-مقدارصفر-zero-value)
+    - [مقداردهی اولیه ساختارهای رفرنس‌دار](#مقداردهی-اولیه-ساختارهای-رفرنس-دار)
+  - [مقداردهی اولیه Mapها](#مقداردهی-اولیه-mapها)
+  - [قالب‌بندی رشته‌ها (strings) خارج از تابع `Printf`](#قالب-بندی-رشته-ها-strings-خارج-از-تابع-printf)
+  - [نام‌گذاری توابع به سبک `Printf`](#نام-گذاری-توابع-به-سبک-printf)
+- [الگوها](#الگوها)
+  - [جداول تست (Table-driven tests)](#جداول-تست-table-driven-tests)
+  - [الگوی Functional Options](#الگوی-functional-options)
+- [بررسی و تمیز کردن (linting)](#بررسی-و-تمیز-کردن-linting)
 
-The goal of this guide is to manage this complexity by describing in detail the
-Dos and Don'ts of writing Go code at Uber. These rules exist to keep the code
-base manageable while still allowing engineers to use Go language features
-productively.
+## مقدمه
 
-This guide was originally created by [Prashant Varanasi](https://github.com/prashantv) and [Simon Newton](https://github.com/nomis52) as
-a way to bring some colleagues up to speed with using Go. Over the years it has
-been amended based on feedback from others.
+استایل‌ها، قراردادهایی هستند که کد ما را کنترل می‌کنند. شاید کلمه یا اصطلاح استایل درست نباشد، زیرا این قوانین خیلی فراتر از فقط قالب‌بندی فایل منبع هستند - gofmt این کار را برای ما انجام می‌دهد.
 
-This documents idiomatic conventions in Go code that we follow at Uber. A lot
-of these are general guidelines for Go, while others extend upon external
-resources:
+هدف اصلی این راهنما مدیریت پیچیدگی‌ها با توضیح دقیق "بایدها و نبایدهای" نوشتن کد Go در Uber است. این قوانین برای مدیریت راحت‌تر کد منبع است و همچنین به مهندسان اجازه می دهد تا از ویژگی‌های زبان Go به طور موثر استفاده کنند.
+
+این راهنما در اصل توسط [Prashant Varanasi](https://github.com/prashantv) و [Simon Newton](https://github.com/nomis52) به عنوان راهی برای برای آموزش سریع همکاران به استفاده از Go ایجاد شده است. در طول سال‌ها، بر اساس بازخوردهای دیگران، این راهنما تصحیح و به‌روزرسانی شده است.
+
+این راهنما اصول و قوانین معمولی در نوشتن کد Go در Uber را شامل می‌شود. بسیاری از این موارد، رهنمودهای عمومی برای Go هستند، در حالی که برخی از آنها از منابع خارجی نشات می گیرند:
 
 1. [Effective Go](https://golang.org/doc/effective_go.html)
 2. [Go Common Mistakes](https://github.com/golang/go/wiki/CommonMistakes)
 3. [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
 
-We aim for the code samples to be accurate for the two most recent minor versions
-of Go [releases](https://go.dev/doc/devel/release).
+هدف ما این است که نمونه‌ کدهای ما برای آخرین نسخه‌های اخیر منتشر شده Go [releases](https://go.dev/doc/devel/release) تنظیم شوند.
 
-All code should be error-free when run through `golint` and `go vet`. We
-recommend setting up your editor to:
+همه کدها هنگام اجرا با استفاده از `golint` و `go vet` باید بدون خطا باشند. ما پیشنهاد می‌کنیم ویرایشگر خود را به‌صورت زیر تنظیم کنید:
 
 - Run `goimports` on save
 - Run `golint` and `go vet` to check for errors
 
-You can find information in editor support for Go tools here:
+می‌توانید اطلاعات مربوط به پشتیبانی ویرایشگر برای ابزارهای Go را در اینجا پیدا کنید:
 https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins
 
-## Guidelines
+## راهنماها
 
-### Pointers to Interfaces
+### ارجاع به رابط ها _(Pointers to Interfaces)_
 
-You almost never need a pointer to an interface. You should be passing
-interfaces as values—the underlying data can still be a pointer.
+تقریباً هرگز نیازی به داشتن یک اشاره‌گر (pointer) به یک رابط (interface) ندارید. شما باید رابط‌ها را به عنوان مقادیر(passing
+interfaces as values) ارسال کنید - دیتاهای زیرین (underlying data) می‌توانند اشاره‌گر باشند.
 
-An interface is two fields:
+یک رابط (interface) دارای دو فیلد است:
 
-1. A pointer to some type-specific information. You can think of this as
-   "type."
-2. Data pointer. If the data stored is a pointer, it’s stored directly. If
-   the data stored is a value, then a pointer to the value is stored.
+1. یک اشاره‌گر (pointer) به برخی از اطلاعات یک نوع خاص که شما میتوانید آن را به عنوان یک "type" در نظر بگیرید.
+2. اشاره‌گر داده. اگر داده ذخیره شده یک اشاره‌گر باشد، به صورت مستقیم ذخیره می‌شود. اگر داده ذخیره شده یک مقدار باشد، آنگاه یک اشاره‌گر به مقدار ذخیره شده می‌شود.
 
-If you want interface methods to modify the underlying data, you must use a
-pointer.
+اگر می‌خواهید متدهای رابط(interface)، تغییراتی روی داده زیرین اعمال کنند، باید از یک اشاره‌گر استفاده کنید.
 
-### Verify Interface Compliance
+### انطباق پذیری رابط ها
 
-Verify interface compliance at compile time where appropriate. This includes:
+در صورت لزوم، مطابقت رابط را در زمان کامپایل بررسی کنید. این شامل:
 
-- Exported types that are required to implement specific interfaces as part of
-  their API contract
-- Exported or unexported types that are part of a collection of types
-  implementing the same interface
-- Other cases where violating an interface would break users
+- تایپ‌های Exported که برای پیاده سازی رابط‌های خاص به عنوان بخشی از قرارداد API مورد نیاز هستند
+- تایپ‌های Exported یا unexported که بخشی از مجموعه‌ای از تایپ‌ها هستند که همگی یک رابط مشابهی را پیاده‌سازی می‌کنند
+- سایر موارد دیگری که در آن نقض یک رابط باعث نقض قراردادها می‌شود
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -150,7 +140,7 @@ func (h *Handler) ServeHTTP(
   w http.ResponseWriter,
   r *http.Request,
 ) {
-  ...
+  // ...
 }
 ```
 
@@ -174,12 +164,9 @@ func (h *Handler) ServeHTTP(
 </td></tr>
 </tbody></table>
 
-The statement `var _ http.Handler = (*Handler)(nil)` will fail to compile if
-`*Handler` ever stops matching the `http.Handler` interface.
+دستور `var _ http.Handler = (*Handler)(nil)` در صورت عدم تطبیق `*Handler` با رابط `http.Handler`، کامپایل نخواهد شد.
 
-The right hand side of the assignment should be the zero value of the asserted
-type. This is `nil` for pointer types (like `*Handler`), slices, and maps, and
-an empty struct for struct types.
+سمت راست تخصیص داده شده عبارت بالا باید مقدارصفر (zero value) نوع ادعا شده باشد. این مقدار برای انواع اشاره‌گر (مانند Handler\*)، آرایه‌ها و نقشه‌ها `nil` و برای انواع ساختاری (struct) یک ساختار خالی (empty struct) است.
 
 ```go
 type LogHandler struct {
@@ -197,12 +184,11 @@ func (h LogHandler) ServeHTTP(
 }
 ```
 
-### Receivers and Interfaces
+### گیرنده ها و رابط ها _(Recievers and Interfaces)_
 
-Methods with value receivers can be called on pointers as well as values.
-Methods with pointer receivers can only be called on pointers or [addressable values](https://golang.org/ref/spec#Method_values).
+متدهایی که دارای گیرنده‌های مقدار (value receivers) هستند، می‌توانند روی اشاره‌گرها و همچنین مقادیر فراخوانی شوند. متدهایی که دارای گیرنده‌های اشاره‌گر (pointer receivers) هستند، فقط می‌توانند روی اشاره‌گرها یا مقادیر آدرس‌پذیر [addressable values](https://golang.org/ref/spec#Method_values) فراخوانی شوند.
 
-For example,
+برای مثال,
 
 ```go
 type S struct {
@@ -217,31 +203,28 @@ func (s *S) Write(str string) {
   s.data = str
 }
 
-// We cannot get pointers to values stored in maps, because they are not
-// addressable values.
+// ما می‌توانیم متد Read را بر روی مقادیری که در نقشه‌ها ذخیره شده‌اند، فراخوانی کنیم
+// زیرا متد Read دارای گیرنده مقدار (value receiver) است و این نیازی به قابل دسترس بودن مقدار ندارد
 sVals := map[int]S{1: {"A"}}
 
-// We can call Read on values stored in the map because Read
-// has a value receiver, which does not require the value to
-// be addressable.
+
 sVals[1].Read()
 
-// We cannot call Write on values stored in the map because Write
-// has a pointer receiver, and it's not possible to get a pointer
-// to a value stored in a map.
+// ما نمی‌توانیم متد Write را بر روی مقادیری که در نقشه‌ها ذخیره شده‌اند، فراخوانی کنیم
+// زیرا متد Write دارای گیرنده اشاره‌گر (pointer receiver) است
+// و امکان دسترسی به مقادیری که در نقشه ذخیره شده است، با اشاره‌گر وجود ندارد
 //
 //  sVals[1].Write("test")
 
 sPtrs := map[int]*S{1: {"A"}}
 
-// You can call both Read and Write if the map stores pointers,
-// because pointers are intrinsically addressable.
+// اگر نقشه اشاره‌گرها را در خود ذخیره کند، شما می‌توانید هم متد Read و هم متد Write را فراخوانی کنید،
+// زیرا اشاره‌گرها به طور طبیعی آدرس‌پذیر هستند
 sPtrs[1].Read()
 sPtrs[1].Write("test")
 ```
 
-Similarly, an interface can be satisfied by a pointer, even if the method has a
-value receiver.
+به طور مشابه، یک رابط می تواند توسط یک اشاره‌گر satisfy شود، حتی اگر متد دارای یک گیرنده مقدار (value receiver) باشد.
 
 ```go
 type F interface {
@@ -266,19 +249,18 @@ i = s1Val
 i = s1Ptr
 i = s2Ptr
 
-// The following doesn't compile, since s2Val is a value, and there is no value receiver for f.
+// موارد زیر کامپایل نمی شوند، زیرا s2Val یک مقدار است و هیچ گیرنده مقداری برای f وجود ندارد.
 //   i = s2Val
 ```
 
-Effective Go has a good write up on [Pointers vs. Values](https://golang.org/doc/effective_go.html#pointers_vs_values).
+منبع Effective Go توضیح بسیار خوبی در مورد [Pointers vs. Values](https://golang.org/doc/effective_go.html#pointers_vs_values) دارد.
 
-### Zero-value Mutexes are Valid
+### مقدار صفر (zero-value) Mutexها معتبر هستند
 
-The zero-value of `sync.Mutex` and `sync.RWMutex` is valid, so you almost
-never need a pointer to a mutex.
+مقدار صفر `sync.Mutex` و `sync.RWMutex` معتبر است، بنابراین تقریباً هرگز نیازی به اشاره‌گر به mutex ندارید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -297,11 +279,10 @@ mu.Lock()
 </td></tr>
 </tbody></table>
 
-If you use a struct by pointer, then the mutex should be a non-pointer field on
-it. Do not embed the mutex on the struct, even if the struct is not exported.
+اگر از اشاره‌گر به یک ساختار (struct) استفاده می‌کنید، mutex باید به عنوان یک فیلد غیر اشاره‌گری درون آن قرار گیرد. حتی اگر ساختار (struct) به صورت (non-exported) استفاده شود، نباید mutex را به طور مستقیم درون ساختار جاسازی (embedded) کنید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -353,29 +334,25 @@ func (m *SMap) Get(k string) string {
 
 <tr><td>
 
-The `Mutex` field, and the `Lock` and `Unlock` methods are unintentionally part
-of the exported API of `SMap`.
+فیلد `Mutex` و متدهای `Lock` and `Unlock` ناخواسته بخشی از API صادر شده `SMap` هستند.
 
 </td><td>
 
-The mutex and its methods are implementation details of `SMap` hidden from its
-callers.
+میوتکس (mutex) و متدهای آن جزئیات پیاده‌سازی `SMap` هستند که از تماس‌گیرندگان آن مخفی می‌مانند.
 
 </td></tr>
 </tbody></table>
 
-### Copy Slices and Maps at Boundaries
+### کپی کردن بخش های مشخص از Sliceها و Mapها
 
-Slices and maps contain pointers to the underlying data so be wary of scenarios
-when they need to be copied.
+برش‌ها (slices) و نقشه‌ها (maps) شامل اشاره‌گرهایی به داده زیرین خود هستند، بنابراین در مواردی که نیاز به کپی آنها دارید، مراقب باشید.
 
-#### Receiving Slices and Maps
+#### دریافت Slices و Maps
 
-Keep in mind that users can modify a map or slice you received as an argument
-if you store a reference to it.
+ به خاطر داشته باشید که اگر شما یک ارجاع به Map یا Slice که به عنوان ورودی دریافت کرده‌اید نگه دارید، کاربران ممکن است تغییراتی در آن‌ها ایجاد کنند.
 
 <table>
-<thead><tr><th>Bad</th> <th>Good</th></tr></thead>
+<thead><tr><th>بد</th> <th>خوب</th></tr></thead>
 <tbody>
 <tr>
 <td>
@@ -388,7 +365,7 @@ func (d *Driver) SetTrips(trips []Trip) {
 trips := ...
 d1.SetTrips(trips)
 
-// Did you mean to modify d1.trips?
+// آیا شما منظورتان از تغییر d1.trips بود؟
 trips[0] = ...
 ```
 
@@ -404,7 +381,7 @@ func (d *Driver) SetTrips(trips []Trip) {
 trips := ...
 d1.SetTrips(trips)
 
-// We can now modify trips[0] without affecting d1.trips.
+// ما می‌توانیم trips[0] را تغییر دهیم بدون اینکه تأثیری روی d1.trips داشته باشه.
 trips[0] = ...
 ```
 
@@ -414,13 +391,12 @@ trips[0] = ...
 </tbody>
 </table>
 
-#### Returning Slices and Maps
+#### برگرداندن Slices و Maps
 
-Similarly, be wary of user modifications to maps or slices exposing internal
-state.
+به طور مشابه، مراقب تغییراتی باشید که کاربران در Mapها یا Sliceها اعمال می‌کنند و وضعیت داخلی آنها را فاش می‌کنند.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -430,7 +406,7 @@ type Stats struct {
   counters map[string]int
 }
 
-// Snapshot returns the current stats.
+// "Snapshot" وضعیت فعلی را برمی‌گرداند
 func (s *Stats) Snapshot() map[string]int {
   s.mu.Lock()
   defer s.mu.Unlock()
@@ -438,8 +414,8 @@ func (s *Stats) Snapshot() map[string]int {
   return s.counters
 }
 
-// snapshot is no longer protected by the mutex, so any
-// access to the snapshot is subject to data races.
+// "Snapshot" دیگر توسط mutex محافظت نمی‌شود
+// بنابراین هر دسترسی به "Snapshot" منجر به احتمال تداخل داده‌ها (data races) می‌شود.
 snapshot := stats.Snapshot()
 ```
 
@@ -462,19 +438,19 @@ func (s *Stats) Snapshot() map[string]int {
   return result
 }
 
-// Snapshot is now a copy.
+// "Snapshot" اینجا یک کپی است
 snapshot := stats.Snapshot()
 ```
 
 </td></tr>
 </tbody></table>
 
-### Defer to Clean Up
+### به تعویق انداختن (Defer) پاکسازی منابع
 
-Use defer to clean up resources such as files and locks.
+از defer برای پاکسازی منابعی مانند فایل‌ها و قفل‌ها استفاده کنید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -491,7 +467,8 @@ p.Unlock()
 
 return newCount
 
-// easy to miss unlocks due to multiple returns
+// به دلیل وجود return های متعدد
+// ممکن است آزاد کردن قفل‌ها را فراموش کنید
 ```
 
 </td><td>
@@ -507,56 +484,46 @@ if p.count < 10 {
 p.count++
 return p.count
 
-// more readable
+// خیلی خواناتر
 ```
 
 </td></tr>
 </tbody></table>
 
-Defer has an extremely small overhead and should be avoided only if you can
-prove that your function execution time is in the order of nanoseconds. The
-readability win of using defers is worth the miniscule cost of using them. This
-is especially true for larger methods that have more than simple memory
-accesses, where the other computations are more significant than the `defer`.
+استفاده از `defer` سربار خیلی کمی دارد و فقط در صورتی باید از آن اجتناب کرد که بتوانید اثبات کنید زمان اجرای تابع شما در مرتبه نانوثانیه قرار دارد. از نظر خوانایی کد، استفاده از `defer` ارزشمند است. این موضوع به خصوص برای متدهای بزرگتر که دارای عملیات‌های پیچیده‌تری هستند و محاسبات دیگری در آنها مهم‌تر از `defer` هستند، صدق می‌کند.
 
-### Channel Size is One or None
+### اندازه کانال (Channel) یک یا هیچ است
 
-Channels should usually have a size of one or be unbuffered. By default,
-channels are unbuffered and have a size of zero. Any other size
-must be subject to a high level of scrutiny. Consider how the size is
-determined, what prevents the channel from filling up under load and blocking
-writers, and what happens when this occurs.
+کانال‌ها به طور معمول باید دارای اندازه یک یا بدون بافر باشند. به طور پیش‌فرض، کانال‌ها بدون بافر و با اندازه صفر هستند. هر اندازه دیگری باید با دقت بررسی شود. در نظر داشته باشید که چگونه اندازه تعیین می‌شود، چه چیزی مانع پر شدن کانال تحت بار می‌شود و باعث مسدود شدن Writerها می‌شود و با وجود این اتفاقات چه چیزی رخ میدهد.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
 ```go
-// Ought to be enough for anybody!
+// باید برای هر کسی کافی باشد!
 c := make(chan int, 64)
 ```
 
 </td><td>
 
 ```go
-// Size of one
-c := make(chan int, 1) // or
-// Unbuffered channel, size of zero
+// اندازه یک
+c := make(chan int, 1) // یا
+// کانال بدون بافر، اندازه صفر
 c := make(chan int)
 ```
 
 </td></tr>
 </tbody></table>
 
-### Start Enums at One
+### ثابت های نام گذاری شده (Enums) را از یک شماره گذاری کنید
 
-The standard way of introducing enumerations in Go is to declare a custom type
-and a `const` group with `iota`. Since variables have a 0 default value, you
-should usually start your enums on a non-zero value.
+روش استاندارد برای معرفی تعداد محدودی (enumeration) در Go، اعلام یک نوع سفارشی (custom type) و یک گروه `const` با `iota` است. از آنجا که متغیرها معمولاً مقدار پیش‌فرض 0 دارند، بهتر است enums خود را با یک مقدار غیرصفر شروع کنید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -589,8 +556,7 @@ const (
 </td></tr>
 </tbody></table>
 
-There are cases where using the zero value makes sense, for example when the
-zero value case is the desirable default behavior.
+مواردی وجود دارد که استفاده از مقدار صفر منطقی است، برای مثال زمانی که حالت صفر رفتار پیش‌فرض مطلوب است.
 
 ```go
 type LogOutput int
@@ -606,30 +572,26 @@ const (
 
 <!-- TODO: section on String methods for enums -->
 
-### Use `"time"` to handle time
+### استفاده از `"Time"` برای مدیریت زمان
 
-Time is complicated. Incorrect assumptions often made about time include the
-following.
+زمان پیچیده است. مفروضات نادرستی که اغلب در مورد زمان انجام می‌شود شامل موارد زیر است.
 
-1. A day has 24 hours
-2. An hour has 60 minutes
-3. A week has 7 days
-4. A year has 365 days
-5. [And a lot more](https://infiniteundo.com/post/25326999628/falsehoods-programmers-believe-about-time)
+1. یک روز 24 ساعت دارد
+2. یک ساعت 60 دقیقه دارد
+3. یک هفته 7 روز دارد
+4. یک سال 365 روز دارد
+5. [و موارد دیگر](https://infiniteundo.com/post/25326999628/falsehoods-programmers-believe-about-time)
 
-For example, *1* means that adding 24 hours to a time instant will not always
-yield a new calendar day.
+به عنوان مثال، _1_ به این معنی است که افزودن 24 ساعت به یک لحظه از زمان، همیشه یک روز تقویمی جدید ایجاد نمی‌کند.
 
-Therefore, always use the [`"time"`](https://golang.org/pkg/time/) package when dealing with time because it
-helps deal with these incorrect assumptions in a safer, more accurate manner.
+بنابراین، هنگام برخورد با زمان، همیشه از پکیج [`"زمان"`](https://golang.org/pkg/time/) استفاده کنید زیرا به مقابله با این فرضیات نادرست به شیوه ای مطمئن‌تر و دقیق‌تر کمک می‌کند.
 
-#### Use `time.Time` for instants of time
+#### از `time.Time` برای نمایش لحظات زمانی استفاده کنید.
 
-Use [`time.Time`](https://golang.org/pkg/time/#Time) when dealing with instants of time, and the methods on
-`time.Time` when comparing, adding, or subtracting time.
+هنگام کار با لحظات زمانی از نوع [`time.Time`](https://golang.org/pkg/time/#Time) و متدهای مربوط به `time.Time` برای مقایسه، افزودن، یا کاستن زمان استفاده کنید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -650,12 +612,12 @@ func isActive(now, start, stop time.Time) bool {
 </td></tr>
 </tbody></table>
 
-#### Use `time.Duration` for periods of time
+#### از `time.Duration` برای بازه‌های زمانی استفاده کنید.
 
-Use [`time.Duration`](https://golang.org/pkg/time/#Duration) when dealing with periods of time.
+هنگام کار با بازه‌های زمانی از نوع [`time.Duration`](https://golang.org/pkg/time/#Duration) استفاده کنید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -667,7 +629,7 @@ func poll(delay int) {
   }
 }
 
-poll(10) // was it seconds or milliseconds?
+poll(10) // ثانیه بود یا میلی‌ثانیه؟
 ```
 
 </td><td>
@@ -686,39 +648,28 @@ poll(10*time.Second)
 </td></tr>
 </tbody></table>
 
-Going back to the example of adding 24 hours to a time instant, the method we
-use to add time depends on intent. If we want the same time of the day, but on
-the next calendar day, we should use [`Time.AddDate`](https://golang.org/pkg/time/#Time.AddDate). However, if we want an
-instant of time guaranteed to be 24 hours after the previous time, we should
-use [`Time.Add`](https://golang.org/pkg/time/#Time.Add).
+به مثال افزودن 24 ساعت به یک لحظه زمانی برگردیم، روشی که برای اضافه کردن زمان استفاده می‌کنیم به هدف ما بستگی دارد. اگر بخواهیم همان نقطه زمانی را در روز بعدی تقویم (روز بعد از روز جاری) داشته باشیم، باید از [`Time.AddDate`](https://golang.org/pkg/time/#Time.AddDate) استفاده کنیم. اما اگر بخواهیم یک لحظه زمانی داشته باشیم که تضمین می‌کند 24 ساعت بعد از زمان قبلی باشد، باید از متد [`Time.Add`](https://golang.org/pkg/time/#Time.Add) استفاده کنیم.
 
 ```go
-newDay := t.AddDate(0 /* years */, 0 /* months */, 1 /* days */)
+newDay := t.AddDate(0 /* سالها */, 0 /* ماهها */, 1 /* روزها */)
 maybeNewDay := t.Add(24 * time.Hour)
 ```
 
-#### Use `time.Time` and `time.Duration` with external systems
+#### در تعامل با سیستم‌های خارجی، از نوع‌های `time.Time` و `time.Duration` استفاده کنید.
 
-Use `time.Duration` and `time.Time` in interactions with external systems when
-possible. For example:
+در صورت امکان در تعاملات با سیستم‌های خارجی، از نوع‌های `time.Duration` و `time.Time` استفاده کنید. به عنوان مثال:
 
-- Command-line flags: [`flag`](https://golang.org/pkg/flag/) supports `time.Duration` via
-  [`time.ParseDuration`](https://golang.org/pkg/time/#ParseDuration)
-- JSON: [`encoding/json`](https://golang.org/pkg/encoding/json/) supports encoding `time.Time` as an [RFC 3339](https://tools.ietf.org/html/rfc3339)
-  string via its [`UnmarshalJSON` method](https://golang.org/pkg/time/#Time.UnmarshalJSON)
-- SQL: [`database/sql`](https://golang.org/pkg/database/sql/) supports converting `DATETIME` or `TIMESTAMP` columns
-  into `time.Time` and back if the underlying driver supports it
-- YAML: [`gopkg.in/yaml.v2`](https://godoc.org/gopkg.in/yaml.v2) supports `time.Time` as an [RFC 3339](https://tools.ietf.org/html/rfc3339) string, and
-  `time.Duration` via [`time.ParseDuration`](https://golang.org/pkg/time/#ParseDuration).
+  - در پردازش پارامترهای خط فرمان (Command-line flags)، کتابخانه [`flag`](https://golang.org/pkg/flag/) توانایی پشتیبانی از نوع `time.Duration` را از طریق تابع [`time.ParseDuration`](https://golang.org/pkg/time/#ParseDuration) دارد.
+- در پردازش داده‌های JSON، کتابخانه [`encoding/json`](https://golang.org/pkg/encoding/json/) از تبدیل نوع `time.Time` به یک رشته [RFC 3339](https://tools.ietf.org/html/rfc3339) به وسیله تابع [`UnmarshalJSON` method](https://golang.org/pkg/time/#Time.UnmarshalJSON) پشتیبانی می‌کند.
+- در پردازش داده‌های SQL، کتابخانه [`database/sql`](https://golang.org/pkg/database/sql/) توانایی تبدیل ستون‌های DATETIME یا TIMESTAMP به نوع `time.Time` و برعکس را دارد، اگر درایور پایگاه داده مربوط این پشتیبانی را داشته باشد.
+- در پردازش داده‌های YAML، کتابخانه [`gopkg.in/yaml.v2`](https://godoc.org/gopkg.in/yaml.v2) از نوع `time.Time` به عنوان یک رشته [RFC 3339](https://tools.ietf.org/html/rfc3339) و از تابع [`time.ParseDuration`](https://golang.org/pkg/time/#ParseDuration) برای پشتیبانی از نوع `time.Duration` استفاده می‌کند.
 
-When it is not possible to use `time.Duration` in these interactions, use
-`int` or `float64` and include the unit in the name of the field.
+زمانی که در تعامل با سیستم‌های خارجی امکان استفاده از نوع `time.Duration` وجود ندارد، می‌توانید از انواع داده مانند `int` یا `float64` استفاده کنید و واحد زمان را در نام فیلد درج کنید.
 
-For example, since `encoding/json` does not support `time.Duration`, the unit
-is included in the name of the field.
+برای مثال، از آنجایی که `encoding/json` از `time.Duration` پشتیبانی نمی کند، واحد زمان در نام فیلد گنجانده شده است.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -741,48 +692,31 @@ type Config struct {
 </td></tr>
 </tbody></table>
 
-When it is not possible to use `time.Time` in these interactions, unless an
-alternative is agreed upon, use `string` and format timestamps as defined in
-[RFC 3339](https://tools.ietf.org/html/rfc3339). This format is used by default by [`Time.UnmarshalText`](https://golang.org/pkg/time/#Time.UnmarshalText) and is
-available for use in `Time.Format` and `time.Parse` via [`time.RFC3339`](https://golang.org/pkg/time/#RFC3339).
+زمانی که در تعامل با سیستم‌های خارجی امکان استفاده از نوع `time.Time` وجود نداشته باشد، از نوع `string` استفاده کنید و زمان‌ها را با فرمت مشخص شده در [RFC 3339](https://tools.ietf.org/html/rfc3339) تعریف کنید مگر اینکه روش جایگزین دیگری داشته باشید. این فرمت به طور پیش‌فرض توسط تابع [`Time.UnmarshalText`](https://golang.org/pkg/time/#Time.UnmarshalText) استفاده می‌شود و از طریق [`time.RFC3339`](https://golang.org/pkg/time/#RFC3339) در توابع `Time.Format` و `time.Parse` نیز در دسترس هستند.
 
-Although this tends to not be a problem in practice, keep in mind that the
-`"time"` package does not support parsing timestamps with leap seconds
-([8728](https://github.com/golang/go/issues/8728)), nor does it account for leap seconds in calculations ([15190](https://github.com/golang/go/issues/15190)). If
-you compare two instants of time, the difference will not include the leap
-seconds that may have occurred between those two instants.
+اگرچه این معمولاً مشکلی ایجاد نمی‌کند، به یاد داشته باشید که پکیج `"time"` از Go قادر به parse کردن زمان‌هایی با ثانیه‌های کبیسه (leap seconds) را ندارد ([8728](https://github.com/golang/go/issues/8728)) و همچنین در محاسبات، ثانیه‌های کبیسه را در نظر نمی‌گیرد ([15190](https://github.com/golang/go/issues/15190)). اگر دو لحظه زمانی را مقایسه کنید، اختلاف زمانی شامل ثانیه‌های کبیسه که ممکن است بین این دو لحظه رخ داده باشد، نخواهد بود.
 
-### Errors
+### خطاها (Errors)
 
-#### Error Types
+#### انواع خطاها
 
-There are few options for declaring errors.
-Consider the following before picking the option best suited for your use case.
+گزینه‌های کمی برای اعلام خطا وجود دارد. قبل از انتخاب گزینه‌ای که مناسب‌ترین مورد استفاده شما است، موارد زیر را در نظر بگیرید:
 
-- Does the caller need to match the error so that they can handle it?
-  If yes, we must support the [`errors.Is`](https://golang.org/pkg/errors/#Is) or [`errors.As`](https://golang.org/pkg/errors/#As) functions
-  by declaring a top-level error variable or a custom type.
-- Is the error message a static string,
-  or is it a dynamic string that requires contextual information?
-  For the former, we can use [`errors.New`](https://golang.org/pkg/errors/#New), but for the latter we must
-  use [`fmt.Errorf`](https://golang.org/pkg/fmt/#Errorf) or a custom error type.
-- Are we propagating a new error returned by a downstream function?
-  If so, see the [section on error wrapping](#error-wrapping).
+-  آیا تماس گیرنده (caller) باید خطا را مطابقت دهد تا بتواند آن را مدیریت کند؟ اگر چنین است، باید از توابع [`errors.Is`](https://golang.org/pkg/errors/#Is) یا [`errors.As`](https://golang.org/pkg/errors/#As) با اعلان متغیرهای خطای سطح بالا یا انواع سفارشی پشتیبانی کنیم.
+- آیا پیام خطا یک رشته ثابت است یا یک رشته پویا است که به اطلاعات متنی نیاز دارد؟ در مورد رشته‌های استاتیک می‌توانیم از [`errors.New`](https://golang.org/pkg/errors/#New) استفاده کنیم، اما برای دومی باید از [`fmt.Errorf`](https://golang.org/pkg/fmt/#Errorf) یا یک نوع خطای سفارشی استفاده کنیم.
+- آیا ما خطای جدیدی را منتشر می‌کنیم که توسط توابع پایین دست بازگردانده شده است؟ اگر چنین است، بخش [section on error wrapping](#error-wrapping) را ببینید.
 
-| Error matching? | Error Message | Guidance                                                                |
-|-----------------|---------------|-------------------------------------------------------------------------|
+| خطا مطابقت دارد؟ | پیغام خطا | راهنمایی                                                                |
+| --------------- | ------------- | ----------------------------------------------------------------------- |
 | No              | static        | [`errors.New`](https://golang.org/pkg/errors/#New)                      |
 | No              | dynamic       | [`fmt.Errorf`](https://golang.org/pkg/fmt/#Errorf)                      |
 | Yes             | static        | top-level `var` with [`errors.New`](https://golang.org/pkg/errors/#New) |
 | Yes             | dynamic       | custom `error` type                                                     |
 
-For example,
-use [`errors.New`](https://golang.org/pkg/errors/#New) for an error with a static string.
-Export this error as a variable to support matching it with `errors.Is`
-if the caller needs to match and handle this error.
+به عنوان مثال، از [`errors.New`](https://golang.org/pkg/errors/#New) برای نمایش خطاها با رشته ایستا (static string) استفاده کنید. اگر تماس گیرنده (caller) نیاز به مطابقت و رسیدگی به این خطا دارد، این خطا را به عنوان یک متغیر برای پشتیبانی از تطبیق آن با errors.Is صادر کنید.
 
 <table>
-<thead><tr><th>No error matching</th><th>Error matching</th></tr></thead>
+<thead><tr><th>بدون تطابق خطا</th><th>تطابق خطا</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -826,12 +760,10 @@ if err := foo.Open(); err != nil {
 </td></tr>
 </tbody></table>
 
-For an error with a dynamic string,
-use [`fmt.Errorf`](https://golang.org/pkg/fmt/#Errorf) if the caller does not need to match it,
-and a custom `error` if the caller does need to match it.
+برای خطای با رشته پویا (dynamic string)، اگر تماس گیرنده نیازی به تطبیق آن نداشته باشد، از [`fmt.Errorf`](https://golang.org/pkg/fmt/#Errorf) و اگر تماس گیرنده نیاز به تطبیق آن داشته باشد، از یک خطای سفارشی استفاده کنید.
 
 <table>
-<thead><tr><th>No error matching</th><th>Error matching</th></tr></thead>
+<thead><tr><th>بدون تطابق خطا</th><th>تطابق خطا</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -883,46 +815,29 @@ if err := foo.Open("testfile.txt"); err != nil {
 </td></tr>
 </tbody></table>
 
-Note that if you export error variables or types from a package,
-they will become part of the public API of the package.
+توجه داشته باشید که اگر متغیرها یا انواع خطا را از یک پکیج (package) صادر کنید، آنها بخشی از API عمومی پکیج خواهند شد.
 
-#### Error Wrapping
+#### بسته بندی خطا (Error Wrapping)
 
-There are three main options for propagating errors if a call fails:
+در صورت عدم موفقیت یک فراخوانی (call)، سه گزینه اصلی برای انتشار خطا وجود دارد:
 
-- return the original error as-is
-- add context with `fmt.Errorf` and the `%w` verb
-- add context with `fmt.Errorf` and the `%v` verb
+- خطای اصلی را همانطور که هست برگردانید
+- زمینه (context) را با `fmt.Errorf` و فعل `%w` اضافه کنید
+- زمینه (context) را با `fmt.Errorf` و فعل `%v` اضافه کنید
 
-Return the original error as-is if there is no additional context to add.
-This maintains the original error type and message.
-This is well suited for cases when the underlying error message
-has sufficient information to track down where it came from.
+اگر زمینه (context) اضافی برای افزودن وجود ندارد، خطای اصلی را همانطور که هست برگردانید. این، نوع خطا و پیام اصلی را حفظ می‌کند و برای مواردی که پیام خطای  اصلی اطلاعات کافی برای ردیابی اینکه خطا از کجا آمده است، مناسب است.
 
-Otherwise, add context to the error message where possible
-so that instead of a vague error such as "connection refused",
-you get more useful errors such as "call service foo: connection refused".
+در غیر این صورت، در صورت امکان، زمینه (context) را به پیام خطا اضافه کنید تا به جای دریافت خطاهای مبهم مانند "اتصال رد شد" ("connection refused")، خطاهای مفیدتری مانند "تماس با سرویس foo: اتصال رد شد" ("call service foo: connection refused") دریافت کنید.
 
-Use `fmt.Errorf` to add context to your errors,
-picking between the `%w` or `%v` verbs
-based on whether the caller should be able to
-match and extract the underlying cause.
+از `fmt.Errorf` برای افزودن زمینه (context) به خطاهای خود استفاده کنید، بسته به اینکه تماس گیرنده بتواند علت اصلی را مطابقت داده و استخراج کند، بین `%w` یا `%v` افعال را انتخاب کنید.
 
-- Use `%w` if the caller should have access to the underlying error.
-  This is a good default for most wrapped errors,
-  but be aware that callers may begin to rely on this behavior.
-  So for cases where the wrapped error is a known `var` or type,
-  document and test it as part of your function's contract.
-- Use `%v` to obfuscate the underlying error.
-  Callers will be unable to match it,
-  but you can switch to `%w` in the future if needed.
+  - اگر تماس‌گیرنده (caller) لازم است که به خطای اصلی دسترسی داشته باشه، از `%w` استفاده کنید. این یک پیش فرض خوب برای اکثر خطاهای بسته بندی است، اما توجه داشته باشید که تماس گیرندگان ممکن است به این رفتار تکیه کنند. بنابراین برای مواردی که خطای wrapping یک var یا نوع شناخته شده است، آن را مستند کنید و آن را به عنوان بخشی از قرارداد تابع آزمایش کنید.
+  - از `%v` برای مبهم کردن خطای اصلی استفاده کنید. تماس‌گیرنده نمی‌تواند با آن مطابقت کند، اما در صورت نیاز می‌توانید در آینده به `%w` تغییر دهید.
 
-When adding context to returned errors, keep the context succinct by avoiding
-phrases like "failed to", which state the obvious and pile up as the error
-percolates up through the stack:
+هنگام اضافه کردن توضیحات به خطاهای برگشتی، با اجتناب از عباراتی مانند "failed to"، که لایه به لایه جمع می‌شود، (منظور اینکه هنگامی که یک خطا از سطح پایین‌تری به سطح بالاتری در سلسله‌مراتب کد حرکت می‌کند، تعداد خطاها و اطلاعات اضافی که به آن افزوده می‌شوند، افزایش می‌یابد و سنگین‌تر می‌شود) متن context را مختصر نگه دارید:
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -959,41 +874,32 @@ x: y: new store: the error
 </td></tr>
 </tbody></table>
 
-However once the error is sent to another system, it should be clear the
-message is an error (e.g. an `err` tag or "Failed" prefix in logs).
+با این حال، هنگامی که خطا به سیستم دیگری ارسال می‌شود، باید مشخص باشد که پیام یک خطا است (به عنوان مثال یک برچسب `err` یا پیشوند "ناموفق" در لاگ‌ها).
 
-See also [Don't just check errors, handle them gracefully](https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully).
+همچنین ببینید: [فقط خطاها را بررسی نکنید، آنها را با ظرافت مدیریت کنید](https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully).
 
-#### Error Naming
+#### نام گذاری خطا
 
-For error values stored as global variables,
-use the prefix `Err` or `err` depending on whether they're exported.
-This guidance supersedes the [Prefix Unexported Globals with _](#prefix-unexported-globals-with-_).
+برای مقادیر خطا که به عنوان متغیرهای سراسری ذخیره می‌شوند بسته به اینکه آیا آنها صادر شده (exported) هستند یا خیر، از پیشوند `Err` یا `err` استفاده کنید. این راهنما جایگزین قاعده [از پیشوند `"_"` برای متغیرهای خصوصی (Unexported) استفاده کنید](#از-پیشوند-_-برای-متغیرهای-خصوصی-unexported-استفاده-کنید) است.
 
 ```go
 var (
-  // The following two errors are exported
-  // so that users of this package can match them
-  // with errors.Is.
+  // در زیر، دو خطای زیر به صورت صادرشده (exported) است تا کاربران این بسته بتوانند آنها را با استفاده از `errors.Is` مطابقت دهند.
 
   ErrBrokenLink = errors.New("link is broken")
   ErrCouldNotOpen = errors.New("could not open")
 
-  // This error is not exported because
-  // we don't want to make it part of our public API.
-  // We may still use it inside the package
-  // with errors.Is.
+   // این خطا صادر نمی شود زیرا نمی‌خواهیم بخشی از API عمومی ما باشد. ممکن است همچنان از آن در داخل یک بسته با اشکال استفاده کنیم.
 
   errNotFound = errors.New("not found")
 )
 ```
 
-For custom error types, use the suffix `Error` instead.
+برای نوع‌های سفارشی خطا، از پسوند `Error` استفاده کنید.
 
 ```go
-// Similarly, this error is exported
-// so that users of this package can match it
-// with errors.As.
+
+// به همین ترتیب، این خطا صادر می شود تا کاربران این بسته بتوانند آن را با errors.As مطابقت دهند.
 
 type NotFoundError struct {
   File string
@@ -1003,10 +909,8 @@ func (e *NotFoundError) Error() string {
   return fmt.Sprintf("file %q not found", e.File)
 }
 
-// And this error is not exported because
-// we don't want to make it part of the public API.
-// We can still use it inside the package
-// with errors.As.
+// و این خطا صادر نمی شود زیرا ما نمی خواهیم آن را بخشی از API عمومی کنیم.
+// ما هنوز هم امکان استفاده از آن را داخل پکیج با errors.As داریم.
 
 type resolveError struct {
   Path string
@@ -1017,39 +921,29 @@ func (e *resolveError) Error() string {
 }
 ```
 
-#### Handle Errors Once
+#### مدیریت یکباره خطاها
 
-When a caller receives an error from a callee,
-it can handle it in a variety of different ways
-depending on what it knows about the error.
+وقتی فراخواننده یک خطا از فراخواننده دیگری دریافت می‌کند، بسته به اطلاعاتی که در مورد خطا دارد، می‌تواند آن را به روش‌های مختلفی اداره کند.
 
-These include, but not are limited to:
+این شامل موارد زیر است اما محدود به این موارد نیستند:
 
-- if the callee contract defines specific errors,
-  matching the error with `errors.Is` or `errors.As`
-  and handling the branches differently
-- if the error is recoverable,
-  logging the error and degrading gracefully
-- if the error represents a domain-specific failure condition,
-  returning a well-defined error
-- returning the error, either [wrapped](#error-wrapping) or verbatim
+- اگر قرارداد فراخواننده خطاهای مشخصی تعریف کرده باشد، می‌توان با استفاده از `errors.Is` یا `errors.As` تطابق خطا را انجام داد و با توجه به اطلاعات موجود، درخواست‌ها را به صورت متفاوت اداره کرد.
+- اگر خطا قابل بازیابی باشد، خطا را ثبت کرده و سپس به تدریج به حالت نرمال بازگردید.
+- اگر خطا وضعیت شکست مرتبط با دامنه خاصی را نمایان می‌کند، یک خطای دقیقاً تعریف شده را بازگردانید.
+- خطا را بازگردانید، ساده (verbatim) یا به صورت پیچیده [wrapped](#error-wrapping)، به توجه به شرایط.
 
-Regardless of how the caller handles the error,
-it should typically handle each error only once.
-The caller should not, for example, log the error and then return it,
-because *its* callers may handle the error as well.
+صرف نظر از نحوه برخورد تماس گیرنده با خطاها، معمولاً باید هر خطا را فقط یک بار مدیریت کند. به عنوان مثال، تماس گیرنده نباید خطا را ثبت کند و سپس آن را برگرداند، زیرا تماس گیرنده آن نیز ممکن است خطا را مدیریت کند.
 
-For example, consider the following cases:
+به عنوان مثال موارد زیر را در نظر بگیرید:
 
 <table>
-<thead><tr><th>Description</th><th>Code</th></tr></thead>
+<thead><tr><th>توضیحات</th><th>کد</th></tr></thead>
 <tbody>
 <tr><td>
 
-**Bad**: Log the error and return it
+**بد**: خطا را ثبت کنید و آن را برگردانید
 
-Callers further up the stack will likely take a similar action with the error.
-Doing so causing a lot of noise in the application logs for little value.
+تماس گیرندگان در پشته ممکن است اقدامات مشابهی در مورد این خطا انجام دهند. انجام این کار باعث تولید مقدار زیادی اطلاعات ناکارآمد در گزارش‌های برنامه می‌شود که ارزش چندانی نخواهد داشت.
 
 </td><td>
 
@@ -1065,11 +959,10 @@ if err != nil {
 </td></tr>
 <tr><td>
 
-**Good**: Wrap the error and return it
+**خوب**: خطا را Wrap کنید و برگردانید.
 
-Callers further up the stack will handle the error.
-Use of `%w` ensures they can match the error with `errors.Is` or `errors.As`
-if relevant.
+تماس گیرندگان بالاتر از پشته، خطا را کنترل خواهند کرد.
+استفاده از `%w` تضمین می‌کند که می‌توانند خطا را با `errors.Is` یا `errors.As` مطابقت دهند.
 
 </td><td>
 
@@ -1083,11 +976,9 @@ if err != nil {
 </td></tr>
 <tr><td>
 
-**Good**: Log the error and degrade gracefully
+**خوب**: ابتدا خطا را ثبت کنید (لاگ کنید) و سپس به آرامی و به صورت کنترل شده به وضعیت عادی یا نرمال خود بازگردید
 
-If the operation isn't strictly necessary,
-we can provide a degraded but unbroken experience
-by recovering from it.
+اگر یک عملیات خاصی در برنامه نیاز به اجرا ندارد و می‌تواند به صورت کم‌کیفیت‌تری انجام شود، می‌توانیم از ابزارها و راهکارهایی استفاده کنیم تا از خطاها بازیابی کنیم و تجربه کاربران را بدون وقوع شکست بهبود بخشیم.
 
 </td><td>
 
@@ -1103,14 +994,11 @@ if err := emitMetrics(); err != nil {
 </td></tr>
 <tr><td>
 
-**Good**: Match the error and degrade gracefully
+**خوب**: ابتدا خطا را تشخیص دهید (تطابق دهید) و سپس به آرامی و به صورت کنترل شده به وضعیت عادی یا نرمال خود بازگردید
 
-If the callee defines a specific error in its contract,
-and the failure is recoverable,
-match on that error case and degrade gracefully.
-For all other cases, wrap the error and return it.
+اگر فراخواننده (caller) در قرارداد خود یک خطای خاص تعریف کرده باشد و خرابی قابل بازیابی باشد، در مورد آن خطا تطابق (match) کنید و به صورت کنترل شده آن را به حالت عادی بازگردانید. برای موارد دیگر، خطا را پوشش دهید (wrap) و آن را بازگردانید.
 
-Callers further up the stack will handle other errors.
+سایر خطاها توسط تماس گیرندگان بالاتر در پشته رسیدگی می‌شود.
 
 </td><td>
 
@@ -1129,13 +1017,12 @@ if err != nil {
 </td></tr>
 </tbody></table>
 
-### Handle Type Assertion Failures
+### مدیریت نوع ادعای (Type Assertion) شکست ها
 
-The single return value form of a [type assertion](https://golang.org/ref/spec#Type_assertions) will panic on an incorrect
-type. Therefore, always use the "comma ok" idiom.
+مقدار برگشتی بدست آمده از [type assertion](https://golang.org/ref/spec#Type_assertions) روی یک تایپ نادرست panic خواهد شد. بنابراین همیشه از اصطلاح "comma ok" استفاده کنید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1148,7 +1035,7 @@ t := i.(string)
 ```go
 t, ok := i.(string)
 if !ok {
-  // handle the error gracefully
+  // به خوبی خطا را مدیریت کنید
 }
 ```
 
@@ -1158,14 +1045,12 @@ if !ok {
 <!-- TODO: There are a few situations where the single assignment form is
 fine. -->
 
-### Don't Panic
+### از ایجاد Panic جلوگیری کنید (Don't Panic)
 
-Code running in production must avoid panics. Panics are a major source of
-[cascading failures](https://en.wikipedia.org/wiki/Cascading_failure). If an error occurs, the function must return an error and
-allow the caller to decide how to handle it.
+کدهایی که در محیط تولید (Production) اجرا می‌شوند، باید از وقوع (Panic) جلوگیری کنند. panicها عامل اصلی ایجاد [شکست‌های متوالی(آبشاری)](https://en.wikipedia.org/wiki/Cascading_failure) هستند. اگر خطایی رخ دهد، تابع باید یک خطای مناسب را برگردانده و به فراخواننده  (caller) اجازه دهد تا تصمیم بگیرد که چگونه با آن برخورد کند.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1204,20 +1089,15 @@ func main() {
 </td></tr>
 </tbody></table>
 
-Panic/recover is not an error handling strategy. A program must panic only when
-something irrecoverable happens such as a nil dereference. An exception to this is
-program initialization: bad things at program startup that should abort the
-program may cause panic.
+استفاده از panic/recover به عنوان یک استراتژی مدیریت خطا مناسب نمی‌باشد. یک برنامه فقط زمانی باید panic کند که چیزی غیرقابل بازیابی اتفاق بیفتد (مثلاً nil dereference). یک استثنا، مقداردهی اولیه برنامه است: شرایط نامطلوبی که باعث می شود برنامه در هنگام شروع به کار متوقف شود، ممکن است باعث panic شود.
 
 ```go
 var _statusTemplate = template.Must(template.New("name").Parse("_statusHTML"))
 ```
-
-Even in tests, prefer `t.Fatal` or `t.FailNow` over panics to ensure that the
-test is marked as failed.
+حتی در تست‌ها، `t.Fatal` یا `t.FailNow` را به panics ترجیح دهید تا مطمئن شوید که آزمون به‌عنوان ناموفق علامت‌گذاری شده است.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1244,17 +1124,14 @@ if err != nil {
 </td></tr>
 </tbody></table>
 
-### Use go.uber.org/atomic
+### از پکیج `go.uber.org/atomic` استفاده کنید
 
-Atomic operations with the [sync/atomic](https://golang.org/pkg/sync/atomic/) package operate on the raw types
-(`int32`, `int64`, etc.) so it is easy to forget to use the atomic operation to
-read or modify the variables.
+از عملیات اتمی بسته [sync/atomic](https://golang.org/pkg/sync/atomic/) برای کار بر روی انواع اولیه (`int32`, `int64` و غیره.) استفاده کنید، بنابراین، ممکن است این نکته از یاد برود که برای دسترسی یا تغییر متغیرها، باید از عملیات‌های اتمیک استفاده کرد.
 
-[go.uber.org/atomic](https://godoc.org/go.uber.org/atomic) adds type safety to these operations by hiding the
-underlying type. Additionally, it includes a convenient `atomic.Bool` type.
+بسته [go.uber.org/atomic](https://godoc.org/go.uber.org/atomic) ایمنی نوع را با پنهان کردن نوع زیرین به این عملیات‌ها اضافه می‌کند. به علاوه، این بسته شامل یک تایپ `atomic.Bool` نیز می‌شود.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1299,13 +1176,12 @@ func (f *foo) isRunning() bool {
 </td></tr>
 </tbody></table>
 
-### Avoid Mutable Globals
+### از متغیرهای سراسری تغییرپذیر (Mutable Globals) خودداری کنید
 
-Avoid mutating global variables, instead opting for dependency injection.
-This applies to function pointers as well as other kinds of values.
+از تزریق وابستگی (Dependency Injection) بجای تغییر متغیرهای سراسری استفاده کنید. این مورد روی اشاره‌گرهای تابع (function pointers) و همچنین برای انواع مقادیر دیگر نیز اعمال می‌شود.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1376,38 +1252,33 @@ func TestSigner(t *testing.T) {
 </td></tr>
 </tbody></table>
 
-### Avoid Embedding Types in Public Structs
+### از جاسازی نوع ها (Embedding Types) در ساختارهای عمومی خودداری کنید
 
-These embedded types leak implementation details, inhibit type evolution, and
-obscure documentation.
+نوع‌های جاسازی شده (embedded types) جزئیات اطلاعات پیاده‌سازی را فاش می‌کنند، توسعه تایپ را دشوارتر می‌کنند و از وضوح مستندات می‌کاهند.
 
-Assuming you have implemented a variety of list types using a shared
-`AbstractList`, avoid embedding the `AbstractList` in your concrete list
-implementations.
-Instead, hand-write only the methods to your concrete list that will delegate
-to the abstract list.
+فرض کنید شما انواع مختلفی از لیست‌ها را با استفاده از یک `AbstractList` مشترک پیاده‌سازی کرده‌اید. از تعبیه کردن (embedding) `AbstractList` در پیاده‌سازی‌های خاص لیست‌های خود پرهیز کنید. به جای آن، تنها متدهایی را به صورت دستی برای لیست خاص خود ایجاد کنید که به `AbstractList` ارجاع می‌دهند.
 
 ```go
 type AbstractList struct {}
 
-// Add adds an entity to the list.
+// Add یک موجودیت را به لیست اضافه می کند.
 func (l *AbstractList) Add(e Entity) {
   // ...
 }
 
-// Remove removes an entity from the list.
+// Remove یک موجودیت را از لیست حذف می کند.
 func (l *AbstractList) Remove(e Entity) {
   // ...
 }
 ```
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
 ```go
-// ConcreteList is a list of entities.
+// ConcreteList لیستی از موجودیت ها است.
 type ConcreteList struct {
   *AbstractList
 }
@@ -1416,17 +1287,17 @@ type ConcreteList struct {
 </td><td>
 
 ```go
-// ConcreteList is a list of entities.
+// ConcreteList لیستی از موجودیت ها است.
 type ConcreteList struct {
   list *AbstractList
 }
 
-// Add adds an entity to the list.
+// Add یک موجودیت را به لیست اضافه می کند.
 func (l *ConcreteList) Add(e Entity) {
   l.list.Add(e)
 }
 
-// Remove removes an entity from the list.
+// Remove یک موجودیت را از لیست حذف می کند.
 func (l *ConcreteList) Remove(e Entity) {
   l.list.Remove(e)
 }
@@ -1435,37 +1306,27 @@ func (l *ConcreteList) Remove(e Entity) {
 </td></tr>
 </tbody></table>
 
-Go allows [type embedding](https://golang.org/doc/effective_go.html#embedding) as a compromise between inheritance and composition.
-The outer type gets implicit copies of the embedded type's methods.
-These methods, by default, delegate to the same method of the embedded
-instance.
+زبان Go امکان [type embedding](https://golang.org/doc/effective_go.html#embedding) را به عنوان یک توافق بین ارث‌بری و ترکیب فراهم می‌کند. نوع بیرونی (outer type) نسخه‌های ضمنی از متدهای نوع تعبیه‌شده را به طور ضمنی به ارث می‌برد و این متدها به طور پیش‌فرض به متد مشابه در نمونه تعبیه‌شده ارجاع داده می‌شوند.
 
-The struct also gains a field by the same name as the type.
-So, if the embedded type is public, the field is public.
-To maintain backward compatibility, every future version of the outer type must
-keep the embedded type.
+همچنین، ساختار (struct) فیلدی با همان نام نوع تعبیه شده را دریافت می کند. بنابراین، اگر نوع تعبیه‌شده عمومی باشد، فیلد عمومی است. برای حفظ توانایی کار کردن کد‌های قدیمی با نسخه‌های جدید، هر نسخه بعدی از نوع خارجی باید نوع تعبیه شده را حفظ کند.
 
-An embedded type is rarely necessary.
-It is a convenience that helps you avoid writing tedious delegate methods.
+نیاز به تعبیه (embedding) نوع‌ها به ندرت پیش می‌آید. این یک روش مفید است که به شما کمک می‌کند از نوشتن متدهای دستوری بلند و پیچیده جلوگیری کنید.
 
-Even embedding a compatible AbstractList *interface*, instead of the struct,
-would offer the developer more flexibility to change in the future, but still
-leak the detail that the concrete lists use an abstract implementation.
+حتی اگر یک رابط (_interface_) AbstractList سازگار را جایگزین ساختار (struct) کنید، به توسعه‌دهنده امکان بیشتری برای تغییر در آینده ارائه می‌دهد، اما همچنان جزئیات استفاده از یک پیاده‌سازی انتزاعی برای concrete لیست‌ها را فاش می‌کند.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
 ```go
-// AbstractList is a generalized implementation
-// for various kinds of lists of entities.
+// AbstractList یک پیاده سازی کلی از لیست های موجودیت های مختلف است.
 type AbstractList interface {
   Add(Entity)
   Remove(Entity)
 }
 
-// ConcreteList is a list of entities.
+// ConcreteList لیستی از موجودیت ها است.
 type ConcreteList struct {
   AbstractList
 }
@@ -1474,17 +1335,17 @@ type ConcreteList struct {
 </td><td>
 
 ```go
-// ConcreteList is a list of entities.
+// ConcreteList لیستی از موجودیت ها است.
 type ConcreteList struct {
   list AbstractList
 }
 
-// Add adds an entity to the list.
+// Add یک موجودیت را به لیست اضافه می کند.
 func (l *ConcreteList) Add(e Entity) {
   l.list.Add(e)
 }
 
-// Remove removes an entity from the list.
+// Remove یک موجودیت را از لیست حذف می کند.
 func (l *ConcreteList) Remove(e Entity) {
   l.list.Remove(e)
 }
@@ -1493,43 +1354,34 @@ func (l *ConcreteList) Remove(e Entity) {
 </td></tr>
 </tbody></table>
 
-Either with an embedded struct or an embedded interface, the embedded type
-places limits on the evolution of the type.
+استفاده از ساختارهای تعبیه شده (embedded struct) یا رابط‌های تعبیه شده (embedded interface)، تکامل و توسعه Typeها را محدود می کند.
 
-- Adding methods to an embedded interface is a breaking change.
-- Removing methods from an embedded struct is a breaking change.
-- Removing the embedded type is a breaking change.
-- Replacing the embedded type, even with an alternative that satisfies the same
-  interface, is a breaking change.
+- افزودن متدها به یک رابط تعبیه‌شده تغییرات مخربی ایجاد می‌کند.
+- حذف متدها از یک ساختار تعبیه‌شده نیز تغییر مخربی محسوب می‌شود. 
+- حذف نوع تعبیه‌شده همچنین به عنوان یک تغییر مخرب در نظر گرفته می‌شود. 
+- حتی جایگزین کردن نوع تعبیه‌شده با یک نوع جایگزین که همان رابط مشابه را پیاده‌سازی می‌کند، تغییر مخربی به حساب می‌آید. 
 
-Although writing these delegate methods is tedious, the additional effort hides
-an implementation detail, leaves more opportunities for change, and also
-eliminates indirection for discovering the full List interface in
-documentation.
+اگرچه نوشتن این متدها (متدهای تعبیه‌شده) کمی زمان‌بر است، اما تلاش اضافی که برای این کار صرف می‌شود، باعث می‌شود جزئیات پیاده‌سازی متدها پنهان شوند. همچنین، این کار فرصت‌های بیشتری برای تغییر در آینده فراهم می‌کند و همچنین این کار به بهبود پایداری و قابلیت تغییر بیشتر کد کمک می‌کند و به از بین بردن انحرافات و پیچیدگی‌های غیر ضروری در مستندات کمک می‌کند.
 
-### Avoid Using Built-In Names
+### از استفاده از نام های داخلی (Buit-In) خودداری کنید
 
-The Go [language specification](https://golang.org/ref/spec) outlines several built-in,
-[predeclared identifiers](https://golang.org/ref/spec#Predeclared_identifiers) that should not be used as names within Go programs.
+[مشخصات زبان](https://golang.org/ref/spec) Go چندین شناسه داخلی و [شناسه‌های از پیش اعلام شده](https://golang.org/ref/spec#Predeclared_identifiers) را مشخص می کند که نباید در پروژه های Go استفاده شوند.
 
-Depending on context, reusing these identifiers as names will either shadow
-the original within the current lexical scope (and any nested scopes) or make
-affected code confusing. In the best case, the compiler will complain; in the
-worst case, such code may introduce latent, hard-to-grep bugs.
+بسته به زمینه (context)، استفاده مجدد از این شناسه‌ها به عنوان نام، شناسه اصلی را در محدوده فعلی (یا هر محدوده تودرتو) پنهان می‌کند یا کد را مبهم می‌‌کند. در بهترین حالت، کامپایلر یک خطا ایجاد می‌کند؛ در بدترین حالت، چنین کدی ممکن است خطاهایی را ایجاد کند که بازیابی آن‌ها دشوار است.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
 ```go
 var error string
-// `error` shadows the builtin
+// استفاده از نام `error` به عنوان یک متغیر یا شناسه، باعث ایجاد سایه روی نام داخلی `error` می‌شود.
 
-// or
+// یا
 
 func handleErrorMessage(error string) {
-    // `error` shadows the builtin
+ // استفاده از نام `error` به عنوان یک متغیر یا شناسه، باعث ایجاد سایه روی نام داخلی `error` می‌شود.
 }
 ```
 
@@ -1537,12 +1389,12 @@ func handleErrorMessage(error string) {
 
 ```go
 var errorMessage string
-// `error` refers to the builtin
+// در اینجا `error` به عنوان یک متغیر یا شناسه داخلی در نظر گرفته می‌شود
 
 // or
 
 func handleErrorMessage(msg string) {
-    // `error` refers to the builtin
+    // در اینجا `error` به عنوان یک متغیر یا شناسه داخلی در نظر گرفته می‌شود
 }
 ```
 
@@ -1551,23 +1403,18 @@ func handleErrorMessage(msg string) {
 
 ```go
 type Foo struct {
-    // While these fields technically don't
-    // constitute shadowing, grepping for
-    // `error` or `string` strings is now
-    // ambiguous.
+// اگرچه این فیلدها از لحاظ فنی سایه‌زنی (shadowing) را ایجاد نمی‌کنند، اما جستجوی رشته‌های `error` یا `string` در این موارد اکنون مبهم است.
     error  error
     string string
 }
 
 func (f Foo) Error() error {
-    // `error` and `f.error` are
-    // visually similar
+    // `error` و `f.error` از نظر بصری مشابه هم هستند.
     return f.error
 }
 
 func (f Foo) String() string {
-    // `string` and `f.string` are
-    // visually similar
+    // `string` و `f.string` از نظر بصری مشابه هم هستند.
     return f.string
 }
 ```
@@ -1576,8 +1423,7 @@ func (f Foo) String() string {
 
 ```go
 type Foo struct {
-    // `error` and `string` strings are
-    // now unambiguous.
+    // `error` و `string` اکنون واضح هستند.
     err error
     str string
 }
@@ -1594,33 +1440,21 @@ func (f Foo) String() string {
 </td></tr>
 </tbody></table>
 
-Note that the compiler will not generate errors when using predeclared
-identifiers, but tools such as `go vet` should correctly point out these and
-other cases of shadowing.
+توجه داشته باشید که کامپایلر هنگام استفاده از شناسه‌های پیش‌تعریف شده خطا ایجاد نمی کند، اما ابزارهایی مانند `go vet` به درستی به مشکلات ضمنی در این موارد و موارد دیگر اشاره می کنند.
 
-### Avoid `init()`
+### از تابع `()init` استفاده نکنید
 
-Avoid `init()` where possible. When `init()` is unavoidable or desirable, code
-should attempt to:
+در صورت امکان، از `()init` پرهیز کنید. وقتی لازم به استفاده از تابع `()init` هستید، کد باید تلاش کند:
 
-1. Be completely deterministic, regardless of program environment or invocation.
-2. Avoid depending on the ordering or side-effects of other `init()` functions.
-   While `init()` ordering is well-known, code can change, and thus
-   relationships between `init()` functions can make code brittle and
-   error-prone.
-3. Avoid accessing or manipulating global or environment state, such as machine
-   information, environment variables, working directory, program
-   arguments/inputs, etc.
-4. Avoid I/O, including both filesystem, network, and system calls.
+1. بدون توجه به محیط برنامه یا نحوه فراخوانی، کاملاً قطعی عمل کند.
+2. سعی کنید از ایجاد وابستگی به ترتیب اجرا یا اثرات جانبی مربوط به توابع `()init` دیگر خودداری کنید.هرچند ترتیب اجرای توابع `()init` به خوبی شناخته شده است، اما کد ممکن است تغییر کند و این وابستگی‌ها می‌توانند منجر به ناپایداری و خطاهای پنهان شوند.
+3. از دسترسی یا دستکاری وضعیت سراسری یا محیطی مانند اطلاعات ماشین، متغیرهای محیطی، دایرکتوری کاری، آرگومان‌ها/ورودی‌های برنامه و غیره پرهیز کند.
+4. از عملیات ورود/خروج (I/O) مانند عملیات فایل‌سیستم، شبکه و تماس‌های سیستمی پرهیز کند.
 
-Code that cannot satisfy these requirements likely belongs as a helper to be
-called as part of `main()` (or elsewhere in a program's lifecycle), or be
-written as part of `main()` itself. In particular, libraries that are intended
-to be used by other programs should take special care to be completely
-deterministic and not perform "init magic".
+کدی که نمی‌تواند این موارد را انجام دهد، احتمالاً بهتر است به عنوان یک تابع کمکی برای فراخوانی در `()main` (یا در جای دیگر در چرخه عمر برنامه) قرار گیرد یا به عنوان بخشی از خود `()main` نوشته شود. به خصوص کتابخانه‌هایی که برای استفاده در برنامه‌های دیگر طراحی شده‌اند، باید مراقبت‌های خاصی را برای تضمین قطعیت کامل داشته باشند و از "جادوی `init`" پرهیز کنند.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1645,7 +1479,7 @@ var _defaultFoo = Foo{
     // ...
 }
 
-// or, better, for testability:
+// یا برای تست پذیری بهتر:
 
 var _defaultFoo = defaultFoo()
 
@@ -1667,10 +1501,10 @@ type Config struct {
 var _config Config
 
 func init() {
-    // Bad: based on current directory
+    // بد: بر اساس دایرکتوری فعلی
     cwd, _ := os.Getwd()
 
-    // Bad: I/O
+    // بد: I/O
     raw, _ := os.ReadFile(
         path.Join(cwd, "config", "config.yaml"),
     )
@@ -1705,24 +1539,20 @@ func loadConfig() Config {
 </td></tr>
 </tbody></table>
 
-Considering the above, some situations in which `init()` may be preferable or
-necessary might include:
+با توجه به موارد فوق، شرایطی وجود دارد که ممکن است `()init` ارجح یا ضروری باشد، که ممکن است شامل موارد زیر باشد:
 
-- Complex expressions that cannot be represented as single assignments.
-- Pluggable hooks, such as `database/sql` dialects, encoding type registries, etc.
-- Optimizations to [Google Cloud Functions](https://cloud.google.com/functions/docs/bestpractices/tips#use_global_variables_to_reuse_objects_in_future_invocations) and other forms of deterministic
-  precomputation.
+- عبارات پیچیده که نمی‌توانند به عنوان انتساب‌های تکی نمایان شوند. (مثلا اگر یک متغیر را نمی‌توان با یک عبارت ساده از نوع x := value مقداردهی کرد و نیاز به انجام محاسبات پیچیده‌تری دارید، در این صورت ممکن است از ()init استفاده کنید.)
+- قلاب های قابل اتصال، مانند پایگاه داده/sql، رجیستری نوع رمزگذاری و غیره.
+- بهینه‌سازی‌ها برای [Google Cloud توابع](https://cloud.google.com/functions/docs/bestpractices/tips#use_global_variables_to_reuse_objects_in_future_invocations) و سایر اشکال پیش محاسبه قطعی.
 
-### Exit in Main
+### خروج فقط در تابع اصلی (Main)
 
-Go programs use [`os.Exit`](https://golang.org/pkg/os/#Exit) or [`log.Fatal*`](https://golang.org/pkg/log/#Fatal) to exit immediately. (Panicking
-is not a good way to exit programs, please [don't panic](#dont-panic).)
+برنامه‌های Go برای خروج فوری از برنامه از [`os.Exit`](https://golang.org/pkg/os/#Exit) یا [`log.Fatal*`](https://golang.org/pkg/log/#Fatal) استفاده می‌کنند. (استفاده از panic به عنوان روشی برای خروج از برنامه مناسب نیست،  لطفاً [از panic استفاده نکنید](#dont-panic).)
 
-Call one of `os.Exit` or `log.Fatal*` **only in `main()`**. All other
-functions should return errors to signal failure.
+**تنها در تابع `()main`** از یکی از `os.Exit` یا `log.Fatal*` استفاده کنید. توابع دیگر برای اعلام شکست باید خطاها را به عنوان نتیجه برگردانند.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1776,28 +1606,20 @@ func readFile(path string) (string, error) {
 </td></tr>
 </tbody></table>
 
-Rationale: Programs with multiple functions that exit present a few issues:
+در اصل: برنامه‌هایی که دارای تعدادی تابع هستند که دارای توابع خروج فوری هستند، چندین مسئله را با خود به همراه دارند:
 
-- Non-obvious control flow: Any function can exit the program so it becomes
-  difficult to reason about the control flow.
-- Difficult to test: A function that exits the program will also exit the test
-  calling it. This makes the function difficult to test and introduces risk of
-  skipping other tests that have not yet been run by `go test`.
-- Skipped cleanup: When a function exits the program, it skips function calls
-  enqueued with `defer` statements. This adds risk of skipping important
-  cleanup tasks.
+- جریان کنترل ناپیدا: هر تابعی ممکن است باعث خروج برنامه شود، به همین دلیل تبدیل به یک موضوع سخت برای استدلال در مورد کنترل جریان می‌شود.
+- دشواری در تست: توابعی که برنامه را خارج می‌کنند باعث می‌شوند فرآیند تست متوقف شود. این باعث می‌شود که تست کردن این توابع دشوار شود و منجر به خطر از دست دادن تست‌های دیگری که هنوز توسط `go test` اجرا نشده‌اند، شود.
+- پاکسازی نادیده گرفته شده: وقتی یک تابع باعث خروج برنامه می‌شود، اجرای توابعی که با استفاده از عبارت‌های `defer` ثبت شده‌اند را نادیده می‌گیرد. این کار باعث افزایش خطر از دست دادن وظایف پایانی مهم می‌شود.
 
-#### Exit Once
+#### فقط یکبار از یکی از توابع خروج استفاده کنید (Exit Once)
 
-If possible, prefer to call `os.Exit` or `log.Fatal` **at most once** in your
-`main()`. If there are multiple error scenarios that halt program execution,
-put that logic under a separate function and return errors from it.
+در صورت امکان، **حداکثر یک بار** `os.Exit` یا `log.Fatal` را در تابع `()main` خود فراخوانی کنید. اگر چندین حالت خطا وجود دارد که اجرای برنامه را متوقف می‌کنند، این منطق را در یک تابع مستقل قرار دهید و از آنجا خطاها را برگردانید.
 
-This has the effect of shortening your `main()` function and putting all key
-business logic into a separate, testable function.
+این کار باعث کوتاه شدن تابع `()main` شما می‌شود و همه منطق اصلی کسب‌وکار را در یک تابع مستقل قرار می‌دهد که قابلیت تست آن را بهبود می‌دهد.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1817,8 +1639,7 @@ func main() {
   }
   defer f.Close()
 
-  // If we call log.Fatal after this line,
-  // f.Close will not be called.
+  // اگر بعد از این خط log.Fatal را فراخوانی کنیم، f.Close فراخوانی نمی شود.
 
   b, err := io.ReadAll(f)
   if err != nil {
@@ -1865,8 +1686,7 @@ func run() error {
 </td></tr>
 </tbody></table>
 
-The example above uses `log.Fatal`, but the guidance also applies to
-`os.Exit` or any library code that calls `os.Exit`.
+مثال بالا از `log.Fatal` استفاده می کند، اما این راهنما می‌تواند برای `os.Exit` یا هر کد کتابخانه ای که `os.Exit` را فراخوانی می کند نیز اعمال می شود.
 
 ```go
 func main() {
@@ -1877,10 +1697,7 @@ func main() {
 }
 ```
 
-You may alter the signature of `run()` to fit your needs.
-For example, if your program must exit with specific exit codes for failures,
-`run()` may return the exit code instead of an error.
-This allows unit tests to verify this behavior directly as well.
+شما می‌توانید امضای تابع `()run` را مطابق با نیازهای خود تغییر دهید. به عنوان مثال، اگر برنامه شما باید با کدهای خروج خاصی برای خطاها خارج شود، `()run` می‌تواند به جای یک خطا، کد خروج را برگرداند. همچنین به تست های واحد اجازه می دهد تا مستقیماً این رفتار را تأیید کنند.
 
 ```go
 func main() {
@@ -1892,27 +1709,21 @@ func run() (exitCode int) {
 }
 ```
 
-More generally, note that the `run()` function used in these examples
-is not intended to be prescriptive.
-There's flexibility in the name, signature, and setup of the `run()` function.
-Among other things, you may:
+لطفاً توجه داشته باشید که تابع `()run` مورد استفاده در این مثال‌ها استفاده شده است اجباری نیست. نام، امضا و تنظیمات تابع `()run` انعطاف پذیر هستند. از جمله موارد دیگر، می توانید:
 
-- accept unparsed command line arguments (e.g., `run(os.Args[1:])`)
-- parse command line arguments in `main()` and pass them onto `run`
-- use a custom error type to carry the exit code back to `main()`
-- put business logic in a different layer of abstraction from `package main`
+- آرگومان‌های خط فرمان تجزیه نشده (unparsed) را می‌پذیرد به عنوان مثال (`run(os.Args[1:])`)
+- آرگومان‌های خط فرمان را در `()main` تجزیه کنید (parse) و آنها را برای اجرا ارسال کنید
+- با استفاده از تعریف یک تایپ خطای سفارشی، کد خروج را به `()main` برگردانید
+- منطق کسب و کار را در لایه‌های انتزاعی مختلف `(package main)بسته اصلی` قرار دهید
 
-This guidance only requires that there's a single place in your `main()`
-responsible for actually exiting the process.
+با این راهنمود، تنها یک مکان در تابع `()main` شما وجود دارد که واقعاً مسئول خروج از پروسه است.
 
-### Use field tags in marshaled structs
+### از برچسب های فیلد در ساختارهای مارشال شده (marshaled) استفاده کنید
 
-Any struct field that is marshaled into JSON, YAML,
-or other formats that support tag-based field naming
-should be annotated with the relevant tag.
+هر فیلدی که به فرمت‌هایی مانند JSON، YAML یا سایر فرمت‌هایی که از نام‌گذاری بر اساس تگ‌ها پشتیبانی می‌کنند، باید با تگ مربوطه مشخص شود.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1934,7 +1745,7 @@ bytes, err := json.Marshal(Stock{
 type Stock struct {
   Price int    `json:"price"`
   Name  string `json:"name"`
-  // Safe to rename Name to Symbol.
+  // ایمن برای تغییر نام به نماد.
 }
 
 bytes, err := json.Marshal(Stock{
@@ -1946,40 +1757,25 @@ bytes, err := json.Marshal(Stock{
 </td></tr>
 </tbody></table>
 
-Rationale:
-The serialized form of the structure is a contract between different systems.
-Changes to the structure of the serialized form--including field names--break
-this contract. Specifying field names inside tags makes the contract explicit,
-and it guards against accidentally breaking the contract by refactoring or
-renaming fields.
+گوروتین‌ها سبک هستند، اما رایگان نیستند: حداقل هزینه‌هایی را برای استفاده از حافظه برای پشته آن‌ها و زمان CPU برای زمان‌بندی آن‌ها دارند. این هزینه‌ها در موارد معمولی کمترین تأثیر را دارند، اما زمانی که تعداد زیادی گوروتین بدون مدیریت صحیح ایجاد می‌شوند، می‌توانند به مشکلات عملکردی بزرگی منجر شوند. همچنین، گوروتین‌هایی که مدیریت زمان‌های چرخه حیات مشخصی ندارند، می‌توانند به مشکلات دیگری نیز منجر شوند، مثل جلوگیری از جمع‌آوری زباله‌ها (garbage collected) و نگه‌داشتن منابعی که دیگر استفاده نمی‌شوند.
 
-### Don't fire-and-forget goroutines
+### گوروتین ها را به حال خودشان (بدون نظارت) رها نکنید
 
-Goroutines are lightweight, but they're not free:
-at minimum, they cost memory for their stack and CPU to be scheduled.
-While these costs are small for typical uses of goroutines,
-they can cause significant performance issues
-when spawned in large numbers without controlled lifetimes.
-Goroutines with unmanaged lifetimes can also cause other issues
-like preventing unused objects from being garbage collected
-and holding onto resources that are otherwise no longer used.
+گوروتین‌ها سبک هستند، اما رایگان نیستند: حداقل هزینه‌هایی را برای استفاده از حافظه برای پشته آن‌ها و زمان CPU برای زمان‌بندی آن‌ها دارند. این هزینه‌ها در موارد معمولی کمترین تأثیر را دارند، اما زمانی که تعداد زیادی گوروتین بدون مدیریت صحیح ایجاد می‌شوند، می‌توانند به مشکلات عملکردی بزرگی منجر شوند. همچنین، گوروتین‌هایی که بدون مدیریت زمان‌های چرخه حیات مشخصی ایجاد می‌شوند، می‌توانند به مشکلات دیگری نیز منجر شوند، مثل جلوگیری از جمع‌آوری زباله‌ها (garbage collected) و نگه‌داشتن منابعی که دیگر استفاده نمی‌شوند.
 
-Therefore, do not leak goroutines in production code.
-Use [go.uber.org/goleak](https://pkg.go.dev/go.uber.org/goleak)
-to test for goroutine leaks inside packages that may spawn goroutines.
+بنابراین، از لو رفتن (leak) گوروتین‌ها در کد تولیدی (production code) جلوگیری کنید. برای تست نشتی گوروتین داخل پکیج‌هایی که ممکن است گوروتین ایجاد کنند، از [go.uber.org/goleak](https://pkg.go.dev/go.uber.org/goleak) استفاده کنید.
 
-In general, every goroutine:
+بطور کلی، هر گوروتین باید:
 
-- must have a predictable time at which it will stop running; or
-- there must be a way to signal to the goroutine that it should stop
+- یک زمان پیش‌بینی‌شده برای متوقف شدن داشته باشد؛ یا
+- باید یک راه برای اعلام به گوروتین وجود داشته باشد که باید متوقف شود.
 
-In both cases, there must be a way code to block and wait for the goroutine to
-finish.
+در هر دو مورد، باید یک روش وجود داشته باشد تا کد بلاک شده و منتظر اتمام گوروتین شود.
 
-For example:
+برای مثال:
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -1996,8 +1792,8 @@ go func() {
 
 ```go
 var (
-  stop = make(chan struct{}) // tells the goroutine to stop
-  done = make(chan struct{}) // tells us that the goroutine exited
+  stop = make(chan struct{}) // به گوروتین می گوید که متوقف شود
+  done = make(chan struct{}) // به ما می گوید که گوروتین خارج شد
 )
 go func() {
   defer close(done)
@@ -2014,33 +1810,28 @@ go func() {
   }
 }()
 
-// Elsewhere...
-close(stop)  // signal the goroutine to stop
-<-done       // and wait for it to exit
+// خارج از محدوده گوروتین(در جایی دیگر)...
+close(stop)  // به گوروتین علامت دهید که متوقف شود
+<-done       // و صبر کنید تا خارج شود
 ```
 
 </td></tr>
 <tr><td>
 
-There's no way to stop this goroutine.
-This will run until the application exits.
+هیچ راهی برای متوقف کردن این گوروتین وجود ندارد. گوروتین تا زمانی که برنامه خارج شود اجرا می شود.
 
 </td><td>
 
-This goroutine can be stopped with `close(stop)`,
-and we can wait for it to exit with `<-done`.
+این گوروتین را می توان با `close(stop)` متوقف کرد، و می توانیم منتظر خروج آن با `done->` باشیم.
 
 </td></tr>
 </tbody></table>
 
-#### Wait for goroutines to exit
+#### منتظر خروج گوروتین ها باشید
 
-Given a goroutine spawned by the system,
-there must be a way to wait for the goroutine to exit.
-There are two popular ways to do this:
+با توجه به گوروتین ایجاد شده توسط سیستم، باید راهی برای انتظار خروج گوروتین وجود داشته باشد. دو روش رایج برای انجام این کار وجود دارد:
 
-- Use a `sync.WaitGroup`.
-  Do this if there are multiple goroutines that you want to wait for
+- اگر چندین گوروتین دارید که می‌خواهید منتظر آن‌ها بمانید از `sync.WaitGroup` استفاده کنید.
 
   ```go
   var wg sync.WaitGroup
@@ -2052,12 +1843,11 @@ There are two popular ways to do this:
     }()
   }
 
-  // To wait for all to finish:
+  // صبر کنید تا همه چیز تمام شود:
   wg.Wait()
   ```
 
-- Add another `chan struct{}` that the goroutine closes when it's done.
-  Do this if there's only one goroutine.
+- اگر تنها یک گوروتین وجود دارد، بهتر است یک کانال `{}chan struct` دیگر ایجاد کنید که گوروتین آن را پس از انجام کار ببندد. به این ترتیب می‌توانید انتظار برای اتمام گوروتین را داشته باشید. این کار به شما اجازه می‌دهد تا بدون استفاده از `sync.WaitGroup` منتظر اتمام گوروتین باشید.
 
   ```go
   done := make(chan struct{})
@@ -2066,23 +1856,21 @@ There are two popular ways to do this:
     // ...
   }()
 
-  // To wait for the goroutine to finish:
+  // برای اینکه منتظر بمانید تا کار گوروتین تمام شود:
   <-done
   ```
 
-#### No goroutines in `init()`
+#### از گوروتین ها در تابع `()init` استفاده نکنید
 
 `init()` functions should not spawn goroutines.
 See also [Avoid init()](#avoid-init).
 
-If a package has need of a background goroutine,
-it must expose an object that is responsible for managing a goroutine's
-lifetime.
-The object must provide a method (`Close`, `Stop`, `Shutdown`, etc)
-that signals the background goroutine to stop, and waits for it to exit.
+توابع `()init` نباید گوروتین‌ها را راه‌اندازی کنند. همچنین دیگر مواردی که استفاده از [تابع ()init را توصیه نمی‌کند](#avoid-init): 
+
+اگر یک بسته (package) نیاز به یک گوروتین پس‌زمینه دارد، باید یک شی ارائه دهد که مسئولیت مدیریت چرخه حیات گوروتین را بر عهده دارد. این شی باید یک متد (مانند `Close`, `Stop`, `Shutdown` و غیره) ارائه دهد که به گوروتین پس‌زمینه اعلام کند که باید متوقف شود و منتظر اتمام آن بماند.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2121,8 +1909,7 @@ func (w *Worker) doWork() {
   }
 }
 
-// Shutdown tells the worker to stop
-// and waits until it has finished.
+// خاموش شدن (Shutdown) به workder می گوید که متوقف شود و صبر کند تا کار تمام شود.
 func (w *Worker) Shutdown() {
   close(w.stop)
   <-w.done
@@ -2132,33 +1919,29 @@ func (w *Worker) Shutdown() {
 </td></tr>
 <tr><td>
 
-Spawns a background goroutine unconditionally when the user exports this package.
-The user has no control over the goroutine or a means of stopping it.
+زمانی که کاربر این بسته (package) را (export) می‌کند، یک گوروتین پس‌زمینه بدون شرطی ایجاد می‌شود.
+کاربر هیچ کنترلی بر روی گوروتین ندارد و هیچ وسیله‌ای برای متوقف کردن آن وجود ندارد.
+
 
 </td><td>
 
-Spawns the worker only if the user requests it.
-Provides a means of shutting down the worker so that the user can free up
-resources used by the worker.
+گوروتین، worker را فقط در صورتی ایجاد می‌کند که کاربر آن را درخواست کند. همچنین امکانی برای shutdownکردن worker فراهم می‌کند تا کاربر بتواند منابع مورد استفاده توسط worker را آزاد کند.
 
-Note that you should use `WaitGroup`s if the worker manages multiple
-goroutines.
-See [Wait for goroutines to exit](#wait-for-goroutines-to-exit).
+توجه داشته باشید که اگر worker مدیریت چندین گوروتین را انجام می‌دهد، باید از `WaitGroups` استفاده کنید. برای جزئیات بیشتر به [منتظر اتمام گوروتین‌ها باشید](#منتظر-خروج-گوروتین-ها-باشید)
 
 </td></tr>
 </tbody></table>
 
-## Performance
+## کارایی (Performance)
 
-Performance-specific guidelines apply only to the hot path.
+دستورالعمل‌های مربوط به عملکرد، تنها به مسیر اصلی (hot path) اعمال می‌شوند.
 
-### Prefer strconv over fmt
+### پکیج `strconv` را به `fmt` ترجیح دهید
 
-When converting primitives to/from strings, `strconv` is faster than
-`fmt`.
+وقتی می‌خواهید primitives را به string تبدیل کنید یا برعکس، بهتر است از بسته `strconv` استفاده کنید چرا که عملکرد این بسته سریع‌تر از بسته `fmt` است.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2192,10 +1975,9 @@ BenchmarkStrconv-4    64.2 ns/op    1 allocs/op
 </td></tr>
 </tbody></table>
 
-### Avoid string-to-byte conversion
+### از تبدیل رشته به بایت (string-to-byte) خودداری کنید
 
-Do not create byte slices from a fixed string repeatedly. Instead, perform the
-conversion once and capture the result.
+به طور مکرر برش‌های بایت (byte slices) را از stringهای ثابت ایجاد نکنید. بجای اینکار، یک تبدیل انجام دهید و نتیجه را ثبت کنید.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -2233,32 +2015,24 @@ BenchmarkGood-4  500000000   3.25 ns/op
 </td></tr>
 </tbody></table>
 
-### Prefer Specifying Container Capacity
+### ترجیحا ظرفیت کانتینر (container) را مشخص کنید
 
-Specify container capacity where possible in order to allocate memory for the
-container up front. This minimizes subsequent allocations (by copying and
-resizing of the container) as elements are added.
+تا جایی که امکان دارد ظرفیت کانتینر را مشخص کنید تا حافظه از قبل برای کانتینر تخصیص داده شود. این امر تخصیص های بعدی (با کپی و تغییر اندازه ظرف) را هنگام افزودن عناصر به حداقل می رساند.
 
-#### Specifying Map Capacity Hints
+#### تعیین حداکثر ظرفیت ممکن Map
 
-Where possible, provide capacity hints when initializing
-maps with `make()`.
+در صورت امکان، هنگام مقداردهی اولیه Mapها با `()make` اندازه ظرفیت آن را مشخص کنید.
 
 ```go
 make(map[T1]T2, hint)
 ```
 
-Providing a capacity hint to `make()` tries to right-size the
-map at initialization time, which reduces the need for growing
-the map and allocations as elements are added to the map.
+مشخص کردن ظرفیت به ()make باعث ایجاد Map در زمان مقداردهی اولیه می‌شود، که در صورت اضافه شدن عناصر به Map، از تخصیص مجدد حافظه برای Map جلوگیری می‌کند.
 
-Note that, unlike slices, map capacity hints do not guarantee complete,
-preemptive allocation, but are used to approximate the number of hashmap buckets
-required. Consequently, allocations may still occur when adding elements to the
-map, even up to the specified capacity.
+در واقعیت، تعیین ظرفیت Map با استفاده از تابع ()make نمی‌تواند به صورت دقیق و کامل تعداد دقیق buckets مورد نیاز برای یک hashmap را پیش‌بینی کند. به جای اینکه به صورت کامل پیش‌بینی شده باشد، این تعیین ظرفیت تقریبا buckets مورد نیاز برای hashmap را ارائه می‌دهد. به عبارت دیگر، حتی با تعیین یک ظرفیت خاص، ممکن است در هنگام افزودن عناصر به Map، تخصیص‌ها (allocation) انجام شود.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2286,34 +2060,27 @@ for _, f := range files {
 </td></tr>
 <tr><td>
 
-`m` is created without a size hint; there may be more
-allocations at assignment time.
+متغیر `m` بدون تعیین اندازه ایجاد شده است؛ بنابراین ممکن است در زمان اختصاص (assignment) عناصر به `m` تخصیص‌های بیشتری ایجاد شود.
 
 </td><td>
 
-`m` is created with a size hint; there may be fewer
-allocations at assignment time.
+متغیر `m` با یک اشاره به اندازه ایجاد شده است؛ بنابراین ممکن است در زمان اختصاص (assignment) عناصر به `m` تخصیص‌های کمتری ایجاد شود.
 
 </td></tr>
 </tbody></table>
 
-#### Specifying Slice Capacity
+#### تعیین ظرفیت برش(slice)
 
-Where possible, provide capacity hints when initializing slices with `make()`,
-particularly when appending.
+در صورت امکان، هنگام مقداردهی اولیه sliceها با استفاده از تابع `()make`، مقدار ظرفیت راتعیین کنید، به ویژه هنگام اضافه کردن عناصر.
 
 ```go
 make([]T, length, capacity)
 ```
 
-Unlike maps, slice capacity is not a hint: the compiler will allocate enough
-memory for the capacity of the slice as provided to `make()`, which means that
-subsequent `append()` operations will incur zero allocations (until the length
-of the slice matches the capacity, after which any appends will require a resize
-to hold additional elements).
+برخلاف Mapها، ظرفیت برش(Slice) نیازی به مشخص کردن ظرفیت آرایه در زمان ایجاد آن ندارد: به این معنا که عملیات‌های بعدی `()append` هیچ تخصیص حافظه‌ای را در پی ندارند (تا زمانی که طول آرایه با ظرفیت مطابقت داشته باشد، پس از آن هر append به منظور نگهداری عناصر اضافی نیاز به تغییر اندازه دارد).
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2353,44 +2120,32 @@ BenchmarkGood-4   100000000    0.21s
 </td></tr>
 </tbody></table>
 
-## Style
+## استایل (style)
 
-### Avoid overly long lines
+### از خطوط بیش از حد طولانی خودداری کنید
 
-Avoid lines of code that require readers to scroll horizontally
-or turn their heads too much.
+از خطوط کدی که خوانندگان را ملزم به اسکرول افقی یا چرخاندن بیش از حد سر خود می کند اجتناب کنید.
 
-We recommend a soft line length limit of **99 characters**.
-Authors should aim to wrap lines before hitting this limit,
-but it is not a hard limit.
-Code is allowed to exceed this limit.
+ما محدودیت طول خط نرم **99 کاراکتر** را توصیه می کنیم. نویسندگان باید قبل از رسیدن به این حد، خطوط را wrap کنند، اما این یک محدودیت دقیق نیست. اجازه داده شده است که کد این محدودیت را تجاوز کند.
 
-### Be Consistent
+### یکپارچگی را رعایت کنید
 
-Some of the guidelines outlined in this document can be evaluated objectively;
-others are situational, contextual, or subjective.
+برخی از معیارهای ذکر شده در این مقاله، ارزیابی های عینی، بر اساس موقعیت یا سناریو، زمینه (context)، یا قضاوت های ذهنی هستند.
 
-Above all else, **be consistent**.
+مهمتر از همه اینا، **پیوستگی را حفظ کنید**.
 
-Consistent code is easier to maintain, is easier to rationalize, requires less
-cognitive overhead, and is easier to migrate or update as new conventions emerge
-or classes of bugs are fixed.
+کد یکنواخت و یکدست راحتتر ویرایش می‌شود، منطقی‌تر است، نیاز به تفکر کمتری دارد، و همچنین راحت‌تر می‌توان آن را به‌روز کرد و رفع اشکال‌ها در آن آسان‌تر است.
 
-Conversely, having multiple disparate or conflicting styles within a single
-codebase causes maintenance overhead, uncertainty, and cognitive dissonance,
-all of which can directly contribute to lower velocity, painful code reviews,
-and bugs.
+به عبارت دیگر، داشتن چندین سبک مختلف کدنویسی در یک پایگاه کد می‌تواند منجر به هزینه‌های سربار تعمیر و نگهداری، عدم انسجام و عدم تطابق در استایل‌ها یا نگارش کد می‌شود در نهایت همه اینها مستقیماً منجر به کاهش سرعت، بررسی کدهای پیچیده و افزایش تعداد اشکال می‌شود.
 
-When applying these guidelines to a codebase, it is recommended that changes
-are made at a package (or larger) level: application at a sub-package level
-violates the above concern by introducing multiple styles into the same code.
+هنگام اعمال این استانداردها در یک codebase، توصیه می‌شود که تغییرات در سطح پکیج (یا بزرگتر) اعمال شود، با اجرای این تغییرات در سطح زیربسته (sub-package) می‌تواند نگرانی‌های فوق را با معرفی چندین سبک در یک کد نقض کند.
 
-### Group Similar Declarations
+### تعاریف مشابه را گروه بندی کنید
 
-Go supports grouping similar declarations.
+زبان Go از گروه‌بندی اعلان‌های مشابه پشتیبانی می‌کند.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2411,10 +2166,10 @@ import (
 </td></tr>
 </tbody></table>
 
-This also applies to constants, variables, and type declarations.
+همین امر در مورد ثابت‌ها، متغیرها و اعلان‌ تایپ‌ها صدق می‌کند:
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2456,10 +2211,10 @@ type (
 </td></tr>
 </tbody></table>
 
-Only group related declarations. Do not group declarations that are unrelated.
+فقط اعلان‌های مرتبط را گروه‌بندی کنید. اعلان‌های غیرمرتبط را گروه‌بندی نکنید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2491,11 +2246,10 @@ const EnvVar = "MY_ENV"
 </td></tr>
 </tbody></table>
 
-Groups are not limited in where they can be used. For example, you can use them
-inside of functions.
+هیچ محدودیتی برای استفاده از گروه‌ها وجود ندارد، به عنوان مثال: می‌توانید از آنها در داخل توابع استفاده کنید:
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2526,12 +2280,10 @@ func f() string {
 </td></tr>
 </tbody></table>
 
-Exception: Variable declarations, particularly inside functions, should be
-grouped together if declared adjacent to other variables. Do this for variables
-declared together even if they are unrelated.
+استثنا: اعلان‌های متغیر (مخصوصاً آنهایی که درون توابع هستند) در صورت مجاورت با متغیرهای دیگر باید با هم گروه‌بندی شوند. این کار را برای متغیرهای اعلام شده با هم انجام دهید، حتی اگر نامرتبط باشند.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2564,17 +2316,16 @@ func (c *client) request() {
 </td></tr>
 </tbody></table>
 
-### Import Group Ordering
+### مرتب سازی گروهی واردات (imports)
 
-There should be two import groups:
+واردات باید به دو دسته تقسیم شود:
 
-- Standard library
-- Everything else
-
-This is the grouping applied by goimports by default.
+- کتابخانه استاندارد
+- سایر کتابخانه ها
+این گروه بندی است که توسط goimports به طور پیش فرض اعمال می شود.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2602,30 +2353,26 @@ import (
 </td></tr>
 </tbody></table>
 
-### Package Names
+### نام گذاری بسته ها (Package Names)
 
-When naming packages, choose a name that is:
+هنگام نامگذاری بسته‌ها(packages)، نامی را انتخاب کنید که:
 
-- All lower-case. No capitals or underscores.
-- Does not need to be renamed using named imports at most call sites.
-- Short and succinct. Remember that the name is identified in full at every call
-  site.
-- Not plural. For example, `net/url`, not `net/urls`.
-- Not "common", "util", "shared", or "lib". These are bad, uninformative names.
+- تمام حروف کوچک. بدون حروف بزرگ یا زیرخط.
+- در بیشتر موارد هنگام استفاده از واردات نامگذاری شده، تغییر نام مورد نیاز نیست.
+- کوتاه و مختصر باشد. به یاد داشته باشید که نام را در هر کجا که استفاده می شود کاملاً مشخص کنید.
+نیازی به جمع نیست. به عنوان مثال net/url، نه net/urls.
+- از "common"، "util"، "shared" یا "lib" استفاده نکنید. اینها اسامی بد و بی معنی هستند.
 
-See also [Package Names](https://blog.golang.org/package-names) and [Style guideline for Go packages](https://rakyll.org/style-packages/).
+همچنین [راهنمای نام‌گذاری بسته(Package Names)](https://blog.golang.org/package-names) و [راهنمای استایل بسته(package) Go](https://rakyll.org/style-packages/) را ببینید.
 
-### Function Names
+### نام گذاری توابع (Function Names)
 
-We follow the Go community's convention of using [MixedCaps for function
-names](https://golang.org/doc/effective_go.html#mixed-caps). An exception is made for test functions, which may contain underscores
-for the purpose of grouping related test cases, e.g.,
+ما از روش رایج جامعه Go با استفاده از [MixedCaps برای نام‌گذاری توابع](https://golang.org/doc/effective_go.html#mixed-caps) پیروی می‌کنیم. یک استثناء برای توابع تست وجود دارد که ممکن است شامل زیرخط (_) به منظور گروه‌بندی موارد تست مرتبط باشد، به عنوان مثال،
 `TestMyFunction_WhatIsBeingTested`.
 
-### Import Aliasing
+### نام مستعار واردات (Import)
 
-Import aliasing must be used if the package name does not match the last
-element of the import path.
+در صورتی که نام پکیج با آخرین بخش مسیر (import path) مطابقت نداشته باشد، باید از نام‌گذاری مخفف (aliasing) برای import استفاده شود.
 
 ```go
 import (
@@ -2636,11 +2383,10 @@ import (
 )
 ```
 
-In all other scenarios, import aliases should be avoided unless there is a
-direct conflict between imports.
+در سایر موارد، باید از نام‌گذاری مخفف (aliasing) در import خودداری شود مگر اینکه تداخل مستقیمی بین imports وجود داشته باشد.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2669,22 +2415,19 @@ import (
 </td></tr>
 </tbody></table>
 
-### Function Grouping and Ordering
+### گروه بندی و مرتب سازی توابع
 
-- Functions should be sorted in rough call order.
-- Functions in a file should be grouped by receiver.
+- توابع باید بر اساس تقریبی فراخوانیشان مرتب شوند(منظور این است که توابعی که بیشترین احتمال برای فراخوانی آنها وجود دارد در ابتدا آورده می‌شوند و توابعی که کمترین احتمال فراخوانی رو دارند در انتها قرار می‌گیرند).
+- توابع موجود در یک فایل باید بر اساس گیرنده (receiver) گروه بندی شوند(منظور این است که توابعی که بر روی یک نوع خاص عمل می‌کنند، در یک قسمت مشخص از کد قرار می‌گیرند. این کار به ترتیب و منظم شدن کدها کمک می‌کند و به توسعه دهندگان کمک می‌کند تا توابع مرتبط با هم را به راحتی پیدا کنند).
 
-Therefore, exported functions should appear first in a file, after
-`struct`, `const`, `var` definitions.
+بنابراین، توابع صادرشده (exported) باید بعد از تعریف‌های `struct`, `const`, `var` در ابتدای فایل ظاهر شوند.
 
-A `newXYZ()`/`NewXYZ()` may appear after the type is defined, but before the
-rest of the methods on the receiver.
+توابعی که با `()newXYZ`/`()NewXYZ` شروع می‌شوند، ممکن است بعد از تعریف نوع (type) قبل از باقی متدهای دریافت‌کننده (receiver) ظاهر شوند.
 
-Since functions are grouped by receiver, plain utility functions should appear
-towards the end of the file.
+از آنجایی که توابع توسط گیرنده (receiver) گروه‌بندی می‌شوند، توابع utility باید در انتهای فایل ظاهر شوند.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2725,14 +2468,12 @@ func calcCost(n []int) int {...}
 </td></tr>
 </tbody></table>
 
-### Reduce Nesting
+### تورفتگی (Nesting) را کاهش دهید
 
-Code should reduce nesting where possible by handling error cases/special
-conditions first and returning early or continuing the loop. Reduce the amount
-of code that is nested multiple levels.
+کد باید سعی کند تورفتگی (nesting) را به حداقل برساند. برای این کار، ابتدا موارد خطا یا شرایط خاص را بررسی و پردازش کند و در صورت لزوم به سرعت از تابع خارج شود یا به مرحله بعد بروند. همچنین باید تلاش کند تا تعداد کدهایی که به چندین سطح تورفتگی وارد می‌شوند را کاهش دهد.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2771,13 +2512,12 @@ for _, v := range data {
 </td></tr>
 </tbody></table>
 
-### Unnecessary Else
+### اجتناب از Elseهای غیر ضروری
 
-If a variable is set in both branches of an if, it can be replaced with a
-single if.
+اگر یک متغیر در هر دو شاخه (شرط true و شرط false) یک دستور if تنظیم می‌شود، می‌توانید از یک if تنها استفاده کنید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2802,13 +2542,12 @@ if b {
 </td></tr>
 </tbody></table>
 
-### Top-level Variable Declarations
+### تعاریف متغیرهای سطح بالا
 
-At the top level, use the standard `var` keyword. Do not specify the type,
-unless it is not the same type as the expression.
+در ابتدای کد، از واژه کلیدی معمول `var` استفاده کنید. در صورتی که نوع متغیر مطابق نوع عبارت مقداردهی باشد، نیازی به مشخص کردن نوع نیست.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2822,8 +2561,7 @@ func F() string { return "A" }
 
 ```go
 var _s = F()
-// Since F already states that it returns a string, we don't need to specify
-// the type again.
+// از آنجایی که F قبلاً بیان می کند که یک رشته را برمی گرداند، نیازی به تعیین مجدد نوع آن نداریم.
 
 func F() string { return "A" }
 ```
@@ -2831,8 +2569,7 @@ func F() string { return "A" }
 </td></tr>
 </tbody></table>
 
-Specify the type if the type of the expression does not match the desired type
-exactly.
+اگر نوع عبارت دقیقاً با نوع مورد نیاز مطابقت ندارد، نوع آن را مشخص کنید.
 
 ```go
 type myError struct{}
@@ -2842,20 +2579,17 @@ func (myError) Error() string { return "error" }
 func F() myError { return myError{} }
 
 var _e error = F()
-// F returns an object of type myError but we want error.
+// F یک شی از نوع myError را برمی گرداند اما ما خطا می خواهیم.
 ```
 
-### Prefix Unexported Globals with _
+### از پیشوند `"_"` برای متغیرهای خصوصی (Unexported) استفاده کنید
 
-Prefix unexported top-level `var`s and `const`s with `_` to make it clear when
-they are used that they are global symbols.
+به منظور افزایش دقت و وضوح، متغیرها(`var`s) و ثابت‌هایی(`const`s) که عموماً در سطح بالای کد (یعنی در دسترسی پکیج) قرار می‌گیرند، با استفاده از نشانه "_" (زیرخط) قبل از نام آن‌ها ترکیب شوند. این کار باعث می‌شود که هنگام استفاده از آن‌ها در دیگر بخش‌های کد، به وضوح متوجه شود که این متغیرها و ثابت‌ها به عنوان نمادهای سراسری (global) در نظر گرفته شوند.
 
-Rationale: Top-level variables and constants have a package scope. Using a
-generic name makes it easy to accidentally use the wrong value in a different
-file.
+دلیل: متغیرها و ثابت‌های سطح بالا در محدوده‌ی پکیج قرار دارند و تا حدی کلی هستند. استفاده از نام‌های عمومی ممکن است باعث اشتباه در استفاده از مقادیر اشتباه در فایل‌های دیگر شود.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2874,8 +2608,7 @@ func Bar() {
   ...
   fmt.Println("Default port", defaultPort)
 
-  // We will not see a compile error if the first line of
-  // Bar() is deleted.
+  // اگر خط اول Bar() حذف شود، خطای کامپایل نخواهیم دید.
 }
 ```
 
@@ -2893,17 +2626,14 @@ const (
 </td></tr>
 </tbody></table>
 
-**Exception**: Unexported error values may use the prefix `err` without the underscore.
-See [Error Naming](#error-naming).
+**استثنا**: در مواردی که مقادیر خطا (error) به صورت unexported باشند، می‌توانید از پیشوند `err` بدون خط زیر (underscore) استفاده کنید. به منظور اطلاعات بیشتر در مورد نام‌گذاری خطا، به [نام‌گذاری خطا](#نام-گذاری-خطا) مراجعه کنید.
 
-### Embedding in Structs
+### جاسازی (Embedding) در ساختارها
 
-Embedded types should be at the top of the field list of a
-struct, and there must be an empty line separating embedded fields from regular
-fields.
+اگر نوع‌های تو در تو (embedded types) در یک struct وجود دارند، آنها باید در بالای لیست فیلدهای struct قرار گیرند، و باید یک خط خالی بین فیلدهای تو در تو و فیلدهای معمولی وجود داشته باشد.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -2927,46 +2657,36 @@ type Client struct {
 </td></tr>
 </tbody></table>
 
-Embedding should provide tangible benefit, like adding or augmenting
-functionality in a semantically-appropriate way. It should do this with zero
-adverse user-facing effects (see also: [Avoid Embedding Types in Public Structs](#avoid-embedding-types-in-public-structs)).
+درج نوع‌های دیگر در یک ساختار (embedding) باید به صورتی باشد که به ویژگی‌ها یا قابلیت‌ها به یک شکل منطقی و معنادار افزوده یا تقویت کند. این کار باید بدون تأثیر منفی قابل مشاهده برای کاربران انجام شود (برای اطلاعات بیشتر، "همچنین: [از جاسازی نوع‌ها (Embedding Types) در ساختارهای عمومی خودداری کنید](#از-جاسازی-نوع-ها-embedding-types-در-ساختارهای-عمومی-خودداری-کنید)" را ببینید).
 
-Exception: Mutexes should not be embedded, even on unexported types. See also: [Zero-value Mutexes are Valid](#zero-value-mutexes-are-valid).
+استثناء: حتی در نوع‌های (unexported) هم، Mutexها (قفل‌های همزمانی) نباید به صورت تعبیه شده درج شوند. همچنین می‌توانید به [مقدار صفر (zero-value) Mutexها معتبر هستند](#مقدار-صفر-zero-value-mutexها-معتبر-هستند) مراجعه کنید.
 
-Embedding **should not**:
+تعبیه (Embedding) **نباید:**
 
-- Be purely cosmetic or convenience-oriented.
-- Make outer types more difficult to construct or use.
-- Affect outer types' zero values. If the outer type has a useful zero value, it
-  should still have a useful zero value after embedding the inner type.
-- Expose unrelated functions or fields from the outer type as a side-effect of
-  embedding the inner type.
-- Expose unexported types.
-- Affect outer types' copy semantics.
-- Change the outer type's API or type semantics.
-- Embed a non-canonical form of the inner type.
-- Expose implementation details of the outer type.
-- Allow users to observe or control type internals.
-- Change the general behavior of inner functions through wrapping in a way that
-  would reasonably surprise users.
+- صرفا به منظور زیبایی یا افزایش راحتی باشد.
+- ساختن یا استفاده از نوعهای خارجی را پیچیده‌تر کند.
+- باعث تغییر در مقدار-صفر (zero value) نوع خارجی شود. . اگر نوع خارجی، مقدار صفر مفیدی دارد، پس از تعبیه نوع داخلی، همچنان باید مقدار صفر مفید داشته باشد.
+- توابع یا فیلدهای غیرمرتبط از نوع خارجی را به عنوان نتیجه تعبیه نمایش دهد.
+- نوع‌های (unexported) را نمایش دهد.
+- اثرات کپی (copy) انواع خارجی را تغییر دهد.
+- API یا معناشناسی انواع خارجی را تغییر دهد.
+- یک نمایش غیرمعمول از نوع داخلی را ارائه دهد.
+- جزئیات پیاده‌سازی نوع خارجی را نشان دهد.
+- به کاربران اجازه مشاهده یا کنترل اطلاعات داخلی نوع را بدهد.
+- با تغییر رفتار کلی عملکردهای داخلی موقعیت‌های غیرمنتظره ای را برای کاربران به ارمغان بیاورد.
 
-Simply put, embed consciously and intentionally. A good litmus test is, "would
-all of these exported inner methods/fields be added directly to the outer type";
-if the answer is "some" or "no", don't embed the inner type - use a field
-instead.
+بطور کلی، تعبیه (Embedding) باید با آگاهی و هدف انجام شود. یک آزمون ساده برای این کار این است: "آیا تمام این متدها/فیلدها باید به صورت مستقیم به نوع خارجی اضافه شوند؟" اگر پاسخ "بله" باشد، معقول است که تعبیه انجام شود؛ اگر پاسخ "بخشی از آنها" یا "خیر" باشد، بهتر است از یک فیلد به جای تعبیه استفاده کنید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
 ```go
 type A struct {
-    // Bad: A.Lock() and A.Unlock() are
-    //      now available, provide no
-    //      functional benefit, and allow
-    //      users to control details about
-    //      the internals of A.
+// بد: حالا دستورهای A.Lock() و A.Unlock() در دسترس هستند،
+// اما فایده‌ای ندارند و به کاربران اجازه می‌دهند که
+// جزئیات داخلی A را کنترل کنند.
     sync.Mutex
 }
 ```
@@ -2975,10 +2695,9 @@ type A struct {
 
 ```go
 type countingWriteCloser struct {
-    // Good: Write() is provided at this
-    //       outer layer for a specific
-    //       purpose, and delegates work
-    //       to the inner type's Write().
+// خوب: تابع Write() در این لایه بیرونی برای
+// یک هدف خاص فراهم شده است و کار را به
+// تابع Write() نوع داخلی انتقال می‌دهد.
     io.WriteCloser
 
     count int
@@ -2995,7 +2714,7 @@ func (w *countingWriteCloser) Write(bs []byte) (int, error) {
 
 ```go
 type Book struct {
-    // Bad: pointer changes zero value usefulness
+    // بد: اشاره‌گر سودمندی مقدار-صفر را تغییر می‌دهد
     io.ReadWriter
 
     // other fields
@@ -3013,7 +2732,7 @@ b.Write(...) // panic: nil pointer
 
 ```go
 type Book struct {
-    // Good: has useful zero value
+    // خوب: دارای مقدار-صفر مفید است
     bytes.Buffer
 
     // other fields
@@ -3053,13 +2772,12 @@ type Client struct {
 </td></tr>
 </tbody></table>
 
-### Local Variable Declarations
+### تعاریف متغیرهای محلی
 
-Short variable declarations (`:=`) should be used if a variable is being set to
-some value explicitly.
+اگر یک متغیر به صراحت به یک مقدار تنظیم می‌شود، باید از اعلان‌های کوتاه متغیر (`:=`) استفاده شود.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3076,11 +2794,10 @@ s := "foo"
 </td></tr>
 </tbody></table>
 
-However, there are cases where the default value is clearer when the `var`
-keyword is used. [Declaring Empty Slices](https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices), for example.
+با این حال، مواردی وجود دارد که در آن مقدار پیش‌فرض وقتی که از واژه کلیدی var استفاده می‌شود، واضح‌تر است. برای مثال، در [اعلان برش‌های خالی](https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices) (Empty Slices).
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3111,15 +2828,14 @@ func f(list []int) {
 </td></tr>
 </tbody></table>
 
-### nil is a valid slice
+### خود `nil` یک برش `slice` معتبر است
 
-`nil` is a valid slice of length 0. This means that,
+  خود `nil` به عنوان یک برش با طول صفر (length 0) معتبر شناخته می‌شود. این بدان معناست که:
 
-- You should not return a slice of length zero explicitly. Return `nil`
-  instead.
+- شما نباید به صورت صریح یک برش با طول صفر را برگردانید. به جای آن باید `nil` را برگردانید.
 
   <table>
-  <thead><tr><th>Bad</th><th>Good</th></tr></thead>
+  <thead><tr><th>بد</th><th>خوب</th></tr></thead>
   <tbody>
   <tr><td>
 
@@ -3140,11 +2856,10 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
-- To check if a slice is empty, always use `len(s) == 0`. Do not check for
-  `nil`.
+- برای بررسی اینکه آیا یک برش (slice) خالی است یا نه، همیشه از عبارت `len(s) == 0` استفاده کنید.نباید برای بررسی خالی بودن از `nil` استفاده کنید.
 
   <table>
-  <thead><tr><th>Bad</th><th>Good</th></tr></thead>
+  <thead><tr><th>بد</th><th>خوب</th></tr></thead>
   <tbody>
   <tr><td>
 
@@ -3165,11 +2880,10 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
-- The zero value (a slice declared with `var`) is usable immediately without
-  `make()`.
+- مقدار صفر (یک برش که با `var` اعلان شده است) بدون نیاز به استفاده از تابع `make()`، بلافاصله قابل استفاده است.
 
   <table>
-  <thead><tr><th>Bad</th><th>Good</th></tr></thead>
+  <thead><tr><th>بد</th><th>خوب</th></tr></thead>
   <tbody>
   <tr><td>
 
@@ -3203,17 +2917,14 @@ func f(list []int) {
   </td></tr>
   </tbody></table>
 
-Remember that, while it is a valid slice, a nil slice is not equivalent to an
-allocated slice of length 0 - one is nil and the other is not - and the two may
-be treated differently in different situations (such as serialization).
+به خاطر داشته باشید که در حالی که یک برش nil معتبر است، اما با یک برش تخصیص داده شده با طول صفر معادل نیست - یکی از آن‌ها nil است و دیگری نیست - و در شرایط مختلف (مانند فرآیند سریال‌سازی) ممکن است به صورت متفاوتی مدیریت شوند.
 
-### Reduce Scope of Variables
+### کاهش دامنه (scope) متغیرها
 
-Where possible, reduce scope of variables. Do not reduce the scope if it
-conflicts with [Reduce Nesting](#reduce-nesting).
+در صورت امکان، سعی کنید دامنه متغیرها را محدود کنید. مگر اینکه با قانون [تورفتگی (Nesting) را کاهش دهید](#تورفتگی-nesting-را-کاهش-دهید) در تضاد باشد.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3235,11 +2946,10 @@ if err := os.WriteFile(name, data, 0644); err != nil {
 </td></tr>
 </tbody></table>
 
-If you need a result of a function call outside of the if, then you should not
-try to reduce the scope.
+اگر نتیجه یک تابع را بیرون از شرط if نیاز دارید، در اینصورت نباید سعی کنید دامنه متغیر را کاهش دهید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3276,13 +2986,12 @@ return nil
 </td></tr>
 </tbody></table>
 
-### Avoid Naked Parameters
+### از پارامترهای بی نام (Naked Parameters) خودداری کنید
 
-Naked parameters in function calls can hurt readability. Add C-style comments
-(`/* ... */`) for parameter names when their meaning is not obvious.
+پارامترهای بی‌نام در فراخوانی توابع می‌توانند خوانایی را کاهش دهند. در صورتی که معنای پارامترها واضح نباشد، نام‌های پارامترها را با کامنت‌ استایل C (`/* ... */`) اضافه کنید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3303,9 +3012,7 @@ printInfo("foo", true /* isLocal */, true /* done */)
 </td></tr>
 </tbody></table>
 
-Better yet, replace naked `bool` types with custom types for more readable and
-type-safe code. This allows more than just two states (true/false) for that
-parameter in the future.
+بهتر است پارامترهای `bool` بدون نوع خاص را با نوع‌های سفارشی جایگزین کنید تا کد خواناتر و ایمن‌تری داشته باشید. این امکان را به شما می‌دهد تا در آینده بیش از دو وضعیت (true/false) برای این پارامتر داشته باشید.
 
 ```go
 type Region int
@@ -3320,20 +3027,18 @@ type Status int
 const (
   StatusReady Status = iota + 1
   StatusDone
-  // Maybe we will have a StatusInProgress in the future.
+  // شاید در آینده StatusInProgress داشته باشیم.
 )
 
 func printInfo(name string, region Region, status Status)
 ```
 
-### Use Raw String Literals to Avoid Escaping
+### استفاده از `Raw String Literals` برای جلوگیری از Escape شدن کاراکترها
 
-Go supports [raw string literals](https://golang.org/ref/spec#raw_string_lit),
-which can span multiple lines and include quotes. Use these to avoid
-hand-escaped strings which are much harder to read.
+زبان Go از رشته‌های متنی خام ([raw string literals](https://golang.org/ref/spec#raw_string_lit)) پشتیبانی می‌کند. این نوع رشته‌ها می‌توانند از چندین خط تشکیل شده و شامل نقل قولها باشند. برای افزایش خوانایی کد و جلوگیری از استفاده از رشته‌های دست‌ساز با ویژگی‌های خاص، از رشته‌های متنی خام استفاده کنید. این نوع رشته‌ها خوانایی کد را خیلی بالا میبرند.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3350,15 +3055,14 @@ wantError := `unknown error:"test"`
 </td></tr>
 </tbody></table>
 
-### Initializing Structs
+### مقداردهی اولیه ساختارها (structs)
 
-#### Use Field Names to Initialize Structs
+#### استفاده از نام فیلدها برای مقداردهی اولیه ساختارها
 
-You should almost always specify field names when initializing structs. This is
-now enforced by [`go vet`](https://golang.org/cmd/vet/).
+تقریباً همیشه باید نام فیلدها را هنگام مقداردهی اولیه ساختارها (structs) مشخص کنید. این توصیه اکنون توسط ابزار [`go vet`](https://golang.org/cmd/vet/) اجباری شده است.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3379,8 +3083,7 @@ k := User{
 </td></tr>
 </tbody></table>
 
-Exception: Field names *may* be omitted in test tables when there are 3 or
-fewer fields.
+استثنا: زمانی که تعداد فیلد‌ها سه یا کمتر باشد می‌توانید نام‌ فیلد‌ها را در جداول تست حذف کنید.
 
 ```go
 tests := []struct{
@@ -3392,14 +3095,12 @@ tests := []struct{
 }
 ```
 
-#### Omit Zero Value Fields in Structs
+#### حذف فیلدهای مقدارصفر (zero value) در ساختارها
 
-When initializing structs with field names, omit fields that have zero values
-unless they provide meaningful context. Otherwise, let Go set these to zero
-values automatically.
+در هنگام مقداردهی اولیه به ساختارها (structs) با استفاده از نام‌ فیلدها، فیلدهایی که مقدار صفر (zero value) دارند را حذف کنید مگر اینکه به دلایل معناداری نیاز به آنها داشته باشید. در غیر این صورت، به Go اجازه دهید این فیلدها را به طور خودکار به مقادیر صفر تنظیم کند.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3424,12 +3125,9 @@ user := User{
 </td></tr>
 </tbody></table>
 
-This helps reduce noise for readers by omitting values that are default in
-that context. Only meaningful values are specified.
+این به کاهش نویز برای خوانندگان با حذف مقادیر پیش‌فرض در آن زمینه کمک می‌کند. فقط مقادیر معنی دار مشخص شده است.
 
-Include zero values where field names provide meaningful context. For example,
-test cases in [Test Tables](#test-tables) can benefit from names of fields
-even when they are zero-valued.
+در صورتی که نام فیلدها مفهومی داشته باشند، مقادیر صفر (zero values) را نیز در نظر بگیرید. به عنوان مثال، در [جداول تست (Table-driven tests)](#جداول-تست-table-driven-tests)، استفاده از نام فیلدها حتی زمانی که این مقادیر صفری (zero values) هستند می‌تواند مفید باشد.
 
 ```go
 tests := []struct{
@@ -3441,13 +3139,12 @@ tests := []struct{
 }
 ```
 
-#### Use `var` for Zero Value Structs
+#### استفاده از `var` برای ساختارهای مقدارصفر (zero value)
 
-When all the fields of a struct are omitted in a declaration, use the `var`
-form to declare the struct.
+زمانی که تمامی فیلدهای یک ساختار (struct) در یک اعلان حذف شدند، از شکل `var` برای اعلان ساختار استفاده کنید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3464,24 +3161,21 @@ var user User
 </td></tr>
 </tbody></table>
 
-This differentiates zero valued structs from those with non-zero fields
-similar to the distinction created for [map initialization](#initializing-maps), and matches how
-we prefer to [declare empty slices](https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices).
+این کار باعث تفکیک ساختارهای با مقدار صفر از ساختارهای دارای فیلدهای غیر صفر می‌شود، مشابه تفکیکی که برای [مقداردهی اولیه Mapها](#مقداردهی-اولیه-mapها) ایجاد شده است، و با روش ترجیحی ما برای [اعلان برش‌های خالی](https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices) هماهنگ می‌شود.
 
-#### Initializing Struct References
+#### مقداردهی اولیه ساختارهای رفرنس دار
 
-Use `&T{}` instead of `new(T)` when initializing struct references so that it
-is consistent with the struct initialization.
+از `&T{}` به جای `new(T)` هنگام مقداردهی اولیه ساختار (struct references) استفاده کنید تا با مقداردهی اولیه ساختار مطابقت داشته باشد.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
 ```go
 sval := T{Name: "foo"}
 
-// inconsistent
+// ناسازگار
 sptr := new(T)
 sptr.Name = "bar"
 ```
@@ -3497,22 +3191,19 @@ sptr := &T{Name: "bar"}
 </td></tr>
 </tbody></table>
 
-### Initializing Maps
+### مقداردهی اولیه Mapها
 
-Prefer `make(..)` for empty maps, and maps populated
-programmatically. This makes map initialization visually
-distinct from declaration, and it makes it easy to add size
-hints later if available.
+برای ایجاد نقشه‌های خالی و نقشه‌هایی که به صورت برنامه‌نویسی پر می‌شوند، استفاده از تابع `(..)make` توصیه می‌شود. این اقدام نه تنها مقداردهی نقشه را از اعلان آن به صورت بصری متمایز می‌کند، بلکه اگر در آینده اندازه (size hints) در دسترس قرار بگیرد، امکان اضافه کردن آنها را آسان می‌سازد.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
 ```go
 var (
-  // m1 is safe to read and write;
-  // m2 will panic on writes.
+  // m1 برای خواندن و نوشتن امن است.
+  // m2 در نوشتن panic خواهد کرد.
   m1 = map[T1]T2{}
   m2 map[T1]T2
 )
@@ -3522,8 +3213,8 @@ var (
 
 ```go
 var (
-  // m1 is safe to read and write;
-  // m2 will panic on writes.
+  // m1 برای خواندن و نوشتن امن است.
+  // m2 در نوشتن panic خواهد کرد.
   m1 = make(map[T1]T2)
   m2 map[T1]T2
 )
@@ -3532,25 +3223,21 @@ var (
 </td></tr>
 <tr><td>
 
-Declaration and initialization are visually similar.
+اعلان و مقداردهی اولیه از نظر بصری مشابه هستند.
 
 </td><td>
 
-Declaration and initialization are visually distinct.
+اعلان و مقداردهی اولیه از نظر بصری متمایز هستند
 
 </td></tr>
 </tbody></table>
 
-Where possible, provide capacity hints when initializing
-maps with `make()`. See
-[Specifying Map Capacity Hints](#specifying-map-capacity-hints)
-for more information.
+در صورت امکان، هنگام مقداردهی اولیه نقشه ها با `make()` اندازه ظرفیت ارائه دهید. برای اطلاعات بیشتر به [تعیین حداکثر ظرفیت ممکن Map](#تعیین-حداکثر-ظرفیت-ممکن-map) مراجعه کنید.
 
-On the other hand, if the map holds a fixed list of elements,
-use map literals to initialize the map.
+از سوی دیگر، اگر نقشه مجموعه‌ی ثابتی از عناصر را نگه می‌دارد، از نقشه‌های لیترال (map literals) برای مقداردهی اولیه استفاده کنید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3574,19 +3261,16 @@ m := map[T1]T2{
 </td></tr>
 </tbody></table>
 
-The basic rule of thumb is to use map literals when adding a fixed set of
-elements at initialization time, otherwise use `make` (and specify a size hint
-if available).
+قاعده اساسی در استفاده از نقشه‌ها به شکل زیر است: اگر قرار باشد مجموعه‌ی ثابتی از عناصر را در زمان مقداردهی اولیه اضافه کنید، از نقشه‌های لیترال (map literals) استفاده کنید. در غیر اینصورت، از تابع `make()` استفاده کنید (و در صورت امکان مقدار ظرفیت را مشخص کنید).
 
-### Format Strings outside Printf
+### قالب بندی رشته ها (strings) خارج از تابع `Printf`
 
-If you declare format strings for `Printf`-style functions outside a string
-literal, make them `const` values.
+اگر شما رشته‌های قالب‌بندی (format strings) برای توابع استایل‌دهی، مانند `Printf` را خارج از رشته معمولی اعلان می‌کنید، آنها را به عنوان مقادیر `const` ایجاد کنید. 
 
-This helps `go vet` perform static analysis of the format string.
+این کمک می‌کند تا `go vet` تجزیه و تحلیل استاتیک رشته قالب‌بندی را انجام دهد.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3605,38 +3289,30 @@ fmt.Printf(msg, 1, 2)
 </td></tr>
 </tbody></table>
 
-### Naming Printf-style Functions
+### نام گذاری توابع به سبک `Printf`
 
-When you declare a `Printf`-style function, make sure that `go vet` can detect
-it and check the format string.
+وقتی یک تابع با استایل `Printf` اعلان می‌کنید، مطمئن شوید که `go vet` قادر به شناسایی آن و بررسی رشته قالب‌بندی است.
 
-This means that you should use predefined `Printf`-style function
-names if possible. `go vet` will check these by default. See [Printf family](https://golang.org/cmd/vet/#hdr-Printf_family)
-for more information.
+این بدان معناست که در صورت امکان باید از نام‌های پیش‌تعریف شده برای توابع به سبک Printf استفاده کنید. `go vet` به طور پیش‌فرض این‌ها را بررسی می‌کند. برای اطلاعات بیشتر، به [خانواده Printf](https://golang.org/cmd/vet/#hdr-Printf_family) مراجعه کنید.
 
-If using the predefined names is not an option, end the name you choose with
-f: `Wrapf`, not `Wrap`. `go vet` can be asked to check specific `Printf`-style
-names but they must end with f.
+اگر نمی توانید از یک نام از پیش تعریف شده استفاده کنید، نامی را که انتخاب می کنید با f خاتمه دهید: مثلاً `Wrapf`، بجای `Wrap`. می‌توان از `go vet` بخواهیم نام‌های خاص به سبک `Printf` را بررسی کند، اما باید با f خاتمه یابد.
 
 ```shell
 go vet -printfuncs=wrapf,statusf
 ```
 
-See also [go vet: Printf family check](https://kuzminva.wordpress.com/2017/11/07/go-vet-printf-family-check/).
+همچنین، می‌توانید به مقاله [بررسی خانواده Printf توسط go vet](https://kuzminva.wordpress.com/2017/11/07/go-vet-printf-family-check/) مراجعه کنید.
 
-## Patterns
+## الگوها
 
-### Test Tables
+### جداول تست (Table-driven tests)
 
-Table-driven tests with [subtests](https://blog.golang.org/subtests) can be a helpful pattern for writing tests
-to avoid duplicating code when the core test logic is repetitive.
+استفاده از الگوی تست‌های جدولی با [subtests](https://blog.golang.org/subtests) می‌تواند یک الگوی مفید برای نوشتن تست‌ها باشد تا از تکرار کد در زمانی که منطق آزمون اصلی تکرار می‌شود جلوگیری شود.
 
-If a system under test needs to be tested against *multiple conditions* where
-certain parts of the the inputs and outputs change, a table-driven test should
-be used to reduce redundancy and improve readability.
+اگر یک سیستم تحت آزمون تست نیاز به آزمایش در برابر _شرایط چندگانه_ دارد که در آن بخش‌های خاصی از ورودی‌ها و خروجی‌ها تغییر می‌کنند، بهترین روش استفاده از تست‌های جدولی است. این روش کد را کمتر تکراری می‌کند و خوانایی آن را بهبود می‌بخشد.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3709,12 +3385,9 @@ for _, tt := range tests {
 </td></tr>
 </tbody></table>
 
-Test tables make it easier to add context to error messages, reduce duplicate
-logic, and add new test cases.
+استفاده از جداول تست (Test tables) کمک می‌کند تا پیام‌های خطا دارای زمینه (context) بیشتری باشند، منطق تکراری را کاهش دهد و امکان افزودن تست‌های جدید را فراهم کند.
 
-We follow the convention that the slice of structs is referred to as `tests`
-and each test case `tt`. Further, we encourage explicating the input and output
-values for each test case with `give` and `want` prefixes.
+ما از این قرارداد پیروی می‌کنیم که برشی از ساختارها (slice of struct) به عنوان تست‌ `tests` مدنظر است و هر مورد آزمون `tt` نامیده می‌شود. علاوه بر این، ما توصیه می‌کنیم تا مقادیر ورودی و خروجی برای هر مورد تست را با پیشوندهای `give` و `want` به صورت صریح مشخص کنید.
 
 ```go
 tests := []struct{
@@ -3730,49 +3403,31 @@ for _, tt := range tests {
 }
 ```
 
-#### Avoid Unnecessary Complexity in Table Tests
+#### جلوگیری از پیچیدگی‌های غیرضروری در تست‌های جدولی
 
-Table tests can be difficult to read and maintain if the subtests contain conditional
-assertions or other branching logic. Table tests should **NOT** be used whenever
-there needs to be complex or conditional logic inside subtests (i.e. complex logic inside the `for` loop).
+اگر منطق پیچیده یا شرطی در زیرتست‌ها وجود داشته باشد (به عبارت دیگر، منطق پیچیده در داخل حلقه `for`)، تست‌های جدولی ممکن است خواندن و نگهداری دشواری داشته باشند و بهتر است از آنها **استفاده نشود**.
 
-Large, complex table tests harm readability and maintainability because test readers may
-have difficulty debugging test failures that occur.
+تست‌های جدولی بزرگ و پیچیده به خوانایی و نگهداری آسیب می‌زنند زیرا افرادی که تست‌ها را می‌خوانند ممکن است در اشکال‌زدایی خطاهایی که در تست‌ها رخ می‌دهد به مشکل بخورند.
 
-Table tests like this should be split into either multiple test tables or multiple
-individual `Test...` functions.
+تست‌های جدولی مانند این باید به یکی از دو گزینه زیر تقسیم شوند: یا به چندین جدول تست مجزا یا به چندین تابع تست مجزا با نام‌های `Test...`
 
-Some ideals to aim for are:
+بعضی از اهدافی که باید به آنها دست یابیم عبارتند از:
 
-* Focus on the narrowest unit of behavior
-* Minimize "test depth", and avoid conditional assertions (see below)
-* Ensure that all table fields are used in all tests
-* Ensure that all test logic runs for all table cases
+- تمرکز بر روی بخش‌های خاص و محدودی از عملکرد
+- کاهش "عمق تست" و اجتناب از ادعاهای شرطی (راهنمایی زیر را ببینید)
+- اطمینان از استفاده از همه‌ی فیلدهای جدول در تمام تست‌ها
+- اطمینان از اجرای منطق تست برای تمام موارد جدول
 
-In this context, "test depth" means "within a given test, the number of
-successive assertions that require previous assertions to hold" (similar
-to cyclomatic complexity).
-Having "shallower" tests means that there are fewer relationships between
-assertions and, more importantly, that those assertions are less likely
-to be conditional by default.
+در این متن، "عمق تست" به معنای "تعداد ادعاهای متوالی در یک تست داده شده است که نیاز به اثبات ادعاهای قبلی دارند" (مشابه به پیچیدگی سیکلوماتیک) است. داشتن "تست‌های کم‌عمق" به این معناست که تعداد ارتباطات بین ادعاها کمتر است و به‌طور مهمتر، این ادعاها به طور پیش‌فرض کمتر از ادعاهای شرطی هستند.
 
-Concretely, table tests can become confusing and difficult to read if they use multiple branching
-pathways (e.g. `shouldError`, `expectCall`, etc.), use many `if` statements for
-specific mock expectations (e.g. `shouldCallFoo`), or place functions inside the
-table (e.g. `setupMocks func(*FooMock)`).
+به طور مشخص، تست‌های جدول اگر از مسیرهای انشعاب چندگانه (مانند `shouldError`، `expectCall` و غیره) استفاده کنند، از بسیاری از دستورات `if` برای انتظارات ساختگی خاص (مانند `shouldCallFoo`) استفاده کنند یا توابعی را در داخل جدول قرار دهند  (مثلاً `setupMocks func (* FooMock)`) می‌توانند گیج‌کننده باشند و درک آن دشوار شود.
 
-However, when testing behavior that only
-changes based on changed input, it may be preferable to group similar cases
-together in a table test to better illustrate how behavior changes across all inputs,
-rather than splitting otherwise comparable units into separate tests
-and making them harder to compare and contrast.
+با این حال، هنگام آزمایش رفتاری که فقط بر اساس ورودی تغییر یافته تغییر می‌کند، موارد مشابه را در یک آزمون جدول با هم گروه‌بندی می‌‌کنیم تا نحوه تغییر رفتار در همه ورودی‌ها را بهتر نشان دهیم، تا اینکه واحدهای قابل مقایسه را به آزمون‌های جداگانه تقسیم کنیم و انجام آنها را سخت‌تر کنیم.
 
-If the test body is short and straightforward,
-it's acceptable to have a single branching pathway for success versus failure cases
-with a table field like `shouldErr` to specify error expectations.
+اگر بدنه تست کوتاه و ساده باشد، می‌توانید برای موارد موفقیت و شکست، یک مسیر اجرایی (شاخه) واحد را در نظر بگیرید که از طریق یک فیلد در جدول تست، مثلاً `shouldErr` برای تعیین انتظارات خطا، انتخاب شود.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3852,22 +3507,17 @@ func TestShouldCallYAndFail(t *testing.T) {
   assert.EqualError(t, err, "Y failed")
 }
 ```
+
 </td></tr>
 </tbody></table>
 
-This complexity makes it more difficult to change, understand, and prove the
-correctness of the test.
+این پیچیدگی باعث مشکلات در تغییر، درک و اثبات صحت تست می‌شود.
 
-While there are no strict guidelines, readability and maintainability should
-always be top-of-mind when deciding between Table Tests versus separate tests
-for multiple inputs/outputs to a system.
+اگرچه دستورالعمل‌های دقیقی وجود ندارد، وقتی بین استفاده از تست‌های جدولی و تست‌های مجزا برای ورودی‌ها/خروجی‌های متعدد به یک سیستم تصمیم‌گیری می‌کنید، همیشه باید به خوانایی و قابلیت نگهداری فکر کرد.
 
-#### Parallel Tests
+#### تست های موازی
 
-Parallel tests, like some specialized loops (for example, those that spawn
-goroutines or capture references as part of the loop body),
-must take care to explicitly assign loop variables within the loop's scope to
-ensure that they hold the expected values.
+تست‌های موازی، مانند برخی از حلقه‌های تخصصی (برای مثال، آن‌هایی که گوروتین‌ها را ایجاد می‌کنند یا ارجاع‌ها را به عنوان بخشی از بدنه حلقه می‌گیرند)، باید دقت کنند که متغیرهای حلقه را به صراحت در محدوده حلقه تخصیص دهند تا اطمینان حاصل شود که مقادیر مورد انتظار را نگه می‌دارند.
 
 ```go
 tests := []struct{
@@ -3886,26 +3536,18 @@ for _, tt := range tests {
 }
 ```
 
-In the example above, we must declare a `tt` variable scoped to the loop
-iteration because of the use of `t.Parallel()` below.
-If we do not do that, most or all tests will receive an unexpected value for
-`tt`, or a value that changes as they're running.
+در مثال بالا، به دلیل استفاده از `t.Parallel()` در زیر حلقه، ما باید یک متغیر `tt` را در دامنه هر تکرار حلقه تعریف کنیم. اگر این کار را انجام ندهیم، بیشتر یا تمام تست‌ها مقدار غیرمنتظره‌ای برای متغیر `tt` دریافت خواهند کرد یا مقداری که در حال اجرای آن‌ها تغییر می‌کند.
 
 <!-- TODO: Explain how to use _test packages. -->
 
-### Functional Options
+### الگوی Functional Options
 
-Functional options is a pattern in which you declare an opaque `Option` type
-that records information in some internal struct. You accept a variadic number
-of these options and act upon the full information recorded by the options on
-the internal struct.
+گزینه‌های عملکردی (Functional options) الگویی است که در آن یک نوع گزینه (`Option`) غیرشفاف را اعلام می‌کنید که اطلاعات را در یک ساختار داخلی ثبت می‌کند. شما تعدادی متغیر از این گزینه‌ها را می پذیرید و بر اساس اطلاعات کاملی که توسط گزینه‌ها در ساختار داخلی ثبت شده است، عمل می‌کنید.
 
-Use this pattern for optional arguments in constructors and other public APIs
-that you foresee needing to expand, especially if you already have three or
-more arguments on those functions.
+از این الگو برای آرگومان‌های اختیاری در متد سازنده‌ها و سایر واسط‌های عمومی (API) که پیش‌بینی می‌کنید نیاز به توسعه آنها دارید، استفاده کنید ه خصوص اگر از قبل سه یا بیشتر آرگومان در این توابع داشته باشید.
 
 <table>
-<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<thead><tr><th>بد</th><th>خوب</th></tr></thead>
 <tbody>
 <tr><td>
 
@@ -3950,8 +3592,7 @@ func Open(
 </td></tr>
 <tr><td>
 
-The cache and logger parameters must always be provided, even if the user
-wants to use the default.
+پارامترهای کش و لاگر همیشه باید ارائه شوند، حتی اگر کاربر بخواهد از پیش فرض استفاده کند.
 
 ```go
 db.Open(addr, db.DefaultCache, zap.NewNop())
@@ -3962,7 +3603,7 @@ db.Open(addr, false /* cache */, log)
 
 </td><td>
 
-Options are provided only if needed.
+گزینه‌ها (Opptions) فقط در صورت نیاز ارائه می‌شوند.
 
 ```go
 db.Open(addr)
@@ -3978,9 +3619,7 @@ db.Open(
 </td></tr>
 </tbody></table>
 
-Our suggested way of implementing this pattern is with an `Option` interface
-that holds an unexported method, recording options on an unexported `options`
-struct.
+روش پیشنهادی ما برای پیاده‌سازی این الگو استفاده از یک رابط (Interface) به نام `Option` است که یک متد خصوصی (unexported) را نگه می‌دارد و گزینه‌ها (`options`) را در یک ساختار (struct) نیز خصوصی ثبت می‌کند.
 
 ```go
 type options struct {
@@ -4032,44 +3671,30 @@ func Open(
 }
 ```
 
-Note that there's a method of implementing this pattern with closures but we
-believe that the pattern above provides more flexibility for authors and is
-easier to debug and test for users. In particular, it allows options to be
-compared against each other in tests and mocks, versus closures where this is
-impossible. Further, it lets options implement other interfaces, including
-`fmt.Stringer` which allows for user-readable string representations of the
-options.
+توجه داشته باشید که روشی برای پیاده‌سازی این الگو با استفاده از توابع بسته (closures) وجود دارد، اما ما باور داریم که الگوی بالا انعطاف بیشتری برای نویسندگان فراهم می‌کند و اشکال‌زدایی و آزمایش آن برای کاربران راحت‌تر است. به طور خاص، این الگو اجازه می‌دهد که گزینه‌ها در تست‌ها و موک‌ها با یکدیگر مقایسه شوند، در مقابل توابع بسته که این امکان در آنها وجود ندارد. علاوه بر این، این الگو به گزینه‌ها امکان پیاده‌سازی رابط‌های دیگر را می‌دهد، از جمله `fmt.Stringer` که امکان نمایش رشته‌ای خوانا از گزینه‌ها را فراهم می‌کند.
 
-See also,
+همچنین ببینید،
 
-- [Self-referential functions and the design of options](https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html)
+- [توابع خود ارجاعی و طراحی گزینه‌ها (Self-referential functions and the design of options)](https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html)
 - [Functional options for friendly APIs](https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis)
 
 <!-- TODO: replace this with parameter structs and functional options, when to
 use one vs other -->
 
-## Linting
+## بررسی و تمیز کردن (linting)
 
-More importantly than any "blessed" set of linters, lint consistently across a
-codebase.
+مهمتر از هر چیز، اعمال یک استاندارد یکسان در کل پروژه است، نه استفاده از یک مجموعه خاص از ابزارهای بررسی کد.
 
-We recommend using the following linters at a minimum, because we feel that they
-help to catch the most common issues and also establish a high bar for code
-quality without being unnecessarily prescriptive:
+توصیه می‌کنیم حداقل از لینترهای زیر استفاده کنید، زیرا فکر می‌کنیم که این ابزارها به شناسایی مشکلات رایج کمک می‌کنند و همچنین یک استاندارد بالا برای کیفیت کد ایجاد می‌کنند بدون اینکه غیرضروری تجویز شوند:
 
-- [errcheck](https://github.com/kisielk/errcheck) to ensure that errors are handled
-- [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports) to format code and manage imports
-- [golint](https://github.com/golang/lint) to point out common style mistakes
-- [govet](https://golang.org/cmd/vet/) to analyze code for common mistakes
-- [staticcheck](https://staticcheck.io/) to do various static analysis checks
+- [errcheck](https://github.com/kisielk/errcheck) برای اطمینان از رسیدگی به خطاها
+- [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports) برای قالب بندی کد و مدیریت واردات
+- [golint](https://github.com/golang/lint) برای اشاره به اشتباهات رایج استایل
+- [govet](https://golang.org/cmd/vet/) برای تجزیه و تحلیل کد برای اشتباهات رایج
+- [staticcheck](https://staticcheck.io/) برای انجام بررسی های مختلف آنالیز استاتیکی
 
 ### Lint Runners
 
-We recommend [golangci-lint](https://github.com/golangci/golangci-lint) as the go-to lint runner for Go code, largely due
-to its performance in larger codebases and ability to configure and use many
-canonical linters at once. This repo has an example [.golangci.yml](https://github.com/uber-go/guide/blob/master/.golangci.yml) config file
-with recommended linters and settings.
+ما توصیه می‌کنیم از [golangci-lint](https://github.com/golangci/golangci-lint) به عنوان ابزار اصلی برای اجرای عملیات lint در کد Go استفاده کنید، به دلیل عملکرد برتر آن در پروژه‌های بزرگ و قابلیت پیکربندی و استفاده از ابزارهای بررسی کد معتبر بسیاری به صورت همزمان. این مخزن (repo) یک فایل پیکربندی [.golangci.yml](https://github.com/uber-go/guide/blob/master/.golangci.yml) با ابزارهای بررسی کد پیشنهادی و تنظیمات راهنمایی شده را دارد.
 
-golangci-lint has [various linters](https://golangci-lint.run/usage/linters/) available for use. The above linters are
-recommended as a base set, and we encourage teams to add any additional linters
-that make sense for their projects.
+golangci-lint دارای [لینترهای مختلفی](https://golangci-lint.run/usage/linters/) برای استفاده است. لینترهای فوق به عنوان یک مجموعه پایه توصیه می‌شوند و ما تیم‌ها را تشویق می‌کنیم که هر گونه لینتر اضافی را که برای پروژه‌هایشان منطقی است اضافه کنند.
