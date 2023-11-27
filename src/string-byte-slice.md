@@ -1,4 +1,4 @@
-# Avoid string-to-byte conversion
+# Avoid string-to-byte conversion repeatedly
 
 Do not create byte slices from a fixed string repeatedly. Instead, perform the
 conversion once and capture the result.
