@@ -31,7 +31,7 @@
     - [No goroutines in `init()`](goroutine-init.md)
 - [Performance](performance.md)
   - [Prefer strconv over fmt](strconv.md)
-  - [Avoid string-to-byte conversion](string-byte-slice.md)
+  - [Avoid repeated string-to-byte conversions](string-byte-slice.md)
   - [Prefer Specifying Container Capacity](container-capacity.md)
 - Style
   - [Avoid overly long lines](line-length.md)
