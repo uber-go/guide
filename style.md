@@ -38,7 +38,7 @@
     - [No goroutines in `init()`](#no-goroutines-in-init)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
-  - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion)
+  - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion-repeatedly)
   - [Prefer Specifying Container Capacity](#prefer-specifying-container-capacity)
 - [Style](#style)
   - [Avoid overly long lines](#avoid-overly-long-lines)
@@ -2192,7 +2192,7 @@ BenchmarkStrconv-4    64.2 ns/op    1 allocs/op
 </td></tr>
 </tbody></table>
 
-### Avoid string-to-byte conversion
+### Avoid string-to-byte conversion repeatedly
 
 Do not create byte slices from a fixed string repeatedly. Instead, perform the
 conversion once and capture the result.
