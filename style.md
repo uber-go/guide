@@ -38,7 +38,7 @@
     - [No goroutines in `init()`](#no-goroutines-in-init)
 - [Performance](#performance)
   - [Prefer strconv over fmt](#prefer-strconv-over-fmt)
-  - [Avoid string-to-byte conversion repeatedly](#avoid-string-to-byte-conversion-repeatedly)
+  - [Avoid string-to-byte conversion](#avoid-string-to-byte-conversion-repeatedly)
   - [Prefer Specifying Container Capacity](#prefer-specifying-container-capacity)
 - [Style](#style)
   - [Avoid overly long lines](#avoid-overly-long-lines)
