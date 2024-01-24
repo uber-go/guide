@@ -91,9 +91,9 @@ This documents idiomatic conventions in Go code that we follow at Uber. A lot
 of these are general guidelines for Go, while others extend upon external
 resources:
 
-1. [Effective Go](https://golang.org/doc/effective_go.html)
-2. [Go Common Mistakes](https://github.com/golang/go/wiki/CommonMistakes)
-3. [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
+1. [Effective Go](https://go.dev/doc/effective_go)
+2. [Go Common Mistakes](https://go.dev/wiki/CommonMistakes)
+3. [Go Code Review Comments](https://go.dev/wiki/CodeReviewComments)
 
 We aim for the code samples to be accurate for the two most recent minor versions
 of Go [releases](https://go.dev/doc/devel/release).
@@ -105,7 +105,7 @@ recommend setting up your editor to:
 - Run `golint` and `go vet` to check for errors
 
 You can find information in editor support for Go tools here:
-https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins
+https://go.dev/wiki/IDEsAndTextEditorPlugins
 
 ## Guidelines
 
@@ -200,7 +200,7 @@ func (h LogHandler) ServeHTTP(
 ### Receivers and Interfaces
 
 Methods with value receivers can be called on pointers as well as values.
-Methods with pointer receivers can only be called on pointers or [addressable values](https://golang.org/ref/spec#Method_values).
+Methods with pointer receivers can only be called on pointers or [addressable values](https://go.dev/ref/spec#Method_values).
 
 For example,
 
@@ -270,7 +270,7 @@ i = s2Ptr
 //   i = s2Val
 ```
 
-Effective Go has a good write up on [Pointers vs. Values](https://golang.org/doc/effective_go.html#pointers_vs_values).
+Effective Go has a good write up on [Pointers vs. Values](https://go.dev/doc/effective_go#pointers_vs_values).
 
 ### Zero-value Mutexes are Valid
 
@@ -620,12 +620,12 @@ following.
 For example, *1* means that adding 24 hours to a time instant will not always
 yield a new calendar day.
 
-Therefore, always use the [`"time"`](https://golang.org/pkg/time/) package when dealing with time because it
+Therefore, always use the [`"time"`](https://pkg.go.dev/time) package when dealing with time because it
 helps deal with these incorrect assumptions in a safer, more accurate manner.
 
 #### Use `time.Time` for instants of time
 
-Use [`time.Time`](https://golang.org/pkg/time/#Time) when dealing with instants of time, and the methods on
+Use [`time.Time`](https://pkg.go.dev/time#Time) when dealing with instants of time, and the methods on
 `time.Time` when comparing, adding, or subtracting time.
 
 <table>
@@ -652,7 +652,7 @@ func isActive(now, start, stop time.Time) bool {
 
 #### Use `time.Duration` for periods of time
 
-Use [`time.Duration`](https://golang.org/pkg/time/#Duration) when dealing with periods of time.
+Use [`time.Duration`](https://pkg.go.dev/time#Duration) when dealing with periods of time.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -688,9 +688,9 @@ poll(10*time.Second)
 
 Going back to the example of adding 24 hours to a time instant, the method we
 use to add time depends on intent. If we want the same time of the day, but on
-the next calendar day, we should use [`Time.AddDate`](https://golang.org/pkg/time/#Time.AddDate). However, if we want an
+the next calendar day, we should use [`Time.AddDate`](https://pkg.go.dev/time#Time.AddDate). However, if we want an
 instant of time guaranteed to be 24 hours after the previous time, we should
-use [`Time.Add`](https://golang.org/pkg/time/#Time.Add).
+use [`Time.Add`](https://pkg.go.dev/time#Time.Add).
 
 ```go
 newDay := t.AddDate(0 /* years */, 0 /* months */, 1 /* days */)
@@ -702,14 +702,14 @@ maybeNewDay := t.Add(24 * time.Hour)
 Use `time.Duration` and `time.Time` in interactions with external systems when
 possible. For example:
 
-- Command-line flags: [`flag`](https://golang.org/pkg/flag/) supports `time.Duration` via
-  [`time.ParseDuration`](https://golang.org/pkg/time/#ParseDuration)
-- JSON: [`encoding/json`](https://golang.org/pkg/encoding/json/) supports encoding `time.Time` as an [RFC 3339](https://tools.ietf.org/html/rfc3339)
-  string via its [`UnmarshalJSON` method](https://golang.org/pkg/time/#Time.UnmarshalJSON)
-- SQL: [`database/sql`](https://golang.org/pkg/database/sql/) supports converting `DATETIME` or `TIMESTAMP` columns
+- Command-line flags: [`flag`](https://pkg.go.dev/flag) supports `time.Duration` via
+  [`time.ParseDuration`](https://pkg.go.dev/time#ParseDuration)
+- JSON: [`encoding/json`](https://pkg.go.dev/encoding/json) supports encoding `time.Time` as an [RFC 3339](https://tools.ietf.org/html/rfc3339)
+  string via its [`UnmarshalJSON` method](https://pkg.go.dev/time#Time.UnmarshalJSON)
+- SQL: [`database/sql`](https://pkg.go.dev/database/sql) supports converting `DATETIME` or `TIMESTAMP` columns
   into `time.Time` and back if the underlying driver supports it
-- YAML: [`gopkg.in/yaml.v2`](https://godoc.org/gopkg.in/yaml.v2) supports `time.Time` as an [RFC 3339](https://tools.ietf.org/html/rfc3339) string, and
-  `time.Duration` via [`time.ParseDuration`](https://golang.org/pkg/time/#ParseDuration).
+- YAML: [`gopkg.in/yaml.v2`](https://pkg.go.dev/gopkg.in/yaml.v2) supports `time.Time` as an [RFC 3339](https://tools.ietf.org/html/rfc3339) string, and
+  `time.Duration` via [`time.ParseDuration`](https://pkg.go.dev/time#ParseDuration).
 
 When it is not possible to use `time.Duration` in these interactions, use
 `int` or `float64` and include the unit in the name of the field.
@@ -743,8 +743,8 @@ type Config struct {
 
 When it is not possible to use `time.Time` in these interactions, unless an
 alternative is agreed upon, use `string` and format timestamps as defined in
-[RFC 3339](https://tools.ietf.org/html/rfc3339). This format is used by default by [`Time.UnmarshalText`](https://golang.org/pkg/time/#Time.UnmarshalText) and is
-available for use in `Time.Format` and `time.Parse` via [`time.RFC3339`](https://golang.org/pkg/time/#RFC3339).
+[RFC 3339](https://tools.ietf.org/html/rfc3339). This format is used by default by [`Time.UnmarshalText`](https://pkg.go.dev/time#Time.UnmarshalText) and is
+available for use in `Time.Format` and `time.Parse` via [`time.RFC3339`](https://pkg.go.dev/time#RFC3339).
 
 Although this tends to not be a problem in practice, keep in mind that the
 `"time"` package does not support parsing timestamps with leap seconds
@@ -760,24 +760,24 @@ There are few options for declaring errors.
 Consider the following before picking the option best suited for your use case.
 
 - Does the caller need to match the error so that they can handle it?
-  If yes, we must support the [`errors.Is`](https://golang.org/pkg/errors/#Is) or [`errors.As`](https://golang.org/pkg/errors/#As) functions
+  If yes, we must support the [`errors.Is`](https://pkg.go.dev/errors#Is) or [`errors.As`](https://pkg.go.dev/errors#As) functions
   by declaring a top-level error variable or a custom type.
 - Is the error message a static string,
   or is it a dynamic string that requires contextual information?
-  For the former, we can use [`errors.New`](https://golang.org/pkg/errors/#New), but for the latter we must
-  use [`fmt.Errorf`](https://golang.org/pkg/fmt/#Errorf) or a custom error type.
+  For the former, we can use [`errors.New`](https://pkg.go.dev/errors#New), but for the latter we must
+  use [`fmt.Errorf`](https://pkg.go.dev/fmt#Errorf) or a custom error type.
 - Are we propagating a new error returned by a downstream function?
   If so, see the [section on error wrapping](#error-wrapping).
 
-| Error matching? | Error Message | Guidance                                                                |
-|-----------------|---------------|-------------------------------------------------------------------------|
-| No              | static        | [`errors.New`](https://golang.org/pkg/errors/#New)                      |
-| No              | dynamic       | [`fmt.Errorf`](https://golang.org/pkg/fmt/#Errorf)                      |
-| Yes             | static        | top-level `var` with [`errors.New`](https://golang.org/pkg/errors/#New) |
-| Yes             | dynamic       | custom `error` type                                                     |
+| Error matching? | Error Message | Guidance                                                           |
+|-----------------|---------------|--------------------------------------------------------------------|
+| No              | static        | [`errors.New`](https://pkg.go.dev/errors#New)                      |
+| No              | dynamic       | [`fmt.Errorf`](https://pkg.go.dev/fmt#Errorf)                      |
+| Yes             | static        | top-level `var` with [`errors.New`](https://pkg.go.dev/errors#New) |
+| Yes             | dynamic       | custom `error` type                                                |
 
 For example,
-use [`errors.New`](https://golang.org/pkg/errors/#New) for an error with a static string.
+use [`errors.New`](https://pkg.go.dev/errors#New) for an error with a static string.
 Export this error as a variable to support matching it with `errors.Is`
 if the caller needs to match and handle this error.
 
@@ -827,7 +827,7 @@ if err := foo.Open(); err != nil {
 </tbody></table>
 
 For an error with a dynamic string,
-use [`fmt.Errorf`](https://golang.org/pkg/fmt/#Errorf) if the caller does not need to match it,
+use [`fmt.Errorf`](https://pkg.go.dev/fmt#Errorf) if the caller does not need to match it,
 and a custom `error` if the caller does need to match it.
 
 <table>
@@ -1131,7 +1131,7 @@ if err != nil {
 
 ### Handle Type Assertion Failures
 
-The single return value form of a [type assertion](https://golang.org/ref/spec#Type_assertions) will panic on an incorrect
+The single return value form of a [type assertion](https://go.dev/ref/spec#Type_assertions) will panic on an incorrect
 type. Therefore, always use the "comma ok" idiom.
 
 <table>
@@ -1246,11 +1246,11 @@ if err != nil {
 
 ### Use go.uber.org/atomic
 
-Atomic operations with the [sync/atomic](https://golang.org/pkg/sync/atomic/) package operate on the raw types
+Atomic operations with the [sync/atomic](https://pkg.go.dev/sync/atomic) package operate on the raw types
 (`int32`, `int64`, etc.) so it is easy to forget to use the atomic operation to
 read or modify the variables.
 
-[go.uber.org/atomic](https://godoc.org/go.uber.org/atomic) adds type safety to these operations by hiding the
+[go.uber.org/atomic](https://pkg.go.dev/go.uber.org/atomic) adds type safety to these operations by hiding the
 underlying type. Additionally, it includes a convenient `atomic.Bool` type.
 
 <table>
@@ -1435,7 +1435,7 @@ func (l *ConcreteList) Remove(e Entity) {
 </td></tr>
 </tbody></table>
 
-Go allows [type embedding](https://golang.org/doc/effective_go.html#embedding) as a compromise between inheritance and composition.
+Go allows [type embedding](https://go.dev/doc/effective_go#embedding) as a compromise between inheritance and composition.
 The outer type gets implicit copies of the embedded type's methods.
 These methods, by default, delegate to the same method of the embedded
 instance.
@@ -1509,8 +1509,8 @@ documentation.
 
 ### Avoid Using Built-In Names
 
-The Go [language specification](https://golang.org/ref/spec) outlines several built-in,
-[predeclared identifiers](https://golang.org/ref/spec#Predeclared_identifiers) that should not be used as names within Go programs.
+The Go [language specification](https://go.dev/ref/spec) outlines several built-in,
+[predeclared identifiers](https://go.dev/ref/spec#Predeclared_identifiers) that should not be used as names within Go programs.
 
 Depending on context, reusing these identifiers as names will either shadow
 the original within the current lexical scope (and any nested scopes) or make
@@ -1715,7 +1715,7 @@ necessary might include:
 
 ### Exit in Main
 
-Go programs use [`os.Exit`](https://golang.org/pkg/os/#Exit) or [`log.Fatal*`](https://golang.org/pkg/log/#Fatal) to exit immediately. (Panicking
+Go programs use [`os.Exit`](https://pkg.go.dev/os#Exit) or [`log.Fatal*`](https://pkg.go.dev/log#Fatal) to exit immediately. (Panicking
 is not a good way to exit programs, please [don't panic](#dont-panic).)
 
 Call one of `os.Exit` or `log.Fatal*` **only in `main()`**. All other
@@ -2613,12 +2613,12 @@ When naming packages, choose a name that is:
 - Not plural. For example, `net/url`, not `net/urls`.
 - Not "common", "util", "shared", or "lib". These are bad, uninformative names.
 
-See also [Package Names](https://blog.golang.org/package-names) and [Style guideline for Go packages](https://rakyll.org/style-packages/).
+See also [Package Names](https://go.dev/blog/package-names) and [Style guideline for Go packages](https://rakyll.org/style-packages/).
 
 ### Function Names
 
 We follow the Go community's convention of using [MixedCaps for function
-names](https://golang.org/doc/effective_go.html#mixed-caps). An exception is made for test functions, which may contain underscores
+names](https://go.dev/doc/effective_go#mixed-caps). An exception is made for test functions, which may contain underscores
 for the purpose of grouping related test cases, e.g.,
 `TestMyFunction_WhatIsBeingTested`.
 
@@ -3077,7 +3077,7 @@ s := "foo"
 </tbody></table>
 
 However, there are cases where the default value is clearer when the `var`
-keyword is used. [Declaring Empty Slices](https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices), for example.
+keyword is used. [Declaring Empty Slices](https://go.dev/wiki/CodeReviewComments#declaring-empty-slices), for example.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -3328,7 +3328,7 @@ func printInfo(name string, region Region, status Status)
 
 ### Use Raw String Literals to Avoid Escaping
 
-Go supports [raw string literals](https://golang.org/ref/spec#raw_string_lit),
+Go supports [raw string literals](https://go.dev/ref/spec#raw_string_lit),
 which can span multiple lines and include quotes. Use these to avoid
 hand-escaped strings which are much harder to read.
 
@@ -3355,7 +3355,7 @@ wantError := `unknown error:"test"`
 #### Use Field Names to Initialize Structs
 
 You should almost always specify field names when initializing structs. This is
-now enforced by [`go vet`](https://golang.org/cmd/vet/).
+now enforced by [`go vet`](https://pkg.go.dev/cmd/vet).
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -3466,7 +3466,7 @@ var user User
 
 This differentiates zero valued structs from those with non-zero fields
 similar to the distinction created for [map initialization](#initializing-maps), and matches how
-we prefer to [declare empty slices](https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices).
+we prefer to [declare empty slices](https://go.dev/wiki/CodeReviewComments#declaring-empty-slices).
 
 #### Initializing Struct References
 
@@ -3611,7 +3611,7 @@ When you declare a `Printf`-style function, make sure that `go vet` can detect
 it and check the format string.
 
 This means that you should use predefined `Printf`-style function
-names if possible. `go vet` will check these by default. See [Printf family](https://golang.org/cmd/vet/#hdr-Printf_family)
+names if possible. `go vet` will check these by default. See [Printf family](https://pkg.go.dev/cmd/vet#hdr-Printf_family)
 for more information.
 
 If using the predefined names is not an option, end the name you choose with
@@ -3628,7 +3628,7 @@ See also [go vet: Printf family check](https://kuzminva.wordpress.com/2017/11/07
 
 ### Test Tables
 
-Table-driven tests with [subtests](https://blog.golang.org/subtests) can be a helpful pattern for writing tests
+Table-driven tests with [subtests](https://go.dev/blog/subtests) can be a helpful pattern for writing tests
 to avoid duplicating code when the core test logic is repetitive.
 
 If a system under test needs to be tested against *multiple conditions* where
@@ -4058,10 +4058,10 @@ help to catch the most common issues and also establish a high bar for code
 quality without being unnecessarily prescriptive:
 
 - [errcheck](https://github.com/kisielk/errcheck) to ensure that errors are handled
-- [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports) to format code and manage imports
+- [goimports](https://pkg.go.dev/golang.org/x/tools/cmd/goimports) to format code and manage imports
 - [golint](https://github.com/golang/lint) to point out common style mistakes
-- [govet](https://golang.org/cmd/vet/) to analyze code for common mistakes
-- [staticcheck](https://staticcheck.io/) to do various static analysis checks
+- [govet](https://pkg.go.dev/cmd/vet) to analyze code for common mistakes
+- [staticcheck](https://staticcheck.dev) to do various static analysis checks
 
 ### Lint Runners
 

@@ -8,8 +8,8 @@ the original within the current lexical scope (and any nested scopes) or make
 affected code confusing. In the best case, the compiler will complain; in the
 worst case, such code may introduce latent, hard-to-grep bugs.
 
-  [language specification]: https://golang.org/ref/spec
-  [predeclared identifiers]: https://golang.org/ref/spec#Predeclared_identifiers
+  [language specification]: https://go.dev/ref/spec
+  [predeclared identifiers]: https://go.dev/ref/spec#Predeclared_identifiers
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>

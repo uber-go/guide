@@ -13,8 +13,8 @@ Consider the following before picking the option best suited for your use case.
 - Are we propagating a new error returned by a downstream function?
   If so, see the [section on error wrapping](error-wrap.md).
 
-[`errors.Is`]: https://golang.org/pkg/errors/#Is
-[`errors.As`]: https://golang.org/pkg/errors/#As
+[`errors.Is`]: https://pkg.go.dev/errors#Is
+[`errors.As`]: https://pkg.go.dev/errors#As
 
 | Error matching? | Error Message | Guidance                            |
 |-----------------|---------------|-------------------------------------|
@@ -23,8 +23,8 @@ Consider the following before picking the option best suited for your use case.
 | Yes             | static        | top-level `var` with [`errors.New`] |
 | Yes             | dynamic       | custom `error` type                 |
 
-[`errors.New`]: https://golang.org/pkg/errors/#New
-[`fmt.Errorf`]: https://golang.org/pkg/fmt/#Errorf
+[`errors.New`]: https://pkg.go.dev/errors#New
+[`fmt.Errorf`]: https://pkg.go.dev/fmt#Errorf
 
 For example,
 use [`errors.New`] for an error with a static string.

@@ -22,8 +22,7 @@ var user User
 </tbody></table>
 
 This differentiates zero valued structs from those with non-zero fields
-similar to the distinction created for [map initialization], and matches how
+similar to the distinction created for [map initialization](map-init.md), and matches how
 we prefer to [declare empty slices].
 
-  [map initialization]: #initializing-maps
-  [declare empty slices]: https://github.com/golang/go/wiki/CodeReviewComments#declaring-empty-slices
+  [declare empty slices]: https://go.dev/wiki/CodeReviewComments#declaring-empty-slices
