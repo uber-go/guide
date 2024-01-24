@@ -7,8 +7,8 @@ read or modify the variables.
 [go.uber.org/atomic] adds type safety to these operations by hiding the
 underlying type. Additionally, it includes a convenient `atomic.Bool` type.
 
-  [go.uber.org/atomic]: https://godoc.org/go.uber.org/atomic
-  [sync/atomic]: https://golang.org/pkg/sync/atomic/
+  [go.uber.org/atomic]: https://pkg.go.dev/go.uber.org/atomic
+  [sync/atomic]: https://pkg.go.dev/sync/atomic
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>

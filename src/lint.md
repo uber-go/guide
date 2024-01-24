@@ -14,10 +14,10 @@ quality without being unnecessarily prescriptive:
 - [staticcheck] to do various static analysis checks
 
   [errcheck]: https://github.com/kisielk/errcheck
-  [goimports]: https://godoc.org/golang.org/x/tools/cmd/goimports
+  [goimports]: https://pkg.go.dev/golang.org/x/tools/cmd/goimports
   [golint]: https://github.com/golang/lint
-  [govet]: https://golang.org/cmd/vet/
-  [staticcheck]: https://staticcheck.io/
+  [govet]: https://pkg.go.dev/cmd/vet
+  [staticcheck]: https://staticcheck.dev
 
 ## Lint Runners
 

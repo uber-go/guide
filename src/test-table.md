@@ -7,7 +7,7 @@ If a system under test needs to be tested against _multiple conditions_ where
 certain parts of the the inputs and outputs change, a table-driven test should
 be used to reduce redundancy and improve readability.
 
-  [subtests]: https://blog.golang.org/subtests
+  [subtests]: https://go.dev/blog/subtests
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>

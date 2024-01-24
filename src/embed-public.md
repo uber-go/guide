@@ -62,7 +62,7 @@ The outer type gets implicit copies of the embedded type's methods.
 These methods, by default, delegate to the same method of the embedded
 instance.
 
-  [type embedding]: https://golang.org/doc/effective_go.html#embedding
+  [type embedding]: https://go.dev/doc/effective_go#embedding
 
 The struct also gains a field by the same name as the type.
 So, if the embedded type is public, the field is public.

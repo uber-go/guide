@@ -15,14 +15,14 @@ yield a new calendar day.
 Therefore, always use the [`"time"`] package when dealing with time because it
 helps deal with these incorrect assumptions in a safer, more accurate manner.
 
-  [`"time"`]: https://golang.org/pkg/time/
+  [`"time"`]: https://pkg.go.dev/time
 
 ## Use `time.Time` for instants of time
 
 Use [`time.Time`] when dealing with instants of time, and the methods on
 `time.Time` when comparing, adding, or subtracting time.
 
-  [`time.Time`]: https://golang.org/pkg/time/#Time
+  [`time.Time`]: https://pkg.go.dev/time#Time
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -50,7 +50,7 @@ func isActive(now, start, stop time.Time) bool {
 
 Use [`time.Duration`] when dealing with periods of time.
 
-  [`time.Duration`]: https://golang.org/pkg/time/#Duration
+  [`time.Duration`]: https://pkg.go.dev/time#Duration
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
@@ -90,8 +90,8 @@ the next calendar day, we should use [`Time.AddDate`]. However, if we want an
 instant of time guaranteed to be 24 hours after the previous time, we should
 use [`Time.Add`].
 
-  [`Time.AddDate`]: https://golang.org/pkg/time/#Time.AddDate
-  [`Time.Add`]: https://golang.org/pkg/time/#Time.Add
+  [`Time.AddDate`]: https://pkg.go.dev/time#Time.AddDate
+  [`Time.Add`]: https://pkg.go.dev/time#Time.Add
 
 ```go
 newDay := t.AddDate(0 /* years */, 0 /* months */, 1 /* days */)
@@ -112,13 +112,13 @@ possible. For example:
 - YAML: [`gopkg.in/yaml.v2`] supports `time.Time` as an [RFC 3339] string, and
   `time.Duration` via [`time.ParseDuration`].
 
-  [`flag`]: https://golang.org/pkg/flag/
-  [`time.ParseDuration`]: https://golang.org/pkg/time/#ParseDuration
-  [`encoding/json`]: https://golang.org/pkg/encoding/json/
+  [`flag`]: https://pkg.go.dev/flag
+  [`time.ParseDuration`]: https://pkg.go.dev/time#ParseDuration
+  [`encoding/json`]: https://pkg.go.dev/encoding/json
   [RFC 3339]: https://tools.ietf.org/html/rfc3339
-  [`UnmarshalJSON` method]: https://golang.org/pkg/time/#Time.UnmarshalJSON
-  [`database/sql`]: https://golang.org/pkg/database/sql/
-  [`gopkg.in/yaml.v2`]: https://godoc.org/gopkg.in/yaml.v2
+  [`UnmarshalJSON` method]: https://pkg.go.dev/time#Time.UnmarshalJSON
+  [`database/sql`]: https://pkg.go.dev/database/sql
+  [`gopkg.in/yaml.v2`]: https://pkg.go.dev/gopkg.in/yaml.v2
 
 When it is not possible to use `time.Duration` in these interactions, use
 `int` or `float64` and include the unit in the name of the field.
@@ -155,8 +155,8 @@ alternative is agreed upon, use `string` and format timestamps as defined in
 [RFC 3339]. This format is used by default by [`Time.UnmarshalText`] and is
 available for use in `Time.Format` and `time.Parse` via [`time.RFC3339`].
 
-  [`Time.UnmarshalText`]: https://golang.org/pkg/time/#Time.UnmarshalText
-  [`time.RFC3339`]: https://golang.org/pkg/time/#RFC3339
+  [`Time.UnmarshalText`]: https://pkg.go.dev/time#Time.UnmarshalText
+  [`time.RFC3339`]: https://pkg.go.dev/time#RFC3339
 
 Although this tends to not be a problem in practice, keep in mind that the
 `"time"` package does not support parsing timestamps with leap seconds

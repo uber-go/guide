@@ -3,8 +3,8 @@
 Go programs use [`os.Exit`] or [`log.Fatal*`] to exit immediately. (Panicking
 is not a good way to exit programs, please [don't panic](panic.md).)
 
-  [`os.Exit`]: https://golang.org/pkg/os/#Exit
-  [`log.Fatal*`]: https://golang.org/pkg/log/#Fatal
+  [`os.Exit`]: https://pkg.go.dev/os#Exit
+  [`log.Fatal*`]: https://pkg.go.dev/log#Fatal
 
 Call one of `os.Exit` or `log.Fatal*` **only in `main()`**. All other
 functions should return errors to signal failure.

@@ -20,9 +20,9 @@ This documents idiomatic conventions in Go code that we follow at Uber. A lot
 of these are general guidelines for Go, while others extend upon external
 resources:
 
-1. [Effective Go](https://golang.org/doc/effective_go.html)
-2. [Go Common Mistakes](https://github.com/golang/go/wiki/CommonMistakes)
-3. [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
+1. [Effective Go](https://go.dev/doc/effective_go)
+2. [Go Common Mistakes](https://go.dev/wiki/CommonMistakes)
+3. [Go Code Review Comments](https://go.dev/wiki/CodeReviewComments)
 
 We aim for the code samples to be accurate for the two most recent minor versions
 of Go [releases](https://go.dev/doc/devel/release).
@@ -34,4 +34,4 @@ recommend setting up your editor to:
 - Run `golint` and `go vet` to check for errors
 
 You can find information in editor support for Go tools here:
-<https://github.com/golang/go/wiki/IDEsAndTextEditorPlugins>
+<https://go.dev/wiki/IDEsAndTextEditorPlugins>

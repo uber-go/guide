@@ -31,12 +31,9 @@ type Client struct {
 
 Embedding should provide tangible benefit, like adding or augmenting
 functionality in a semantically-appropriate way. It should do this with zero
-adverse user-facing effects (see also: [Avoid Embedding Types in Public Structs]).
+adverse user-facing effects (see also: [Avoid Embedding Types in Public Structs](embed-public.md)).
 
-Exception: Mutexes should not be embedded, even on unexported types. See also: [Zero-value Mutexes are Valid].
-
-  [Avoid Embedding Types in Public Structs]: #avoid-embedding-types-in-public-structs
-  [Zero-value Mutexes are Valid]: #zero-value-mutexes-are-valid
+Exception: Mutexes should not be embedded, even on unexported types. See also: [Zero-value Mutexes are Valid](mutex-zero-value.md).
 
 Embedding **should not**:
 
