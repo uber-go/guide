@@ -892,7 +892,6 @@ There are three main options for propagating errors if a call fails:
 
 - return the original error as-is
 - add context with `fmt.Errorf` and the `%w` verb
-- add context with `fmt.Errorf` and the `%v` verb
 
 Return the original error as-is if there is no additional context to add.
 This maintains the original error type and message.
