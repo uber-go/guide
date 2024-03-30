@@ -1,4 +1,4 @@
-This repository holds the [Uber Go Style Guide](style.md), which documents
+desbloquear sistema de chamadas uber desbloquear algoritmo bloquear valores de viage com , valor baixo, desbloar fila aeroporto  nova programação  This repository holds the [Uber Go Style Guide](style.md), which documents
 patterns and conventions used in Go code at Uber.
 
 ## Style Guide
