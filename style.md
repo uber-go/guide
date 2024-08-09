@@ -3209,7 +3209,7 @@ be treated differently in different situations (such as serialization).
 
 ### Reduce Scope of Variables
 
-Where possible, reduce scope of variables. Do not reduce the scope if it
+Where possible, reduce scope of variables and constants. Do not reduce the scope if it
 conflicts with [Reduce Nesting](#reduce-nesting).
 
 <table>
@@ -3271,6 +3271,39 @@ if err := cfg.Decode(data); err != nil {
 
 fmt.Println(cfg)
 return nil
+```
+
+</td></tr>
+</tbody></table>
+
+Constants do not need to be global unless they are used in multiple functions or files.
+
+<table>
+<thead><tr><th>Bad</th><th>Good</th></tr></thead>
+<tbody>
+<tr><td>
+
+```go
+const (
+  _defaultPort = 8080
+  _defaultUser = "user"
+)
+
+func Bar() {
+  fmt.Println("Default port", _defaultPort)
+}
+```
+
+</td><td>
+
+```go
+func Bar() {
+  const (
+    defaultPort = 8080
+    defaultUser = "user"
+  )
+  fmt.Println("Default port", _defaultPort)
+}
 ```
 
 </td></tr>
