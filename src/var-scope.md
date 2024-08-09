@@ -67,7 +67,8 @@ return nil
 </td></tr>
 </tbody></table>
 
-Constants do not need to be global unless they are used in multiple functions or files.
+Constants do not need to be global unless they are used in multiple functions or files
+or are part of an external contract of the package.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
