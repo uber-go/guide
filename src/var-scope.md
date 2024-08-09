@@ -93,7 +93,7 @@ func Bar() {
     defaultPort = 8080
     defaultUser = "user"
   )
-  fmt.Println("Default port", _defaultPort)
+  fmt.Println("Default port", defaultPort)
 }
 ```
 
