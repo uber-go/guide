@@ -60,6 +60,7 @@
   - [Initializing Maps](map-init.md)
   - [Format Strings outside Printf](printf-const.md)
   - [Naming Printf-style Functions](printf-name.md)
+  - [Format Strings Using `%q`](formatting-strings.md)
 - Patterns
   - [Test Tables](test-table.md)
   - [Functional Options](functional-option.md)
