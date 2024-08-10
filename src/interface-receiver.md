@@ -3,7 +3,7 @@
 Methods with value receivers can be called on pointers as well as values.
 Methods with pointer receivers can only be called on pointers or [addressable values].
 
-  [addressable values]: https://go.dev/ref/spec#Method_values
+  [addressable values]: https://go.dev/ref/spec#Address_operators
 
 For example,
 
