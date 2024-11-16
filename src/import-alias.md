@@ -24,8 +24,8 @@ direct conflict between imports.
 import (
   "fmt"
   "os"
-
   runtimetrace "runtime/trace"
+
   nettrace "golang.net/x/trace"
 )
 ```
