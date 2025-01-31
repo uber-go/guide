@@ -5,6 +5,8 @@ patterns and conventions used in Go code at MongoDB.
 
 See [MongoDB Go Style Guide](style.md) for the style guide.
 
+<!--
+
 ## Translations
 
 We are aware of the following translations of this guide by the Go community.
@@ -26,3 +28,5 @@ We are aware of the following translations of this guide by the Go community.
 - **Tiếng việt** (Vietnamese): [nc-minh/uber-go-guide-vi](https://github.com/nc-minh/uber-go-guide-vi)
 
 If you have a translation, feel free to submit a PR adding it to the list.
+
+-->
