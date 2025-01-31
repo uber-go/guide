@@ -1,4 +1,4 @@
-# Uber Go Style Guide
+# MongoDB Go Style Guide
 
 - [Introduction](intro.md)
 - Guidelines

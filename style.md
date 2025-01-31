@@ -5,7 +5,7 @@
 
 <!-- markdownlint-disable MD033 -->
 
-# Uber Go Style Guide
+# MongoDB Go Style Guide
 
 - [Introduction](#introduction)
 - [Guidelines](#guidelines)
@@ -106,6 +106,13 @@ recommend setting up your editor to:
 
 You can find information in editor support for Go tools here:
 https://go.dev/wiki/IDEsAndTextEditorPlugins
+
+### MongoDB Style
+
+This style guide is a fork of the [Uber Style Guide](https://github.com/uber-go/guide) maintained by
+MongoDB. It is largely the same as Uber's. All changes specific to MongoDB are noted in the
+[CHANGELOG-MongoDB.md](src/CHANGELOG-MongoDB.md) file. In addition, we have used HTML comments to make
+notes wherever we have made changes from the Uber version.
 
 ## Guidelines
 
