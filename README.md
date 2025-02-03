@@ -5,6 +5,16 @@ patterns and conventions used in Go code at MongoDB.
 
 See [MongoDB Go Style Guide](style.md) for the style guide.
 
+## MongoDB-Specific Changes
+
+At MongoDB, we aim to keep this guide as close to the upstream guide maintained by Uber as
+possible. However, there will inevitable by some points of divergence over time as we develop our
+own coding standards.
+
+When you make a change specific to this MongoDB fork, always update the
+[`CHANGELOG-MongoDB.md`](./CHANGELOG-MongoDB.md) file with a summary of what you changed. This makes
+it easier to reconcile differences between the Uber and MongoDB versions of this style guide.
+
 <!--
 
 ## Translations
