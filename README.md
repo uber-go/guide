@@ -25,5 +25,6 @@ We are aware of the following translations of this guide by the Go community.
 - **ترجمه فارسی** (Persian): [jamalkaksouri/uber-go-guide-ir](https://github.com/jamalkaksouri/uber-go-guide-ir)
 - **Tiếng việt** (Vietnamese): [nc-minh/uber-go-guide-vi](https://github.com/nc-minh/uber-go-guide-vi)
 - **العربية** (Arabic): [anqorithm/uber-go-guide-ar](https://github.com/anqorithm/uber-go-guide-ar)
+- **Bahasa Indonesia** (Indonesian): [stanleydv12/uber-go-guide-id](https://github.com/stanleydv12/uber-go-guide-id)
 
 If you have a translation, feel free to submit a PR adding it to the list.
