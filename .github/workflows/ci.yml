@@ -41,7 +41,7 @@ jobs:
         preface: src/preface.txt
         output: style.md
 
-    - uses: stefanzweifel/git-auto-commit-action@v5
+    - uses: stefanzweifel/git-auto-commit-action@v6
       if: ${{ github.event_name == 'pull_request_target' }}
       with:
         file_pattern: style.md
