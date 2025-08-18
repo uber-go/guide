@@ -18,7 +18,7 @@ jobs:
 
     steps:
     - name: Check out repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         # Check out the pull request repository and branch.
         # If the PR is made from a fork, this will check out the fork.
