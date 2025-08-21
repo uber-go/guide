@@ -236,8 +236,4 @@ While there are no strict guidelines, readability and maintainability should
 always be top-of-mind when deciding between Table Tests versus separate tests
 for multiple inputs/outputs to a system.
 
-## Parallel Tests
-
-Run `t.Parallel()` to improve the performance of your test cases.
-
 <!-- TODO: Explain how to use _test packages. -->
