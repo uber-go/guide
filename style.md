@@ -1023,7 +1023,7 @@ When a caller receives an error from a callee,
 it can handle it in a variety of different ways
 depending on what it knows about the error.
 
-These include, but not are limited to:
+These include, but are not limited to:
 
 - if the callee contract defines specific errors,
   matching the error with `errors.Is` or `errors.As`
