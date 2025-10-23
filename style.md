@@ -2039,7 +2039,7 @@ Given a goroutine spawned by the system,
 there must be a way to wait for the goroutine to exit.
 There are two popular ways to do this:
 
-- Use a `sync.WaitGroup`, which does this with `Go` and `Wait`.
+- Use a `sync.WaitGroup` to wait for multiple goroutines to complete.
   Do this if there are multiple goroutines that you want to wait for.
 
   ```go
