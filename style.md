@@ -3532,7 +3532,7 @@ sptr := &T{Name: "bar"}
 Prefer `make(..)` for empty maps, and maps populated
 programmatically. This makes map initialization visually
 distinct from declaration, and it makes it easy to add size
-hints later if available.
+hints later, if available.
 
 <table>
 <thead><tr><th>Bad</th><th>Good</th></tr></thead>
