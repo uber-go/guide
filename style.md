@@ -3368,7 +3368,7 @@ hand-escaped strings which are much harder to read.
 <tr><td>
 
 ```go
-wantError := "unknown name:\"test\""
+wantError := "unknown error:\"test\""
 ```
 
 </td><td>
