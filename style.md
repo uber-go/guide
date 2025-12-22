@@ -1023,7 +1023,7 @@ When a caller receives an error from a callee,
 it can handle it in a variety of different ways
 depending on what it knows about the error.
 
-These include, but not are limited to:
+These include, but are not limited to:
 
 - if the callee contract defines specific errors,
   matching the error with `errors.Is` or `errors.As`
@@ -1049,7 +1049,7 @@ For example, consider the following cases:
 **Bad**: Log the error and return it
 
 Callers further up the stack will likely take a similar action with the error.
-Doing so causing a lot of noise in the application logs for little value.
+Doing so causes a lot of noise in the application logs for little value.
 
 </td><td>
 
