@@ -2685,7 +2685,7 @@ towards the end of the file.
 <tr><td>
 
 ```go
-func (s *something) Cost() {
+func (s *something) Cost() int {
   return calcCost(s.weights)
 }
 
@@ -2709,7 +2709,7 @@ func newSomething() *something {
     return &something{}
 }
 
-func (s *something) Cost() {
+func (s *something) Cost() int {
   return calcCost(s.weights)
 }
 
