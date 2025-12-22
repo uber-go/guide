@@ -3662,7 +3662,7 @@ Table-driven tests with [subtests](https://go.dev/blog/subtests) can be a helpfu
 to avoid duplicating code when the core test logic is repetitive.
 
 If a system under test needs to be tested against *multiple conditions* where
-certain parts of the the inputs and outputs change, a table-driven test should
+certain parts of the inputs and outputs change, a table-driven test should
 be used to reduce redundancy and improve readability.
 
 <table>
