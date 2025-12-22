@@ -18,7 +18,7 @@ In general, every goroutine:
 - must have a predictable time at which it will stop running; or
 - there must be a way to signal to the goroutine that it should stop
 
-In both cases, there must be a way code to block and wait for the goroutine to
+In both cases, there must be a way for code to block and wait for the goroutine to
 finish.
 
 For example:
