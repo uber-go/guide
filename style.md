@@ -2106,6 +2106,7 @@ func NewWorker(...) *Worker {
     // ...
   }
   go w.doWork()
+  return w
 }
 
 func (w *Worker) doWork() {
