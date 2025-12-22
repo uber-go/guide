@@ -3205,7 +3205,7 @@ be treated differently in different situations (such as serialization).
 
 ### Reduce Scope of Variables
 
-Where possible, reduce scope of variables and constants. Do not reduce the scope if it
+Where possible, reduce the scope of variables and constants. Do not reduce the scope if it
 conflicts with [Reduce Nesting](#reduce-nesting).
 
 <table>
