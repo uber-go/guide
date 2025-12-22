@@ -2646,7 +2646,7 @@ import (
   "os"
   runtimetrace "runtime/trace"
 
-  nettrace "golang.org/x/net/trace"
+  nettrace "golang.net/x/trace"
 )
 ```
 
@@ -2658,7 +2658,7 @@ import (
   "os"
   "runtime/trace"
 
-  nettrace "golang.org/x/net/trace"
+  nettrace "golang.net/x/trace"
 )
 ```
 
