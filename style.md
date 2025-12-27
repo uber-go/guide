@@ -2259,9 +2259,9 @@ map, even up to the specified capacity.
 <tr><td>
 
 ```go
-m := make(map[string]os.FileInfo)
-
 files, _ := os.ReadDir("./files")
+
+m := make(map[string]os.DirEntry)
 for _, f := range files {
     m[f.Name()] = f
 }
@@ -2282,8 +2282,8 @@ for _, f := range files {
 </td></tr>
 <tr><td>
 
-`m` is created without a size hint; there may be more
-allocations at assignment time.
+`m` is created without a size hint; the map will resize
+dynamically, causing multiple allocations as it grows.
 
 </td><td>
 
