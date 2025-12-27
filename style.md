@@ -4088,9 +4088,11 @@ quality without being unnecessarily prescriptive:
 
 - [errcheck](https://github.com/kisielk/errcheck) to ensure that errors are handled
 - [goimports](https://pkg.go.dev/golang.org/x/tools/cmd/goimports) to format code and manage imports
-- [golint](https://github.com/golang/lint) to point out common style mistakes
+- [revive](https://github.com/mgechev/revive) to point out common style mistakes
 - [govet](https://pkg.go.dev/cmd/vet) to analyze code for common mistakes
 - [staticcheck](https://staticcheck.dev) to do various static analysis checks
+
+  > **Note**: [revive](https://github.com/mgechev/revive) is the modern, faster successor to the now-deprecated [golint](https://github.com/golang/lint).
 
 ### Lint Runners
 

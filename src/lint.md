@@ -9,15 +9,17 @@ quality without being unnecessarily prescriptive:
 
 - [errcheck] to ensure that errors are handled
 - [goimports] to format code and manage imports
-- [golint] to point out common style mistakes
+- [revive] to point out common style mistakes
 - [govet] to analyze code for common mistakes
 - [staticcheck] to do various static analysis checks
 
   [errcheck]: https://github.com/kisielk/errcheck
   [goimports]: https://pkg.go.dev/golang.org/x/tools/cmd/goimports
-  [golint]: https://github.com/golang/lint
+  [revive]: https://github.com/mgechev/revive
   [govet]: https://pkg.go.dev/cmd/vet
   [staticcheck]: https://staticcheck.dev
+
+  > **Note**: [revive] is the modern, faster successor to the now-deprecated [golint].
 
 ## Lint Runners
 
@@ -33,3 +35,5 @@ that make sense for their projects.
   [golangci-lint]: https://github.com/golangci/golangci-lint
   [.golangci.yml]: https://github.com/uber-go/guide/blob/master/.golangci.yml
   [various linters]: https://golangci-lint.run/usage/linters/
+  [golint]: https://github.com/golang/lint
+  
