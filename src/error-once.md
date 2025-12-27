@@ -30,7 +30,7 @@ For example, consider the following cases:
 **Bad**: Log the error and return it
 
 Callers further up the stack will likely take a similar action with the error.
-Doing so causing a lot of noise in the application logs for little value.
+Doing so makes a lot of noise in the application logs for little value.
 
 </td><td>
 
