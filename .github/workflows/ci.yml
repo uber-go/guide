@@ -29,7 +29,7 @@ jobs:
         ref: ${{ github.head_ref }}
 
     - name: Check or update style.md
-      uses: abhinav/stitchmd-action@v1
+      uses: abhinav/stitchmd-action@v2
       with:
         # For pull requests, run in 'write' mode so that edits made
         # directly in the GitHub UI get propagated to style.md
