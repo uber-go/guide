@@ -3542,7 +3542,7 @@ hints later if available.
 
 ```go
 var (
-  // m1 is safe to read and write;
+  // m1 is safe to read and write, but similar to a nil map declaration.
   // m2 will panic on writes.
   m1 = map[T1]T2{}
   m2 map[T1]T2
