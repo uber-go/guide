@@ -1,1 +1,1 @@
-../../.git/config
+../.git/config
