@@ -14,6 +14,18 @@ and get agreement on the general direction of the change.
 - Use tables for side-by-side code samples.
 - Link to other sections with their file names (`[..](foo.md)`).
 
+## Updating style.md
+
+`style.md` is generated from the contents of `src/` using [stitchmd](https://github.com/abhinav/stitchmd).
+If CI fails because `style.md` is out of date, regenerate it by running:
+
+```bash
+make
+```
+
+This will install `stitchmd` if needed and update `style.md`.
+Commit the result and push it to your branch.
+
 ## Writing style
 
 ### Line breaks
