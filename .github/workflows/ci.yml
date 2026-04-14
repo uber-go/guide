@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: [ main ]
-  pull_request_target:
+  pull_request:
     branches: [ '*' ]
 
 jobs:
@@ -19,14 +19,6 @@ jobs:
     steps:
     - name: Check out repository
       uses: actions/checkout@v4
-      with:
-        # Check out the pull request repository and branch.
-        # If the PR is made from a fork, this will check out the fork.
-        # This is necessary for git-auto-commit-action to update PRs made by forks.
-        # See 
-        # https://github.com/stefanzweifel/git-auto-commit-action#use-in-forks-from-public-repositories
-        repository: ${{ github.event.pull_request.head.repo.full_name }}
-        ref: ${{ github.head_ref }}
 
     - name: Check or update style.md
       uses: abhinav/stitchmd-action@v1
@@ -36,13 +28,13 @@ jobs:
         # without a local checkout.
         #
         # Otherwise, run in 'check' mode to fail CI if style.md is out-of-date.
-        mode: ${{ github.event_name == 'pull_request_target' && 'write' || 'check' }}
+        mode: ${{ github.event_name == 'pull_request' && 'write' || 'check' }}
         summary: src/SUMMARY.md
         preface: src/preface.txt
         output: style.md
 
     - uses: stefanzweifel/git-auto-commit-action@v5
-      if: ${{ github.event_name == 'pull_request_target' }}
+      if: ${{ github.event_name == 'pull_request' }}
       with:
         file_pattern: style.md
         commit_message: 'Auto-update style.md'
