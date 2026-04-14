@@ -3172,7 +3172,7 @@ func f(list []int) {
 
   ```go
   nums := []int{}
-  // or, nums := make([]int)
+  // or, nums := make([]int, 0)
 
   if add1 {
     nums = append(nums, 1)
