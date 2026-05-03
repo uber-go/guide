@@ -5,22 +5,13 @@ version: "2"
 run:
   modules-download-mode: readonly
 linters:
-  exclusions:
-    generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
-issues:
-  max-issues-per-linter: 0
-  max-same-issues: 0
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
 formatters:
   enable:
     - goimports
-  exclusions:
-    generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
-
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
