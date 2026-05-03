@@ -1,19 +1,26 @@
 # Refer to golangci-lint's example config file for more options and information:
 # https://github.com/golangci/golangci-lint/blob/master/.golangci.reference.yml
 
+version: "2"
 run:
-  timeout: 5m
   modules-download-mode: readonly
-
 linters:
-  enable:
-    - errcheck
-    - goimports
-    - golint
-    - govet
-    - staticcheck
-
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
-  exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
+formatters:
+  enable:
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+
